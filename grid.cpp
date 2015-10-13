@@ -2,25 +2,19 @@
 
 Grid::Grid()
 {
+    m_width = 16;
+    m_height = 16;
 
-}
-
-Grid::Grid(QDomElement elem)
-{
-    Q_UNUSED(elem);
-    m_width = 10;
-    m_height = 10;
-
-    m_values = new int*[m_width];
+    m_values = new Tile::TileType*[m_width];
     for(uint i=0; i<m_width; i++)
-        m_values[i] = new int[m_height];
+        m_values[i] = new Tile::TileType[m_height];
 
     for(uint i=0; i<m_width; i++)
-        for(uint j=0; j<m_width; j++)
-            m_values[i][j] = 1;
+        for(uint j=0; j<m_height; j++)
+            m_values[i][j] = (Tile::TileType)(1 + (j*2)/m_height);
 }
 
-int Grid::tileAt(uint x, uint y) const
+Tile::TileType Grid::tileAt(uint x, uint y) const
 {
     Q_ASSERT(x < m_width);
     Q_ASSERT(y < m_height);
@@ -28,7 +22,7 @@ int Grid::tileAt(uint x, uint y) const
     return m_values[x][y];
 }
 
-void Grid::setTileAt(uint x, uint y, int value)
+void Grid::setTileAt(uint x, uint y, Tile::TileType value)
 {
     Q_ASSERT(x < m_width);
     Q_ASSERT(y < m_height);

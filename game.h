@@ -17,6 +17,17 @@ public:
 
     const Level *level(int i);
     void movePlayer(GameObject::Directions direction);
+    void player2Command(QString command);
+    void movePlayer2(char direction);
+    void startGame();
+    bool isStarted() const;
+
+public slots:
+    void onGameConnected();
+    void nextFrame();
+
+signals:
+    void gameReady();
 
 private:
     int m_lifes;

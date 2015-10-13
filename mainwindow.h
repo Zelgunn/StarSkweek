@@ -6,10 +6,13 @@
 #include <QTimer>
 #include <QDesktopWidget>
 #include <QLinearGradient>
+#include <QTime>
 
 #include "windowappearance.h"
 #include "game.h"
 #include "tile.h"
+
+#define PADDING 5
 
 namespace Ui {
 class MainWindow;
@@ -24,6 +27,7 @@ public:
     ~MainWindow();
 
 public slots:
+    void onGameReady();
     void onRight();
     void onUp();
     void onLeft();
@@ -31,15 +35,21 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *);
+    void paintBackground(QPainter *painter);
+    void paintGame(QPainter *painter);
     void paintMap(QPainter *painter);
     void paintPlayer(QPainter *painter);
+    void paintWaitingSign(QPainter *painter);
+    void paintProgressionBar(QPainter *painter);
     void movePlayer(GameObject::Directions direction);
 
 private:
     Game m_game;
     WindowAppearance m_appearance;
-    QList<Tile *> m_tiles;
     QTimer *m_timer;
+
+    QList<QPoint*> m_stars;
+    QList<int> m_starsSpeed;
 };
 
 #endif // MAINWINDOW_H

@@ -22,6 +22,7 @@ public:
 
     GameObject();
     const QImage *appearance() const;
+    void setAppearance(const QImage &image);
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(double x, double y);

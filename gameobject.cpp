@@ -11,6 +11,11 @@ const QImage *GameObject::appearance() const
     return &m_appearance;
 }
 
+void GameObject::setAppearance(const QImage &image)
+{
+    m_appearance = image;
+}
+
 Point GameObject::position() const
 {
     return m_position;
