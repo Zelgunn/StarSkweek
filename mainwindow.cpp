@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     new QShortcut(tr("Left"), this, SLOT(onLeft()));
     new QShortcut(tr("Up"), this, SLOT(onUp()));
     new QShortcut(tr("Down"), this, SLOT(onDown()));
+    new QShortcut(tr("Return"), this, SLOT(onEnter()));
 
     const Grid *grid = m_game.level(0)->grid();
     QRect rect = QApplication::desktop()->screenGeometry();
@@ -49,6 +50,9 @@ void MainWindow::paintEvent(QPaintEvent *)
 void MainWindow::paintBackground(QPainter *painter)
 {
     static QImage image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
+    static QList<QPoint*> stars;
+    static QList<int> starsSpeed;
+
     QRect rect = QApplication::desktop()->screenGeometry();
     int w = rect.width();
     int h = rect.height();
@@ -56,22 +60,21 @@ void MainWindow::paintBackground(QPainter *painter)
     painter->setBrush(QColor(0,0,0));
     painter->drawRect(rect);
 
-    while(m_stars.size() < 1000)
+    while(stars.size() < 1000)
     {
-        m_stars.append(new QPoint(qrand()%w, qrand()%h));
-        m_starsSpeed.append(qrand()%3 + 1);
+        stars.append(new QPoint(qrand()%w, qrand()%h));
+        starsSpeed.append(qrand()%3 + 1);
     }
 
     QPoint *tmp;
     painter->setBrush(QColor(255,255,255));
     painter->setPen(QColor(255,255,255));
 
-
-    for(int i = 0; i < m_stars.size(); i++)
+    for(int i = 0; i < stars.size(); i++)
     {
-        tmp = m_stars.at(i);
+        tmp = stars.at(i);
         painter->drawPoint(*tmp);
-        tmp->setY(tmp->y() - m_starsSpeed.at(i));
+        tmp->setY(tmp->y() - starsSpeed.at(i));
         if(i==0)
         {
             painter->drawImage(*tmp, image);
@@ -83,8 +86,8 @@ void MainWindow::paintBackground(QPainter *painter)
         }
         else if(tmp->y() <= 0)
         {
-            m_stars.removeAt(i);
-            m_starsSpeed.removeAt(i);
+            stars.removeAt(i);
+            starsSpeed.removeAt(i);
             i--;
         }
     }
@@ -201,6 +204,11 @@ void MainWindow::onLeft()
 void MainWindow::onDown()
 {
     movePlayer(GameObject::Down);
+}
+
+void MainWindow::onEnter()
+{
+
 }
 
 void MainWindow::movePlayer(GameObject::Directions direction)

@@ -23,9 +23,6 @@ void Level::setMyPlayer(int playerNumber)
         m_player = m_player2;
         m_player2= tmp;
         m_myPlayer = playerNumber;
-
-        m_player.setTileType(Tile::Player1Tile);
-        m_player2.setTileType(Tile::Player2Tile);
     }
 }
 

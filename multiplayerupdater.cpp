@@ -73,7 +73,7 @@ void MultiplayerUpdater::broadcastAddress()
     if(m_player2Address.isNull())
     {
         if(!m_timer->isActive())
-            m_timer->start(1000);
+            m_timer->start(100);
     }
     else
     {

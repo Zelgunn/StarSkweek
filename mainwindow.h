@@ -32,6 +32,7 @@ public slots:
     void onUp();
     void onLeft();
     void onDown();
+    void onEnter();
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -47,9 +48,6 @@ private:
     Game m_game;
     WindowAppearance m_appearance;
     QTimer *m_timer;
-
-    QList<QPoint*> m_stars;
-    QList<int> m_starsSpeed;
 };
 
 #endif // MAINWINDOW_H
