@@ -21,12 +21,11 @@ void Game::movePlayer(GameObject::Directions direction)
 {
     if(!m_timer->isActive()) return;
     Level *level = m_levels.first();
-    if(level->movePlayer1(direction))
-    {
-        QString update = "pm";  // p = player, m = move
-        update.append('0' + direction);
-        m_multiplayerUpdater.sendUpdate(update);
-    }
+
+    level->setPlayerDirection(0, direction);
+    QString update = "pm";  // p = player, m = move
+    update.append('0' + direction);
+    m_multiplayerUpdater.sendUpdate(update);
 }
 
 void Game::player2Command(QString command)
@@ -37,6 +36,8 @@ void Game::player2Command(QString command)
     case 'm':
         movePlayer2(command.at(1).toLatin1());
         break;
+    case 's':
+        playerFires(1);
     default:
         break;
     }
@@ -45,7 +46,20 @@ void Game::player2Command(QString command)
 void Game::movePlayer2(char direction)
 {
     GameObject::Directions dir = (GameObject::Directions) (char)(direction - '0');
-    m_levels.first()->movePlayer2(dir);
+    m_levels.first()->setPlayerDirection(1, dir);
+}
+
+void Game::playerFires(int playerID)
+{
+    Level *level = m_levels.first();
+    if(level->playerFires(playerID))
+    {
+        if(playerID == 0)
+        {
+            QString update = "ps";  // p = player, s = shoot
+            m_multiplayerUpdater.sendUpdate(update);
+        }
+    }
 }
 
 void Game::startGame()
@@ -60,6 +74,7 @@ bool Game::isStarted() const
 
 void Game::nextFrame()
 {
+    Level *level = m_levels.first();
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
     QString update;
     char firstChar;
@@ -76,6 +91,8 @@ void Game::nextFrame()
             break;
         }
     }
+
+    level->nextFrame();
 }
 
 void Game::onGameConnected()

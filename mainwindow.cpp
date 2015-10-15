@@ -97,6 +97,7 @@ void MainWindow::paintGame(QPainter *painter)
 {
     paintMap(painter);
     paintPlayer(painter);
+    paintProjectiles(painter);
 }
 
 void MainWindow::paintMap(QPainter *painter)
@@ -180,10 +181,28 @@ void MainWindow::paintProgressionBar(QPainter *painter)
     double ratio = m_game.level(0)->playerTileRatio();
 
     rect2 = rect1;
-    rect2.setY(rect1.y() + rect1.height()*(1 - ratio));
+    rect2.setY(rect1.y() + rect1.height()*ratio);
 
     painter->setBrush(QColor(0, 170, 255, 100));
     painter->drawRect(rect2);
+}
+
+void MainWindow::paintProjectiles(QPainter *painter)
+{
+    int dy = m_appearance.dy()/2;
+    QList<Projectile *> projectiles = m_game.level(0)->projectiles();
+    Projectile * projectile;
+
+    QImage projectileModel;
+
+    for(int i=0; i<projectiles.size(); i++)
+    {
+        projectile = projectiles.at(i);
+        projectileModel = *projectile->appearance();
+        painter->drawImage(projectile->position().x * m_appearance.width() + PADDING - projectileModel.width() / 2,
+                          projectile->position().y * m_appearance.height() + dy - projectileModel.height() / 2,
+                          projectileModel);
+    }
 }
 
 void MainWindow::onRight()
@@ -208,7 +227,12 @@ void MainWindow::onDown()
 
 void MainWindow::onEnter()
 {
-
+    if(!m_game.isStarted())
+    {
+        m_game.startGame();
+        return;
+    }
+    m_game.playerFires(0);
 }
 
 void MainWindow::movePlayer(GameObject::Directions direction)

@@ -42,6 +42,7 @@ protected:
     void paintPlayer(QPainter *painter);
     void paintWaitingSign(QPainter *painter);
     void paintProgressionBar(QPainter *painter);
+    void paintProjectiles(QPainter *painter);
     void movePlayer(GameObject::Directions direction);
 
 private:

@@ -19,6 +19,9 @@ public:
     void movePlayer(GameObject::Directions direction);
     void player2Command(QString command);
     void movePlayer2(char direction);
+
+    void playerFires(int playerID);
+
     void startGame();
     bool isStarted() const;
 
