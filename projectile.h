@@ -21,7 +21,6 @@ public:
 private:
     int m_ttl;
     int m_ownerID;
-    QPixmap m_models[4];
 };
 
 #endif // PROJECTILE_H

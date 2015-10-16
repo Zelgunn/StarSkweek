@@ -1,17 +1,29 @@
 #include "level.h"
 
-Level::Level()
+Level::Level(const QDomElement &element, QList<Player> *characters)
+    : m_characters(characters)
 {
-    m_grid = Grid();
+    m_players = new Player*[2];
+    QDomElement elem;
+    QDomNode node = element.firstChild();
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+        if(elem.tagName() == "Grid")
+        {
+            m_grid = new Grid(elem);
+        }
+
+        node = node.nextSibling();
+    }
     m_myPlayer = 0;
 
-    m_players = new Player*[2];
-    m_players[0] = new Player(QPixmap(QApplication::applicationDirPath().append("/images/player1.png")),
-                              Tile::Player1Tile);
+
+    m_players[0] = new Player(m_characters->at(0));
     m_players[0]->setPosition(0.5, 0.25);
 
-    m_players[1] = new Player(QPixmap(QApplication::applicationDirPath().append("/images/player2.png")),
-                              Tile::Player2Tile);
+    m_players[1] = new Player(m_characters->at(1));
     m_players[1]->setPosition(0.5, 0.75);
 }
 
@@ -29,7 +41,7 @@ void Level::setMyPlayer(int playerNumber)
 
 const Grid *Level::grid() const
 {
-    return &m_grid;
+    return m_grid;
 }
 
 const Player *Level::player() const
@@ -67,17 +79,17 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     if(displacement.x > 1) displacement.x = 1;
     if(displacement.y > 1) displacement.y = 1;
 
-    uint x = displacement.x * m_grid.width();
-    uint y = displacement.y * m_grid.height();
+    uint x = displacement.x * m_grid->width();
+    uint y = displacement.y * m_grid->height();
 
-    if(m_grid.tileAt(x, y) == Tile::Void)
+    if(m_grid->tileAt(x, y) == Tile::Void)
         return false;
 
     player->setPosition(displacement);
     player->setDirection(direction);
 
-    if(m_grid.tileAt(x, y) == player2->tileType())
-        m_grid.setTileAt(x, y, player->tileType());
+    if(m_grid->tileAt(x, y) == player2->tileType())
+        m_grid->setTileAt(x, y, player->tileType());
 
     return true;
 }
@@ -121,11 +133,11 @@ double Level::playerTileRatio() const
     double res = 0, count = 0;
     int tmp;
 
-    for(uint i=0; i<m_grid.width(); i++)
+    for(uint i=0; i<m_grid->width(); i++)
     {
-        for(uint j=0; j<m_grid.height(); j++)
+        for(uint j=0; j<m_grid->height(); j++)
         {
-            tmp = m_grid.tileAt(i,j);
+            tmp = m_grid->tileAt(i,j);
             if(tmp == m_players[0]->tileType())
             {
                 count ++;

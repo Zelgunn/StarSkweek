@@ -1,6 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include <QDomElement>
+
 #include "unit.h"
 #include "weapon.h"
 
@@ -8,7 +10,7 @@ class Player : public Unit
 {
 public:
     Player();
-    Player(const QPixmap &model, Tile::TileType tileType);
+    Player(const QDomElement &element);
 
     Tile::TileType tileType() const;
     void setTileType(Tile::TileType tileType);

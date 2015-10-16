@@ -3,13 +3,14 @@
 
 #include <QFile>
 #include <QIODevice>
+#include <QDomElement>
 
 #include "tile.h"
 
 class Grid
 {
 public:
-    Grid();
+    Grid(const QDomElement &element);
 
     Tile::TileType tileAt(uint x, uint y) const;
     void setTileAt(uint x, uint y, Tile::TileType value);

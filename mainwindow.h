@@ -12,8 +12,6 @@
 #include "game.h"
 #include "tile.h"
 
-#define PADDING 5
-
 namespace Ui {
 class MainWindow;
 }

@@ -51,3 +51,6 @@ HEADERS  += mainwindow.h \
     animation.h
 
 FORMS    +=
+
+RESOURCES += \
+    dependencies.qrc
