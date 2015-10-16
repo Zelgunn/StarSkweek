@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include <QImage>
+#include <QPixmap>
 #include <QApplication>
 #include <QtCore/qmath.h>
 
@@ -23,8 +23,8 @@ public:
     };
 
     GameObject();
-    const QImage *model() const;
-    void setModel(const QImage &model);
+    const QPixmap *model() const;
+    void setModel(const QPixmap &model);
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(double x, double y);
@@ -40,7 +40,7 @@ public:
 protected:
     Point m_position;
     Grid *m_grid;
-    QImage m_model;
+    QPixmap m_model;
     double m_speed;
     Directions m_direction;
 };

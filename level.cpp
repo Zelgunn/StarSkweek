@@ -6,11 +6,11 @@ Level::Level()
     m_myPlayer = 0;
 
     m_players = new Player*[2];
-    m_players[0] = new Player(QImage(QApplication::applicationDirPath().append("/images/player1.png")),
+    m_players[0] = new Player(QPixmap(QApplication::applicationDirPath().append("/images/player1.png")),
                               Tile::Player1Tile);
     m_players[0]->setPosition(0.5, 0.25);
 
-    m_players[1] = new Player(QImage(QApplication::applicationDirPath().append("/images/player2.png")),
+    m_players[1] = new Player(QPixmap(QApplication::applicationDirPath().append("/images/player2.png")),
                               Tile::Player2Tile);
     m_players[1]->setPosition(0.5, 0.75);
 }

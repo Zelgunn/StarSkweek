@@ -1,8 +1,8 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <QImage>
 #include <QApplication>
+#include <QPixmap>
 
 #include <QDebug>
 
@@ -24,14 +24,14 @@ public:
     static Tile *tile(TileType type);
 
     TileType type() const;
-    QImage texture() const;
-    QImage resizedTexture(QSize size);
-    QImage resizedTexture(uint width, uint height);
+    QPixmap texture() const;
+    QPixmap resizedTexture(QSize size);
+    QPixmap resizedTexture(uint width, uint height);
 
 private:
     TileType m_type;
-    QImage m_texture;
-    QImage m_resizedTexture;
+    QPixmap *m_texture;
+    QPixmap *m_resizedTexture;
     QSize m_size;
 
     static Tile s_tiles[TILES_COUNT];

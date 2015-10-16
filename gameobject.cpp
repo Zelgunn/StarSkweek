@@ -6,12 +6,12 @@ GameObject::GameObject()
     m_position.y = 0;
 }
 
-const QImage *GameObject::model() const
+const QPixmap *GameObject::model() const
 {
     return &m_model;
 }
 
-void GameObject::setModel(const QImage &model)
+void GameObject::setModel(const QPixmap &model)
 {
     m_model = model;
 }

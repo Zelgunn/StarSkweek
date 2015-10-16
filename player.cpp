@@ -10,7 +10,7 @@ Player::Player()
     m_previousDirection = Down;
 }
 
-Player::Player(const QImage &model, Tile::TileType tileType) :
+Player::Player(const QPixmap &model, Tile::TileType tileType) :
     m_tileType(tileType), m_previousDirection(Down)
 {
     m_position.x = 0;

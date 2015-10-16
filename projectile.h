@@ -11,7 +11,7 @@ public:
 
     void move();
 
-    const QImage *model() const;
+    const QPixmap *model() const;
     int ttl() const;
 
     int ownerID() const;
@@ -20,7 +20,7 @@ public:
 private:
     int m_ttl;
     int m_ownerID;
-    QImage m_models[4];
+    QPixmap m_models[4];
 };
 
 #endif // PROJECTILE_H
