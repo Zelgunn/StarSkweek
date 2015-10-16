@@ -23,8 +23,8 @@ public:
     };
 
     GameObject();
-    const QImage *appearance() const;
-    void setAppearance(const QImage &image);
+    const QImage *model() const;
+    void setModel(const QImage &model);
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(double x, double y);
@@ -36,10 +36,11 @@ public:
     static Point displacement(Directions direction, double speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
+
 protected:
     Point m_position;
     Grid *m_grid;
-    QImage m_appearance;
+    QImage m_model;
     double m_speed;
     Directions m_direction;
 };

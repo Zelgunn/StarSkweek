@@ -35,7 +35,7 @@ void Projectile::move()
     m_ttl --;
 }
 
-const QImage *Projectile::appearance() const
+const QImage *Projectile::model() const
 {
     return &m_models[m_direction];
 }

@@ -6,14 +6,14 @@ GameObject::GameObject()
     m_position.y = 0;
 }
 
-const QImage *GameObject::appearance() const
+const QImage *GameObject::model() const
 {
-    return &m_appearance;
+    return &m_model;
 }
 
-void GameObject::setAppearance(const QImage &image)
+void GameObject::setModel(const QImage &model)
 {
-    m_appearance = image;
+    m_model = model;
 }
 
 Point GameObject::position() const

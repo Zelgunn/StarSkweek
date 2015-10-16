@@ -10,6 +10,16 @@ Player::Player()
     m_previousDirection = Down;
 }
 
+Player::Player(const QImage &model, Tile::TileType tileType) :
+    m_tileType(tileType), m_previousDirection(Down)
+{
+    m_position.x = 0;
+    m_position.y = 0;
+    m_speed = 0.0025;
+    m_model = model;
+    m_direction = InvalidDirection;
+}
+
 Tile::TileType Player::tileType() const
 {
     return m_tileType;

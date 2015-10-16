@@ -4,14 +4,15 @@ Level::Level()
 {
     m_grid = Grid();
     m_myPlayer = 0;
-    m_player.setAppearance(QImage(QApplication::applicationDirPath().append("/images/player1.png")));
-    m_player2.setAppearance(QImage(QApplication::applicationDirPath().append("/images/player2.png")));
 
-    m_player.setPosition(0.5, 0.25);
-    m_player2.setPosition(0.5, 0.75);
+    m_players = new Player*[2];
+    m_players[0] = new Player(QImage(QApplication::applicationDirPath().append("/images/player1.png")),
+                              Tile::Player1Tile);
+    m_players[0]->setPosition(0.5, 0.25);
 
-    m_player.setTileType(Tile::Player1Tile);
-    m_player2.setTileType(Tile::Player2Tile);
+    m_players[1] = new Player(QImage(QApplication::applicationDirPath().append("/images/player2.png")),
+                              Tile::Player2Tile);
+    m_players[1]->setPosition(0.5, 0.75);
 }
 
 void Level::setMyPlayer(int playerNumber)
@@ -19,9 +20,9 @@ void Level::setMyPlayer(int playerNumber)
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
     if(m_myPlayer != playerNumber)
     {
-        Player tmp = m_player;
-        m_player = m_player2;
-        m_player2= tmp;
+        Player *tmp = m_players[0];
+        m_players[0] = m_players[1];
+        m_players[1] = tmp;
         m_myPlayer = playerNumber;
     }
 }
@@ -33,32 +34,24 @@ const Grid *Level::grid() const
 
 const Player *Level::player() const
 {
-    return &m_player;
+    if(m_myPlayer == 0)
+        return m_players[0];
+    else
+        return m_players[1];
 }
 
 const Player *Level::player2() const
 {
-    return &m_player2;
+    if(m_myPlayer == 0)
+        return m_players[1];
+    else
+        return m_players[0];
 }
 
 bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
 {
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
-    Player *player;
-    Tile::TileType playerTile, player2Tile;
-
-    if(playerNumber == 0)
-    {
-        player = &m_player;
-        playerTile = m_player.tileType();
-        player2Tile = m_player2.tileType();
-    }
-    else
-    {
-        player = &m_player2;
-        player2Tile = m_player.tileType();
-        playerTile = m_player2.tileType();
-    }
+    Player *player = m_players[playerNumber], *player2 = m_players[!playerNumber];
 
     Point displacement = GameObject::displacement(direction, player->speed());
     displacement.x += player->position().x;
@@ -80,8 +73,8 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     uint x = displacement.x * m_grid.width();
     uint y = displacement.y * m_grid.height();
 
-    if(m_grid.tileAt(x, y) == player2Tile)
-        m_grid.setTileAt(x, y, playerTile);
+    if(m_grid.tileAt(x, y) == player2->tileType())
+        m_grid.setTileAt(x, y, player->tileType());
 
     return true;
 }
@@ -98,22 +91,12 @@ bool Level::movePlayer2(GameObject::Directions direction)
 
 void Level::setPlayerDirection(int playerId, GameObject::Directions direction)
 {
-    Player *player;
-    if(playerId == 0)
-        player = &m_player;
-    else
-        player = &m_player2;
-
-    player->setDirection(direction);
+    m_players[playerId]->setDirection(direction);
 }
 
 bool Level::playerFires(int playerId)
 {
-    Player *player;
-    if(playerId == 0)
-        player = &m_player;
-    else
-        player = &m_player2;
+    Player *player = m_players[playerId];
 
     Projectile *projectile = new Projectile;
     if(player->fire(projectile))
@@ -139,12 +122,12 @@ double Level::playerTileRatio() const
         for(uint j=0; j<m_grid.height(); j++)
         {
             tmp = m_grid.tileAt(i,j);
-            if(tmp == m_player.tileType())
+            if(tmp == m_players[0]->tileType())
             {
                 count ++;
                 res ++;
             }
-            else if(tmp == m_player2.tileType())
+            else if(tmp == m_players[1]->tileType())
                 count ++;
         }
     }
@@ -168,10 +151,7 @@ void Level::nextFrame()
         }
         else
         {
-            if(projectile->ownerID() == 0)
-                player = &m_player2;
-            else
-                player = &m_player;
+            player = m_players[!projectile->ownerID()];
             if(GameObject::euclidianDistance(projectile->position(), player->position()) < 0.025)
             {
                 m_projectiles.removeAt(i);
@@ -180,8 +160,8 @@ void Level::nextFrame()
         }
     }
 
-    movePlayer1(m_player.direction());
-    movePlayer2(m_player2.direction());
+    movePlayer1(m_players[0]->direction());
+    movePlayer2(m_players[1]->direction());
 }
 QList<Projectile *> Level::projectiles() const
 {

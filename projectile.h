@@ -11,7 +11,7 @@ public:
 
     void move();
 
-    const QImage *appearance() const;
+    const QImage *model() const;
     int ttl() const;
 
     int ownerID() const;

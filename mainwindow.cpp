@@ -127,13 +127,13 @@ void MainWindow::paintPlayer(QPainter *painter)
     int theight = m_appearance.tileHeight();
 
     const Player *player = m_game.level(0)->player();
-    QImage pImage = player->appearance()->scaled(theight, theight);
+    QImage pImage = player->model()->scaled(theight, theight);
     painter->drawImage(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
                       player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
                       pImage);
 
     player = m_game.level(0)->player2();
-    pImage = player->appearance()->scaled(theight, theight);
+    pImage = player->model()->scaled(theight, theight);
     painter->drawImage(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
                       player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
                        pImage);
@@ -198,7 +198,7 @@ void MainWindow::paintProjectiles(QPainter *painter)
     for(int i=0; i<projectiles.size(); i++)
     {
         projectile = projectiles.at(i);
-        projectileModel = *projectile->appearance();
+        projectileModel = *projectile->model();
         painter->drawImage(projectile->position().x * m_appearance.width() + PADDING - projectileModel.width() / 2,
                           projectile->position().y * m_appearance.height() + dy - projectileModel.height() / 2,
                           projectileModel);
