@@ -67,11 +67,14 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     if(displacement.x > 1) displacement.x = 1;
     if(displacement.y > 1) displacement.y = 1;
 
-    player->setPosition(displacement);
-    player->setDirection(direction);
-
     uint x = displacement.x * m_grid.width();
     uint y = displacement.y * m_grid.height();
+
+    if(m_grid.tileAt(x, y) == Tile::Void)
+        return false;
+
+    player->setPosition(displacement);
+    player->setDirection(direction);
 
     if(m_grid.tileAt(x, y) == player2->tileType())
         m_grid.setTileAt(x, y, player->tileType());

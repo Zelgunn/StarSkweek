@@ -2,8 +2,12 @@
 
 Grid::Grid()
 {
-    m_width = 16;
-    m_height = 10;
+    QFile file(QApplication::applicationDirPath() + "/grid.txt");
+    file.open(QIODevice::ReadOnly);
+    QByteArray text = file.readAll();
+
+    m_width = 32;
+    m_height = 16;
 
     m_values = new Tile::TileType*[m_width];
     for(uint i=0; i<m_width; i++)
@@ -11,7 +15,7 @@ Grid::Grid()
 
     for(uint i=0; i<m_width; i++)
         for(uint j=0; j<m_height; j++)
-            m_values[i][j] = (Tile::TileType)(1 + (j*2)/m_height);
+            m_values[i][j] = (Tile::TileType) (text.at(i + j*(m_width+2)) - '0');
 }
 
 Tile::TileType Grid::tileAt(uint x, uint y) const

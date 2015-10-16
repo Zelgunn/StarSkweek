@@ -59,7 +59,7 @@ void MainWindow::paintEvent(QPaintEvent *)
 
 void MainWindow::paintBackground(QPainter *painter)
 {
-    static QPixmap image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
+    static QPixmap image(QApplication::applicationDirPath() + "/images/deathstar.png");
     static QList<QPoint*> stars;
     QPoint *star;
     static QList<int> starsSpeed;
@@ -176,13 +176,18 @@ void MainWindow::paintMap(QPainter *painter)
         for(uint j=0; j<grid->height(); j++)
         {
             tile = Tile::tile(grid->tileAt(i,j));
-            mapPainter.drawPixmap(i * twidth,
-                                j * theight,
-                                tile->resizedTexture(twidth, theight));
+            if(tile->type() != Tile::Void)
+                mapPainter.drawPixmap(i * twidth,
+                                      j * theight,
+                                      tile->resizedTexture(twidth, theight));
         }
     }
 
-    painter->drawPixmap(PADDING, dy, map);
+    const Player *player = m_game.level(0)->player();
+    double x = 0.5 - player->position().x;
+    double y = 0.5 - player->position().y;
+
+    painter->drawPixmap(PADDING + m_appearance.width()*x, dy + m_appearance.height()*y, map);
 }
 
 void MainWindow::paintPlayer(QPainter *painter)
@@ -191,15 +196,19 @@ void MainWindow::paintPlayer(QPainter *painter)
     int theight = m_appearance.tileHeight();
 
     const Player *player = m_game.level(0)->player();
-    QPixmap pImage = player->model()->scaled(theight, theight);
-    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
-                      player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
-                      pImage);
+    const Player *player2 = m_game.level(0)->player2();
 
-    player = m_game.level(0)->player2();
-    pImage = player->model()->scaled(theight, theight);
-    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
-                      player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
+    QPixmap pImage = player->model()->scaled(theight, theight);
+//    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
+//                      player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
+//                      pImage);
+    painter->drawPixmap(0.5 * m_appearance.width() + PADDING - pImage.width() / 2,
+                          0.5 * m_appearance.height()+ dy - pImage.height() / 2,
+                          pImage);
+
+    pImage = player2->model()->scaled(theight, theight);
+    painter->drawPixmap((player2->position().x - player->position().x + 0.5) * m_appearance.width() + PADDING - pImage.width() / 2,
+                      (player2->position().y - player->position().y + 0.5) * m_appearance.height()+ dy - pImage.height() / 2,
                        pImage);
 }
 

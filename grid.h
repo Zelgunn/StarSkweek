@@ -1,6 +1,9 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include <QFile>
+#include <QIODevice>
+
 #include "tile.h"
 
 class Grid
