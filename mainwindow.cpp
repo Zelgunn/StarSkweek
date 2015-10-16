@@ -120,17 +120,22 @@ void MainWindow::paintMap(QPainter *painter)
     int twidth = m_appearance.tileWidth();
     int dy = m_appearance.dy()/2;
 
+    QPixmap map(grid->width()*twidth, grid->height()*theight);
+    map.fill(QColor(0,0,0,0));
+    QPainter mapPainter(&map);
+
     for(uint i=0; i<grid->width(); i++)
     {
         for(uint j=0; j<grid->height(); j++)
         {
             tile = Tile::tile(grid->tileAt(i,j));
-            painter->drawPixmap(i * twidth + PADDING,
-                                j * theight + dy,
+            mapPainter.drawPixmap(i * twidth,
+                                j * theight,
                                 tile->resizedTexture(twidth, theight));
         }
     }
 
+    painter->drawPixmap(PADDING, dy, map);
 }
 
 void MainWindow::paintPlayer(QPainter *painter)

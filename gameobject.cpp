@@ -63,7 +63,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Up:
         res.x = 0;
-        res.y = -speed;
+        res.y = -speed*1.61;
         break;
     case Left:
         res.x = -speed;
@@ -71,7 +71,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Down:
         res.x = 0;
-        res.y = speed;
+        res.y = speed*1.61;
         break;
     default:
         res.x = 0;
