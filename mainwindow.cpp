@@ -36,11 +36,11 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
 
-    QTime time;
-    static int count = 0; count ++;
-    static int sum = 0;
+//    QTime time;
+//    static int count = 0; count ++;
+//    static int sum = 0;
+//    time = QTime::currentTime();
 
-    time = QTime::currentTime();
     paintBackground(painter);
     paintGame(painter);
 
@@ -48,10 +48,12 @@ void MainWindow::paintEvent(QPaintEvent *)
         paintWaitingSign(painter);
 
     paintProgressionBar(painter);
-    sum += time.msecsTo(QTime::currentTime());
-    qDebug() << (double)sum / (double)count;
+
+//    sum += time.msecsTo(QTime::currentTime());
+//    qDebug() << (double)sum / (double)count;
 
     painter->end();
+    delete painter;
 }
 
 void MainWindow::paintBackground(QPainter *painter)

@@ -3,7 +3,7 @@
 Grid::Grid()
 {
     m_width = 16;
-    m_height = 12;
+    m_height = 10;
 
     m_values = new Tile::TileType*[m_width];
     for(uint i=0; i<m_width; i++)
