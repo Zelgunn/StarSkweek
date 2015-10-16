@@ -42,6 +42,7 @@ void MainWindow::paintEvent(QPaintEvent *)
 //    time = QTime::currentTime();
 
     paintBackground(painter);
+    paintBackgroundLaser(painter);
     paintGame(painter);
 
     if(!m_game.isStarted())
@@ -102,6 +103,52 @@ void MainWindow::paintBackground(QPainter *painter)
             starsSpeed.replace(i, qrand()%3 + 1);
         }
     }
+}
+
+void MainWindow::paintBackgroundLaser(QPainter *painter)
+{
+    static int frame = -1;
+    static double p1, p2;
+    static int htoh;
+    static int cooldown = -60;
+
+    QRect rect = QApplication::desktop()->screenGeometry();
+
+    if(frame < cooldown)
+    {
+        p1 = ((double)(qrand()%100))/100.0;
+        p2 = ((double)(qrand()%100))/100.0;
+        frame = qrand()%5 + 5;
+        htoh = qrand()%2;
+        cooldown = - (qrand()%4)*60;
+    }
+
+    if(frame > 0)
+    {
+
+        QPen ppen = painter->pen();
+        QPen pen(QColor(255,0,0));
+        pen.setWidth(frame);
+        painter->setPen(pen);
+
+        if(htoh == 1)
+        {
+            painter->drawLine(p1 * rect.width(),
+                              0,
+                              p2 * rect.width(),
+                              rect.height());
+        }
+        else
+        {
+            painter->drawLine(0,
+                              p1 * rect.width(),
+                              rect.width(),
+                              p2 *rect.height());
+        }
+
+        painter->setPen(ppen);
+    }
+    frame --;
 }
 
 void MainWindow::paintGame(QPainter *painter)
