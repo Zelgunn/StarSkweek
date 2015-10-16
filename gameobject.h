@@ -1,7 +1,7 @@
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 
-#include <QImage>
+#include <QPixmap>
 #include <QApplication>
 #include <QtCore/qmath.h>
 
@@ -23,8 +23,8 @@ public:
     };
 
     GameObject();
-    const QImage *appearance() const;
-    void setAppearance(const QImage &image);
+    const QPixmap *model() const;
+    void setModel(const QPixmap &model);
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(double x, double y);
@@ -36,10 +36,11 @@ public:
     static Point displacement(Directions direction, double speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
+
 protected:
     Point m_position;
     Grid *m_grid;
-    QImage m_appearance;
+    QPixmap m_model;
     double m_speed;
     Directions m_direction;
 };

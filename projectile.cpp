@@ -6,10 +6,10 @@ Projectile::Projectile()
     m_speed = 0.02;
 
     QString dir = QApplication::applicationDirPath();
-    m_models[Right] = QImage(dir + "/images/laser_right.png").scaledToHeight(15);
-    m_models[Up] = QImage(dir + "/images/laser_up.png").scaledToWidth(15);
-    m_models[Left] = QImage(dir + "/images/laser_left.png").scaledToHeight(15);
-    m_models[Down] = QImage(dir + "/images/laser_down.png").scaledToWidth(15);
+    m_models[Right] = QPixmap(dir + "/images/laser_right.png").scaledToHeight(15);
+    m_models[Up] = QPixmap(dir + "/images/laser_up.png").scaledToWidth(15);
+    m_models[Left] = QPixmap(dir + "/images/laser_left.png").scaledToHeight(15);
+    m_models[Down] = QPixmap(dir + "/images/laser_down.png").scaledToWidth(15);
 }
 
 Projectile::Projectile(GameObject::Directions direction, int ownerID)
@@ -18,10 +18,10 @@ Projectile::Projectile(GameObject::Directions direction, int ownerID)
     m_speed = 0.02;
 
     QString dir = QApplication::applicationDirPath();
-    m_models[Right] = QImage(dir + "/images/laser_right.png").scaledToHeight(15);
-    m_models[Up] = QImage(dir + "/images/laser_up.png").scaledToWidth(15);
-    m_models[Left] = QImage(dir + "/images/laser_left.png").scaledToHeight(15);
-    m_models[Down] = QImage(dir + "/images/laser_down.png").scaledToWidth(15);
+    m_models[Right] = QPixmap(dir + "/images/laser_right.png").scaledToHeight(15);
+    m_models[Up] = QPixmap(dir + "/images/laser_up.png").scaledToWidth(15);
+    m_models[Left] = QPixmap(dir + "/images/laser_left.png").scaledToHeight(15);
+    m_models[Down] = QPixmap(dir + "/images/laser_down.png").scaledToWidth(15);
 
     m_direction = direction;
     m_ownerID = ownerID;
@@ -35,7 +35,7 @@ void Projectile::move()
     m_ttl --;
 }
 
-const QImage *Projectile::appearance() const
+const QPixmap *Projectile::model() const
 {
     return &m_models[m_direction];
 }

@@ -1,16 +1,18 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include <QImage>
+#include <QPixmap>
 
 class Animation
 {
 public:
     Animation();
 
+    QPixmap nextFrame();
+
 private:
-    uint m_frame;
-    QList<QImage> m_frames;
+    int m_frame;
+    QList<QPixmap> m_frames;
 };
 
 #endif // ANIMATION_H

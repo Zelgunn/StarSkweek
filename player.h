@@ -8,6 +8,7 @@ class Player : public Unit
 {
 public:
     Player();
+    Player(const QPixmap &model, Tile::TileType tileType);
 
     Tile::TileType tileType() const;
     void setTileType(Tile::TileType tileType);

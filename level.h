@@ -31,8 +31,7 @@ public:
 
 private:
     Grid m_grid;
-    Player m_player;
-    Player m_player2;
+    Player **m_players;
     int m_myPlayer;
     QList<Projectile *> m_projectiles;
 };

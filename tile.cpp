@@ -27,23 +27,28 @@ Tile::Tile(Tile::TileType type)
         break;
     }
 
+    m_resizedTexture = Q_NULLPTR;
+    m_texture = Q_NULLPTR;
+
     if(m_type != InvalidTile)
     {
         filename.insert(0,QApplication::applicationDirPath());
-        m_texture = QImage(filename);
+        m_texture = new QPixmap(filename);
     }
 }
 
 Tile::Tile(const QString &filename)
-    : m_texture(filename)
 {
-
+    m_texture = new QPixmap(filename);
+    m_resizedTexture = Q_NULLPTR;
 }
 
 Tile *Tile::tile(Tile::TileType type)
 {
     if(s_tiles[type].type() == InvalidTile)
+    {
         s_tiles[type] = Tile(type);
+    }
     return &s_tiles[type];
 }
 
@@ -52,25 +57,42 @@ Tile::TileType Tile::type() const
     return m_type;
 }
 
-QImage Tile::texture() const
+QPixmap Tile::texture() const
 {
-    return m_texture;
+    if(!m_texture)
+        return QPixmap(1,1);
+    return *m_texture;
 }
 
-QImage Tile::resizedTexture(QSize size)
+QPixmap Tile::resizedTexture(QSize size)
 {
-    if((m_resizedTexture.isNull()) || (m_resizedTexture.size() != size))
-        m_resizedTexture = m_texture.scaled(size);
+    if(!m_resizedTexture)
+    {
+        m_resizedTexture = new QPixmap;
+    }
 
-    return m_resizedTexture;
+    if(m_resizedTexture->size() != size)
+    {
+        *m_resizedTexture = m_texture->scaled(size);
+    }
+
+    return *m_resizedTexture;
 }
 
-QImage Tile::resizedTexture(uint width, uint height)
+QPixmap Tile::resizedTexture(uint width, uint height)
 {
     QSize size(width, height);
-    if((m_resizedTexture.isNull()) || (m_resizedTexture.size() != size))
-        m_resizedTexture = m_texture.scaled(size);
+    if(!m_resizedTexture)
+    {
+        m_resizedTexture = new QPixmap;
+    }
 
-    return m_resizedTexture;
+    if(m_resizedTexture->size() != size)
+    {
+        *m_resizedTexture = m_texture->scaled(size);
+    }
+
+
+    return *m_resizedTexture;
 }
 

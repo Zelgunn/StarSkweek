@@ -36,6 +36,11 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
 
+    QTime time;
+    static int count = 0; count ++;
+    static int sum = 0;
+
+    time = QTime::currentTime();
     paintBackground(painter);
     paintGame(painter);
 
@@ -43,13 +48,15 @@ void MainWindow::paintEvent(QPaintEvent *)
         paintWaitingSign(painter);
 
     paintProgressionBar(painter);
+    sum += time.msecsTo(QTime::currentTime());
+    qDebug() << (double)sum / (double)count;
 
     painter->end();
 }
 
 void MainWindow::paintBackground(QPainter *painter)
 {
-    static QImage image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
+    static QPixmap image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
     static QList<QPoint*> stars;
     static QList<int> starsSpeed;
 
@@ -77,7 +84,7 @@ void MainWindow::paintBackground(QPainter *painter)
         tmp->setY(tmp->y() - starsSpeed.at(i));
         if(i==0)
         {
-            painter->drawImage(*tmp, image);
+            painter->drawPixmap(*tmp, image);
             if(tmp->y() < - image.height())
             {
                 tmp->setY(h);
@@ -114,11 +121,12 @@ void MainWindow::paintMap(QPainter *painter)
         for(uint j=0; j<grid->height(); j++)
         {
             tile = Tile::tile(grid->tileAt(i,j));
-            painter->drawImage(i * twidth + PADDING,
-                              j * theight + dy,
-                              tile->resizedTexture(twidth, theight));
+            painter->drawPixmap(i * twidth + PADDING,
+                                j * theight + dy,
+                                tile->resizedTexture(twidth, theight));
         }
     }
+
 }
 
 void MainWindow::paintPlayer(QPainter *painter)
@@ -127,14 +135,14 @@ void MainWindow::paintPlayer(QPainter *painter)
     int theight = m_appearance.tileHeight();
 
     const Player *player = m_game.level(0)->player();
-    QImage pImage = player->appearance()->scaled(theight, theight);
-    painter->drawImage(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
+    QPixmap pImage = player->model()->scaled(theight, theight);
+    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
                       player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
                       pImage);
 
     player = m_game.level(0)->player2();
-    pImage = player->appearance()->scaled(theight, theight);
-    painter->drawImage(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
+    pImage = player->model()->scaled(theight, theight);
+    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
                       player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
                        pImage);
 }
@@ -193,13 +201,13 @@ void MainWindow::paintProjectiles(QPainter *painter)
     QList<Projectile *> projectiles = m_game.level(0)->projectiles();
     Projectile * projectile;
 
-    QImage projectileModel;
+    QPixmap projectileModel;
 
     for(int i=0; i<projectiles.size(); i++)
     {
         projectile = projectiles.at(i);
-        projectileModel = *projectile->appearance();
-        painter->drawImage(projectile->position().x * m_appearance.width() + PADDING - projectileModel.width() / 2,
+        projectileModel = *projectile->model();
+        painter->drawPixmap(projectile->position().x * m_appearance.width() + PADDING - projectileModel.width() / 2,
                           projectile->position().y * m_appearance.height() + dy - projectileModel.height() / 2,
                           projectileModel);
     }
