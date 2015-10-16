@@ -58,6 +58,7 @@ void MainWindow::paintBackground(QPainter *painter)
 {
     static QPixmap image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
     static QList<QPoint*> stars;
+    QPoint *star;
     static QList<int> starsSpeed;
 
     QRect rect = QApplication::desktop()->screenGeometry();
@@ -93,9 +94,10 @@ void MainWindow::paintBackground(QPainter *painter)
         }
         else if(tmp->y() <= 0)
         {
-            stars.removeAt(i);
-            starsSpeed.removeAt(i);
-            i--;
+            star = stars.at(i);
+            star->setX(qrand()%w);
+            star->setY(qrand()%h);
+            starsSpeed.replace(i, qrand()%3 + 1);
         }
     }
 }

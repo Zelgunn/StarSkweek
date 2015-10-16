@@ -109,6 +109,7 @@ bool Level::playerFires(int playerId)
         return true;
     }
 
+    delete projectile;
     return false;
 }
 
@@ -147,6 +148,7 @@ void Level::nextFrame()
         if(projectile->ttl() < 0)
         {
             m_projectiles.removeAt(i);
+            delete projectile;
             i--;
         }
         else
@@ -155,6 +157,7 @@ void Level::nextFrame()
             if(GameObject::euclidianDistance(projectile->position(), player->position()) < 0.025)
             {
                 m_projectiles.removeAt(i);
+                delete projectile;
                 i--;
             }
         }

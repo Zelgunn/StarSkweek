@@ -27,6 +27,11 @@ Projectile::Projectile(GameObject::Directions direction, int ownerID)
     m_ownerID = ownerID;
 }
 
+Projectile::~Projectile()
+{
+
+}
+
 void Projectile::move()
 {
     Point delta = displacement(m_direction, m_speed);

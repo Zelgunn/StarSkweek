@@ -8,6 +8,7 @@ class Projectile : public GameObject
 public:
     Projectile();
     Projectile(Directions direction, int ownerID);
+    ~Projectile();
 
     void move();
 
