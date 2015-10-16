@@ -36,28 +36,32 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
 
-    QTime time;
-    static int count = 0; count ++;
-    static int sum = 0;
+//    QTime time;
+//    static int count = 0; count ++;
+//    static int sum = 0;
+//    time = QTime::currentTime();
 
-    time = QTime::currentTime();
     paintBackground(painter);
+    paintBackgroundLaser(painter);
     paintGame(painter);
 
     if(!m_game.isStarted())
         paintWaitingSign(painter);
 
     paintProgressionBar(painter);
-    sum += time.msecsTo(QTime::currentTime());
-    qDebug() << (double)sum / (double)count;
+
+//    sum += time.msecsTo(QTime::currentTime());
+//    qDebug() << (double)sum / (double)count;
 
     painter->end();
+    delete painter;
 }
 
 void MainWindow::paintBackground(QPainter *painter)
 {
     static QPixmap image("C:/Users/degva_000/Documents/C++/build-SSkweek_Alpha-Desktop_Qt_5_5_0_MinGW_32bit-Debug/debug/images/TEST.png");
     static QList<QPoint*> stars;
+    QPoint *star;
     static QList<int> starsSpeed;
 
     QRect rect = QApplication::desktop()->screenGeometry();
@@ -93,11 +97,58 @@ void MainWindow::paintBackground(QPainter *painter)
         }
         else if(tmp->y() <= 0)
         {
-            stars.removeAt(i);
-            starsSpeed.removeAt(i);
-            i--;
+            star = stars.at(i);
+            star->setX(qrand()%w);
+            star->setY(qrand()%h);
+            starsSpeed.replace(i, qrand()%3 + 1);
         }
     }
+}
+
+void MainWindow::paintBackgroundLaser(QPainter *painter)
+{
+    static int frame = -1;
+    static double p1, p2;
+    static int htoh;
+    static int cooldown = -60;
+
+    QRect rect = QApplication::desktop()->screenGeometry();
+
+    if(frame < cooldown)
+    {
+        p1 = ((double)(qrand()%100))/100.0;
+        p2 = ((double)(qrand()%100))/100.0;
+        frame = qrand()%5 + 5;
+        htoh = qrand()%2;
+        cooldown = - (qrand()%4)*60;
+    }
+
+    if(frame > 0)
+    {
+
+        QPen ppen = painter->pen();
+        QPen pen(QColor(255,0,0));
+        pen.setWidth(frame);
+        painter->setPen(pen);
+
+        if(htoh == 1)
+        {
+            painter->drawLine(p1 * rect.width(),
+                              0,
+                              p2 * rect.width(),
+                              rect.height());
+        }
+        else
+        {
+            painter->drawLine(0,
+                              p1 * rect.width(),
+                              rect.width(),
+                              p2 *rect.height());
+        }
+
+        painter->setPen(ppen);
+    }
+    frame --;
 }
 
 void MainWindow::paintGame(QPainter *painter)
@@ -116,17 +167,22 @@ void MainWindow::paintMap(QPainter *painter)
     int twidth = m_appearance.tileWidth();
     int dy = m_appearance.dy()/2;
 
+    QPixmap map(grid->width()*twidth, grid->height()*theight);
+    map.fill(QColor(0,0,0,0));
+    QPainter mapPainter(&map);
+
     for(uint i=0; i<grid->width(); i++)
     {
         for(uint j=0; j<grid->height(); j++)
         {
             tile = Tile::tile(grid->tileAt(i,j));
-            painter->drawPixmap(i * twidth + PADDING,
-                                j * theight + dy,
+            mapPainter.drawPixmap(i * twidth,
+                                j * theight,
                                 tile->resizedTexture(twidth, theight));
         }
     }
 
+    painter->drawPixmap(PADDING, dy, map);
 }
 
 void MainWindow::paintPlayer(QPainter *painter)

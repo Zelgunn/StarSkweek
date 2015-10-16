@@ -26,5 +26,3 @@ bool Weapon::fire(Projectile *projectile)
     }
     return false;
 }
-
-
