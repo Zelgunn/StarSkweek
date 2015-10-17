@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QShortcut>
+#include <QDomDocument>
 
 #include "level.h"
 #include "soundplayer.h"
@@ -25,6 +26,8 @@ public:
     void startGame();
     bool isStarted() const;
 
+    void load(const QString &filename);
+
 public slots:
     void onGameConnected();
     void nextFrame();
@@ -37,6 +40,7 @@ private:
     int m_score;
 
     QTimer *m_timer;
+    QList<Player> m_characters;
     QList<Level *> m_levels;
     SoundPlayer m_soundPlayer;
     MultiplayerUpdater m_multiplayerUpdater;

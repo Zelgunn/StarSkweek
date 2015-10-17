@@ -10,13 +10,36 @@ Player::Player()
     m_previousDirection = Down;
 }
 
-Player::Player(const QPixmap &model, Tile::TileType tileType) :
-    m_tileType(tileType), m_previousDirection(Down)
+Player::Player(const QDomElement &element) :
+    m_previousDirection(Down)
 {
+    QDomNode node = element.firstChild();
+    QDomElement elem;
+    QString dir = QApplication::applicationDirPath();
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+
+        if(elem.tagName() == "Model")
+        {
+            m_models[Right] = QPixmap(dir + elem.attribute("right"));
+            m_models[Up] = QPixmap(dir + elem.attribute("up"));
+            m_models[Left] = QPixmap(dir + elem.attribute("left"));
+            m_models[Down] = QPixmap(dir + elem.attribute("down"));
+        }
+
+        if(elem.tagName() == "Tile")
+        {
+            m_tileType = (Tile::TileType)(elem.attribute("type").toInt() - 'a');
+        }
+
+        node = node.nextSibling();
+    }
+
     m_position.x = 0;
     m_position.y = 0;
     m_speed = 0.0025;
-    m_model = model;
     m_direction = InvalidDirection;
 }
 

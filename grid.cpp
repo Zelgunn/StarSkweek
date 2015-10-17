@@ -1,9 +1,27 @@
 #include "grid.h"
 
-Grid::Grid()
+Grid::Grid(const QDomElement &element)
 {
-    m_width = 20;
-    m_height = 20;
+    QDomNode node = element.firstChild();
+    QDomElement elem;
+    QString values;
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+        if(elem.tagName() == "Size")
+        {
+            m_width = elem.attribute("width").toInt();
+            m_height = elem.attribute("height").toInt();
+        }
+
+        if(elem.tagName() == "Tiles")
+        {
+            values = elem.attribute("values");
+        }
+
+        node = node.nextSibling();
+    }
 
     m_values = new Tile::TileType*[m_width];
     for(uint i=0; i<m_width; i++)
@@ -11,7 +29,7 @@ Grid::Grid()
 
     for(uint i=0; i<m_width; i++)
         for(uint j=0; j<m_height; j++)
-            m_values[i][j] = (Tile::TileType)(1 + (j*2)/m_height);
+            m_values[i][j] = (Tile::TileType) (values.at(i + j*m_width).toLatin1() - 'a');
 }
 
 Tile::TileType Grid::tileAt(uint x, uint y) const

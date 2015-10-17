@@ -7,8 +7,10 @@ WindowAppearance::WindowAppearance()
 
 void WindowAppearance::setAppearance(uint totalWidth, uint totalHeight, uint tileCountWidth, uint tileCountHeight)
 {
-    m_tileWidth = totalWidth / tileCountWidth;
-    m_tileHeight = totalHeight / tileCountHeight;
+//    m_tileWidth = totalWidth / tileCountWidth;
+//    m_tileHeight = totalHeight / tileCountHeight;
+    m_tileWidth = 200;
+    m_tileHeight = 50;
 
     if(((qreal)m_tileWidth / PHI) > (qreal)m_tileHeight)
         m_tileWidth = (uint)((qreal)m_tileHeight * PHI);
@@ -19,8 +21,10 @@ void WindowAppearance::setAppearance(uint totalWidth, uint totalHeight, uint til
     m_width = m_tileWidth * tileCountWidth;
     m_height = m_tileHeight * tileCountHeight;
 
-    m_dx = totalWidth - m_width;
-    m_dy = totalHeight - m_height;
+//    m_dx = totalWidth - m_width;
+//    m_dy = totalHeight - m_height;
+    m_dx = 0;
+    m_dy = 0;
 }
 
 uint WindowAppearance::width() const

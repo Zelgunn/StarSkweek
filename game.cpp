@@ -3,8 +3,6 @@
 Game::Game() :
     m_lifes(0), m_score(0), m_timer(NULL)
 {
-    m_levels.append(new Level);
-
     m_timer = new QTimer(this);
     QObject::connect(&m_multiplayerUpdater, SIGNAL(gameConnected()), this, SLOT(onGameConnected()));
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
@@ -70,6 +68,39 @@ void Game::startGame()
 bool Game::isStarted() const
 {
     return m_timer->isActive();
+}
+
+void Game::load(const QString &filename)
+{
+    QFile file(filename);
+    file.open(QIODevice::ReadOnly);
+
+    QDomDocument dom;
+    dom.setContent(&file);
+
+    QDomElement elem = dom.documentElement();
+    QDomNode node = elem.firstChild();
+
+    QList<QDomElement> levelElements;
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+        if(elem.tagName() == "Level")
+            levelElements.append(elem);
+
+        if(elem.tagName() == "Character")
+        {
+            m_characters.append(Player(elem));
+        }
+
+        node = node.nextSibling();
+    }
+
+    for(int i=0; i<levelElements.size(); i++)
+    {
+        m_levels.append(new Level(levelElements.at(i), &m_characters));
+    }
 }
 
 void Game::nextFrame()

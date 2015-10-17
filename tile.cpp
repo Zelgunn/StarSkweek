@@ -11,10 +11,10 @@ Tile::Tile(Tile::TileType type)
 
     switch (m_type) {
     case Player1Tile:
-        filename.append("/images/Tile_pink2.png");
+        filename.append("/images/Tile_pink.png");
         break;
     case Player2Tile:
-        filename.append("/images/Tile_blue2.png");
+        filename.append("/images/Tile_blue.png");
         break;
     case Void:
         filename.append("/images/void.png");

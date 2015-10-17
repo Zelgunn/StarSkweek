@@ -8,12 +8,14 @@ GameObject::GameObject()
 
 const QPixmap *GameObject::model() const
 {
-    return &m_model;
+    if(m_direction == InvalidDirection)
+        return &m_models[Down];
+    return &m_models[m_direction];
 }
 
-void GameObject::setModel(const QPixmap &model)
+void GameObject::setModel(const QPixmap &model, Directions direction)
 {
-    m_model = model;
+    m_models[direction] = model;
 }
 
 Point GameObject::position() const
@@ -63,7 +65,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Up:
         res.x = 0;
-        res.y = -speed;
+        res.y = -speed*1.61;
         break;
     case Left:
         res.x = -speed;
@@ -71,7 +73,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Down:
         res.x = 0;
-        res.y = speed;
+        res.y = speed*1.61;
         break;
     default:
         res.x = 0;

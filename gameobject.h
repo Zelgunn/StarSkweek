@@ -24,7 +24,7 @@ public:
 
     GameObject();
     const QPixmap *model() const;
-    void setModel(const QPixmap &model);
+    void setModel(const QPixmap &model, Directions direction);
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(double x, double y);
@@ -40,7 +40,7 @@ public:
 protected:
     Point m_position;
     Grid *m_grid;
-    QPixmap m_model;
+    QPixmap m_models[4];
     double m_speed;
     Directions m_direction;
 };

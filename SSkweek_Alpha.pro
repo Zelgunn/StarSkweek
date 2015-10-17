@@ -7,6 +7,7 @@
 QT       += core gui
 QT       += serialport
 QT       += network
+QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -50,3 +51,6 @@ HEADERS  += mainwindow.h \
     animation.h
 
 FORMS    +=
+
+RESOURCES += \
+    dependencies.qrc
