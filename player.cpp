@@ -31,7 +31,7 @@ Player::Player(const QDomElement &element) :
 
         if(elem.tagName() == "Tile")
         {
-            m_tileType = (Tile::TileType)(elem.attribute("type").toInt() - 'a');
+            m_tileType = (Tile::TileType)(elem.attribute("type").toLatin1().at(0) - 'a');
         }
 
         node = node.nextSibling();
@@ -39,7 +39,7 @@ Player::Player(const QDomElement &element) :
 
     m_position.x = 0;
     m_position.y = 0;
-    m_speed = 0.0025;
+    m_speed = 0.0015;
     m_direction = InvalidDirection;
 }
 

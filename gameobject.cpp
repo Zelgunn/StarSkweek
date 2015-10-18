@@ -55,7 +55,7 @@ void GameObject::setSpeed(double speed)
     m_speed = speed;
 }
 
-Point GameObject::displacement(GameObject::Directions direction, double speed)
+Point GameObject::displacement(GameObject::Directions direction, double speed, double ratio)
 {
     Point res;
     switch (direction) {
@@ -65,7 +65,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Up:
         res.x = 0;
-        res.y = -speed*1.61;
+        res.y = -speed*ratio;
         break;
     case Left:
         res.x = -speed;
@@ -73,7 +73,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed)
         break;
     case Down:
         res.x = 0;
-        res.y = speed*1.61;
+        res.y = speed*ratio;
         break;
     default:
         res.x = 0;

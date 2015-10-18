@@ -1,9 +1,12 @@
 #include "level.h"
 
 Level::Level(const QDomElement &element, QList<Player> *characters)
-    : m_characters(characters)
+    : m_characters(characters), m_myPlayer(0)
 {
     m_players = new Player*[2];
+    m_tiles = new Tile[Tile::TypeCount];
+    int tileIndex;
+    QString filename;
     QDomElement elem;
     QDomNode node = element.firstChild();
 
@@ -15,10 +18,21 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
             m_grid = new Grid(elem);
         }
 
+        if(elem.tagName() == "TileSize")
+        {
+            m_tileSize.setHeight(elem.attribute("height").toInt());
+            m_tileSize.setWidth(elem.attribute("width").toInt());
+        }
+
+        if(elem.tagName() == "Tile")
+        {
+            tileIndex = elem.attribute("type").toLatin1().at(0) - 'a';
+            filename = QApplication::applicationDirPath() + elem.attribute("filename");
+            m_tiles[tileIndex] = Tile(filename, m_tileSize, (Tile::TileType)tileIndex);
+        }
+
         node = node.nextSibling();
     }
-    m_myPlayer = 0;
-
 
     m_players[0] = new Player(m_characters->at(0));
     m_players[0]->setPosition(0.5, 0.25);
@@ -60,12 +74,29 @@ const Player *Level::player2() const
         return m_players[0];
 }
 
+QList<Projectile *> Level::projectiles() const
+{
+    return m_projectiles;
+}
+
+QSize Level::tileSize() const
+{
+    return m_tileSize;
+}
+
+Tile *Level::tiles() const
+{
+    return m_tiles;
+}
+
 bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
 {
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
     Player *player = m_players[playerNumber], *player2 = m_players[!playerNumber];
 
-    Point displacement = GameObject::displacement(direction, player->speed());
+    double speedRatio = (double)(m_tileSize.width() * m_grid->width())/ (double)(m_tileSize.height() * m_grid->height());
+
+    Point displacement = GameObject::displacement(direction, player->speed(), speedRatio);
     displacement.x += player->position().x;
     displacement.y += player->position().y;
 
@@ -153,13 +184,14 @@ double Level::playerTileRatio() const
 
 void Level::nextFrame()
 {
+    double speedRatio = (double)(m_tileSize.width() * m_grid->width())/ (double)(m_tileSize.height() * m_grid->height());
     Projectile *projectile;
     Player *player;
 
     for(int i=0; i<m_projectiles.size(); i++)
     {
         projectile = m_projectiles.at(i);
-        projectile->move();
+        projectile->move(speedRatio);
         if(projectile->ttl() < 0)
         {
             m_projectiles.removeAt(i);
@@ -181,8 +213,3 @@ void Level::nextFrame()
     movePlayer1(m_players[0]->direction());
     movePlayer2(m_players[1]->direction());
 }
-QList<Projectile *> Level::projectiles() const
-{
-    return m_projectiles;
-}
-

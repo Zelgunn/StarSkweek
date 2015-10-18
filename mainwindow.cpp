@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent)
 {
-    setWindowTitle("Super Skweek v0.0 (alpha)");
+    setWindowTitle("Super Skweek v0.1 (alpha)");
     setWindowState(Qt::WindowFullScreen);
 
     new QShortcut(tr("Right"), this, SLOT(onRight()));
@@ -12,10 +12,14 @@ MainWindow::MainWindow(QWidget *parent) :
     new QShortcut(tr("Down"), this, SLOT(onDown()));
     new QShortcut(tr("Return"), this, SLOT(onEnter()));
 
-    m_game.load(":/xml/xml/data.xml");
-    const Grid *grid = m_game.level(0)->grid();
-    QRect rect = QApplication::desktop()->screenGeometry();
-    m_appearance.setAppearance(rect.width(), rect.height(), grid->width(), grid->height());
+    m_game.loadLevel(0);
+
+    m_screenDim = QApplication::desktop()->screenGeometry().size();
+
+    const Grid *grid = m_game.level()->grid();
+    QSize tileSize = m_game.level()->tileSize();
+    m_levelDim.setHeight(grid->height() * tileSize.height());
+    m_levelDim.setWidth(grid->width() * tileSize.width());
 
     m_timer = new QTimer(this);
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -49,10 +53,8 @@ void MainWindow::paintEvent(QPaintEvent *)
     if(!m_game.isStarted())
         paintWaitingSign(painter);
 
-    paintProgressionBar(painter);
-
 //    sum += time.msecsTo(QTime::currentTime());
-//    qDebug() << (double)sum / (double)count;
+//    qDebug() << (double)sum / (double)count * 25 / 4;
 
     painter->end();
     delete painter;
@@ -86,22 +88,22 @@ void MainWindow::paintBackground(QPainter *painter)
     {
         tmp = stars.at(i);
         painter->drawPoint(*tmp);
-        tmp->setY(tmp->y() - starsSpeed.at(i));
+        tmp->setX(tmp->x() - starsSpeed.at(i));
         if(i==0)
         {
             painter->drawPixmap(*tmp, image);
-            if(tmp->y() < - image.height())
+            if(tmp->x() < - image.width())
             {
-                tmp->setY(h);
-                tmp->setX(qrand()%w - image.width()/2);
+                tmp->setY(qrand()%h - image.height()/2);
+                tmp->setX(w);
             }
         }
-        else if(tmp->y() <= 0)
+        else if(tmp->x() < 0)
         {
             star = stars.at(i);
-            star->setX(qrand()%w);
+            star->setX(w);
             star->setY(qrand()%h);
-            starsSpeed.replace(i, qrand()%3 + 1);
+            //starsSpeed.replace(i, qrand()%3 + 1);
         }
     }
 }
@@ -165,15 +167,12 @@ void MainWindow::paintGame(QPainter *painter)
 
 void MainWindow::paintMap(QPainter *painter)
 {
-    Tile *tile;
-    const Grid *grid = m_game.level(0)->grid();
-    QRect screen = QApplication::desktop()->screenGeometry();
+    const Tile *tile;
+    const Grid *grid = m_game.level()->grid();
+    const Tile *tiles = m_game.level()->tiles();
+    QSize tileSize = m_game.level()->tileSize();
 
-    int theight = m_appearance.tileHeight();
-    int twidth = m_appearance.tileWidth();
-    int dy = m_appearance.dy()/2;
-
-    QPixmap map(grid->width()*twidth, grid->height()*theight);
+    QPixmap map(m_levelDim.width(), m_levelDim.height());
     map.fill(QColor(0,0,0,0));
     QPainter mapPainter(&map);
 
@@ -181,42 +180,33 @@ void MainWindow::paintMap(QPainter *painter)
     {
         for(uint j=0; j<grid->height(); j++)
         {
-            tile = Tile::tile(grid->tileAt(i,j));
+            tile = &tiles[grid->tileAt(i,j)];
             if(tile->type() != Tile::Void)
-                mapPainter.drawPixmap(i * twidth,
-                                      j * theight,
-                                      tile->resizedTexture(twidth, theight));
+                mapPainter.drawPixmap(i * tileSize.width(),
+                                      j * tileSize.height(),
+                                      tile->texture());
         }
     }
 
-    const Player *player = m_game.level(0)->player();
-    double x = 0.5 - player->position().x;
-    double y = 0.5 - player->position().y;
+    const Player *player = m_game.level()->player();
 
-    painter->drawPixmap(screen.width()*x, screen.height()*y, map);
+    painter->drawPixmap(toMap(player->position()), map);
 }
 
 void MainWindow::paintPlayer(QPainter *painter)
 {
-    int dy = m_appearance.dy()/2;
-    int theight = m_appearance.tileHeight();
+    QSize tileSize = m_game.level()->tileSize();
 
-    const Player *player = m_game.level(0)->player();
-    const Player *player2 = m_game.level(0)->player2();
-    QRect screen = QApplication::desktop()->screenGeometry();
+    const Player *player = m_game.level()->player();
+    const Player *player2 = m_game.level()->player2();
 
-    QPixmap pImage = player->model()->scaled(theight, theight);
-//    painter->drawPixmap(player->position().x * m_appearance.width() + PADDING - pImage.width() / 2,
-//                      player->position().y * m_appearance.height()+ dy - pImage.height() / 2,
-//                      pImage);
-    painter->drawPixmap(0.5 * screen.width()- pImage.width() / 2,
-                          0.5 * screen.height() - pImage.height() / 2,
-                          pImage);
+    QPixmap pImage = player->model()->scaled(tileSize.height(), tileSize.height());
+    QPoint playerOnScreen(0.5 * m_screenDim.width() - pImage.width()/2,
+                          0.5 * m_screenDim.height() - pImage.height()/2);
+    painter->drawPixmap(playerOnScreen, pImage);
 
-    pImage = player2->model()->scaled(theight, theight);
-    painter->drawPixmap((player2->position().x - player->position().x + 0.5) * screen.width() - pImage.width() / 2,
-                      (player2->position().y - player->position().y + 0.5) * screen.height()+ dy - pImage.height() / 2,
-                       pImage);
+    pImage = player2->model()->scaled(tileSize.height(), tileSize.height());
+    painter->drawPixmap(relativePosition(player2->position(), pImage.size()), pImage);
 }
 
 void MainWindow::paintWaitingSign(QPainter *painter)
@@ -231,11 +221,11 @@ void MainWindow::paintWaitingSign(QPainter *painter)
     QFont font("Times", 30, QFont::Bold);
     painter->setFont(font);
 
-    int w = m_appearance.width() * 3/5;
-    int h = m_appearance.height() / 10;
+    int w = m_screenDim.width() * 3/5;
+    int h = m_screenDim.height() / 10;
     QRect rect;
-    rect.setX((m_appearance.width() - w)/2);
-    rect.setY((m_appearance.height() - h)/2);
+    rect.setX((m_screenDim.width() - w)/2);
+    rect.setY((m_screenDim.height() - h)/2);
     rect.setWidth(w);
     rect.setHeight(h);
 
@@ -245,32 +235,9 @@ void MainWindow::paintWaitingSign(QPainter *painter)
     painter->drawText(rect, Qt::AlignCenter, message);
 }
 
-void MainWindow::paintProgressionBar(QPainter *painter)
-{
-    QRect screen = QApplication::desktop()->screenGeometry();
-    QRect rect1, rect2;
-
-    rect1.setX(m_appearance.width());
-    rect1.setY(m_appearance.dy()/2);
-    rect1.setWidth(screen.width() - m_appearance.width());
-    rect1.setHeight(m_appearance.height());
-
-    painter->setBrush(QColor(225, 93, 151, 100));
-    painter->drawRect(rect1);
-
-    double ratio = m_game.level(0)->playerTileRatio();
-
-    rect2 = rect1;
-    rect2.setY(rect1.y() + rect1.height()*ratio);
-
-    painter->setBrush(QColor(0, 170, 255, 100));
-    painter->drawRect(rect2);
-}
-
 void MainWindow::paintProjectiles(QPainter *painter)
 {
-    int dy = m_appearance.dy()/2;
-    QList<Projectile *> projectiles = m_game.level(0)->projectiles();
+    QList<Projectile *> projectiles = m_game.level()->projectiles();
     Projectile * projectile;
 
     QPixmap projectileModel;
@@ -279,9 +246,7 @@ void MainWindow::paintProjectiles(QPainter *painter)
     {
         projectile = projectiles.at(i);
         projectileModel = *projectile->model();
-        painter->drawPixmap(projectile->position().x * m_appearance.width() + projectileModel.width() / 2,
-                          projectile->position().y * m_appearance.height() + dy - projectileModel.height() / 2,
-                          projectileModel);
+        painter->drawPixmap(relativePosition(projectile->position(), projectileModel.size()), projectileModel);
     }
 }
 
@@ -318,4 +283,25 @@ void MainWindow::onEnter()
 void MainWindow::movePlayer(GameObject::Directions direction)
 {
     m_game.movePlayer(direction);
+}
+
+QPoint MainWindow::toMap(Point p)
+{
+    QPoint res;
+
+    res.setX(width()/2 - m_levelDim.width()*p.x);
+    res.setY(height()/2 - m_levelDim.height()*p.y);
+
+    return res;
+}
+
+QPoint MainWindow::relativePosition(Point p, QSize size)
+{
+    Point playerPosition = m_game.level()->player()->position();
+    QPoint playerOnScreen(0.5 * m_screenDim.width(), 0.5 * m_screenDim.height());
+
+    QPoint deltaPos((playerPosition.x - p.x)*m_levelDim.width() + size.width()/2,
+                    (playerPosition.y - p.y)*m_levelDim.height() + size.height()/2);
+
+    return playerOnScreen - deltaPos;
 }

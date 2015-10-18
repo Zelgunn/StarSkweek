@@ -30,7 +30,6 @@ SOURCES += main.cpp\
     multiplayerupdater.cpp \
     weapon.cpp \
     tile.cpp \
-    windowappearance.cpp \
     animation.cpp
 
 HEADERS  += mainwindow.h \
@@ -47,10 +46,9 @@ HEADERS  += mainwindow.h \
     multiplayerupdater.h \
     weapon.h \
     tile.h \
-    windowappearance.h \
     animation.h
 
 FORMS    +=
 
 RESOURCES += \
-    dependencies.qrc
+    data.qrc

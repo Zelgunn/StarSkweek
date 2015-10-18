@@ -5,6 +5,8 @@
 #include <QTimer>
 #include <QShortcut>
 #include <QDomDocument>
+#include <QDirIterator>
+#include <QFileInfo>
 
 #include "level.h"
 #include "soundplayer.h"
@@ -16,7 +18,7 @@ class Game : public QObject
 public:
     Game();
 
-    const Level *level(int i);
+    const Level *level();
     void movePlayer(GameObject::Directions direction);
     void player2Command(QString command);
     void movePlayer2(char direction);
@@ -26,7 +28,8 @@ public:
     void startGame();
     bool isStarted() const;
 
-    void load(const QString &filename);
+    void loadLevel(int level);
+    void loadLevel(const QString &filename);
 
 public slots:
     void onGameConnected();
@@ -41,9 +44,10 @@ private:
 
     QTimer *m_timer;
     QList<Player> m_characters;
-    QList<Level *> m_levels;
+    Level *m_level;
     SoundPlayer m_soundPlayer;
     MultiplayerUpdater m_multiplayerUpdater;
+    QStringList m_levels;
 };
 
 #endif // GAME_H

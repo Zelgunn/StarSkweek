@@ -3,24 +3,51 @@
 Game::Game() :
     m_lifes(0), m_score(0), m_timer(NULL)
 {
+    QString dir = QApplication::applicationDirPath() + "/xml/levels";
+    QDirIterator dirIt(dir ,QDirIterator::Subdirectories);
+    while (dirIt.hasNext()) {
+        dirIt.next();
+        if (QFileInfo(dirIt.filePath()).isFile())
+            if (QFileInfo(dirIt.filePath()).suffix() == "xml")
+                m_levels.append(dirIt.filePath());
+    }
+
+    QFile file(":/xml/xml/data.xml");
+    file.open(QIODevice::ReadOnly);
+
+    QDomDocument dom;
+    dom.setContent(&file);
+
+    QDomElement elem = dom.documentElement();
+    QDomNode node = elem.firstChild();
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+
+        if(elem.tagName() == "Character")
+        {
+            m_characters.append(Player(elem));
+        }
+
+        node = node.nextSibling();
+    }
+
     m_timer = new QTimer(this);
     QObject::connect(&m_multiplayerUpdater, SIGNAL(gameConnected()), this, SLOT(onGameConnected()));
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
 }
 
-const Level *Game::level(int i)
+const Level *Game::level()
 {
-    Q_ASSERT(i >= 0);
-    Q_ASSERT(i < m_levels.size());
-    return m_levels.at(i);
+    return m_level;
 }
 
 void Game::movePlayer(GameObject::Directions direction)
 {
     if(!m_timer->isActive()) return;
-    Level *level = m_levels.first();
 
-    level->setPlayerDirection(0, direction);
+    m_level->setPlayerDirection(0, direction);
     QString update = "pm";  // p = player, m = move
     update.append('0' + direction);
     m_multiplayerUpdater.sendUpdate(update);
@@ -44,12 +71,12 @@ void Game::player2Command(QString command)
 void Game::movePlayer2(char direction)
 {
     GameObject::Directions dir = (GameObject::Directions) (char)(direction - '0');
-    m_levels.first()->setPlayerDirection(1, dir);
+    m_level->setPlayerDirection(1, dir);
 }
 
 void Game::playerFires(int playerID)
 {
-    Level *level = m_levels.first();
+    Level *level = m_level;
     if(level->playerFires(playerID))
     {
         if(playerID == 0)
@@ -70,7 +97,12 @@ bool Game::isStarted() const
     return m_timer->isActive();
 }
 
-void Game::load(const QString &filename)
+void Game::loadLevel(int level)
+{
+    loadLevel(m_levels.at(level));
+}
+
+void Game::loadLevel(const QString &filename)
 {
     QFile file(filename);
     file.open(QIODevice::ReadOnly);
@@ -79,33 +111,13 @@ void Game::load(const QString &filename)
     dom.setContent(&file);
 
     QDomElement elem = dom.documentElement();
-    QDomNode node = elem.firstChild();
 
-    QList<QDomElement> levelElements;
-
-    while(!node.isNull())
-    {
-        elem = node.toElement();
-        if(elem.tagName() == "Level")
-            levelElements.append(elem);
-
-        if(elem.tagName() == "Character")
-        {
-            m_characters.append(Player(elem));
-        }
-
-        node = node.nextSibling();
-    }
-
-    for(int i=0; i<levelElements.size(); i++)
-    {
-        m_levels.append(new Level(levelElements.at(i), &m_characters));
-    }
+    m_level = new Level(elem, &m_characters);
 }
 
 void Game::nextFrame()
 {
-    Level *level = m_levels.first();
+    Level *level = m_level;
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
     QString update;
     char firstChar;
@@ -130,11 +142,11 @@ void Game::onGameConnected()
 {
     if(m_multiplayerUpdater.isFirst())
     {
-        m_levels.first()->setMyPlayer(0);
+        m_level->setMyPlayer(0);
     }
     else
     {
-        m_levels.first()->setMyPlayer(1);
+        m_level->setMyPlayer(1);
     }
     emit gameReady();
 }

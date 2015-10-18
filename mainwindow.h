@@ -8,7 +8,6 @@
 #include <QLinearGradient>
 #include <QTime>
 
-#include "windowappearance.h"
 #include "game.h"
 #include "tile.h"
 
@@ -40,14 +39,17 @@ protected:
     void paintMap(QPainter *painter);
     void paintPlayer(QPainter *painter);
     void paintWaitingSign(QPainter *painter);
-    void paintProgressionBar(QPainter *painter);
     void paintProjectiles(QPainter *painter);
     void movePlayer(GameObject::Directions direction);
 
+    QPoint toMap(Point p);
+    QPoint relativePosition(Point p, QSize size = QSize(0,0));
+
 private:
     Game m_game;
-    WindowAppearance m_appearance;
     QTimer *m_timer;
+    QSize m_screenDim;
+    QSize m_levelDim;
 };
 
 #endif // MAINWINDOW_H

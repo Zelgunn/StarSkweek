@@ -8,9 +8,10 @@ class Projectile : public GameObject
 public:
     Projectile();
     Projectile(Directions direction, int ownerID);
+    Projectile(const QDomElement &element);
     ~Projectile();
 
-    void move();
+    void move(double ratio);
 
     const QPixmap *model() const;
     int ttl() const;

@@ -18,6 +18,8 @@ public:
     const Player *player() const;
     const Player *player2() const;
     QList<Projectile *> projectiles() const;
+    QSize tileSize() const;
+    Tile *tiles() const;
 
     bool movePlayer(int playerNumber, GameObject::Directions direction);
     bool movePlayer1(GameObject::Directions direction);
@@ -31,12 +33,15 @@ public:
 
     void nextFrame();
 
+
 private:
     Grid *m_grid;
     Player **m_players;
     QList<Player> *m_characters;
     int m_myPlayer;
     QList<Projectile *> m_projectiles;
+    QSize m_tileSize;
+    Tile *m_tiles;
 };
 
 #endif // LEVEL_H

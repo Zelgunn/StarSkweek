@@ -33,7 +33,7 @@ public:
     Directions direction() const;
     void setDirection(const Directions &direction);
 
-    static Point displacement(Directions direction, double speed);
+    static Point displacement(Directions direction, double speed, double ratio = 1.0);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
 
