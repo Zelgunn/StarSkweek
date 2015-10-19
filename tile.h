@@ -14,7 +14,10 @@ public:
                   Void,
                   Player1Tile,
                   Player2Tile,
-                  ArrowTile,
+                  ArrowTileRight,
+                  ArrowTileUp,
+                  ArrowTileLeft,
+                  ArrowTileDown,
                   TypeCount
                  };
 
