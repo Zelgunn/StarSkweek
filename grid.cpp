@@ -34,8 +34,12 @@ Grid::Grid(const QDomElement &element)
 
 Tile::TileType Grid::tileAt(uint x, uint y) const
 {
-    Q_ASSERT(x < m_width);
-    Q_ASSERT(y < m_height);
+//    Q_ASSERT(x < m_width);
+//    Q_ASSERT(y < m_height);
+    if(y >= m_height)
+    {
+        qDebug() << "54";
+    }
 
     return m_values[x][y];
 }

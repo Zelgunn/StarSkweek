@@ -16,11 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_screenDim = QApplication::desktop()->screenGeometry().size();
 
-    const Grid *grid = m_game.level()->grid();
-    QSize tileSize = m_game.level()->tileSize();
-    m_levelDim.setHeight(grid->height() * tileSize.height());
-    m_levelDim.setWidth(grid->width() * tileSize.width());
-
     m_timer = new QTimer(this);
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
     QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
@@ -41,10 +36,10 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
 
-//    QTime time;
-//    static int count = 0; count ++;
-//    static int sum = 0;
-//    time = QTime::currentTime();
+    static QTime time = QTime::currentTime();;
+    static int count = 0; count ++;
+    static int sum = 0;
+
 
     paintBackground(painter);
     paintBackgroundLaser(painter);
@@ -53,7 +48,11 @@ void MainWindow::paintEvent(QPaintEvent *)
     if(!m_game.isStarted())
         paintWaitingSign(painter);
 
-//    sum += time.msecsTo(QTime::currentTime());
+    sum += time.msecsTo(QTime::currentTime());
+    time = QTime::currentTime();
+
+    painter->setFont(QFont("Times", 16, QFont::Bold));
+    painter->drawText(width() - 150, 50, "FPS : " + QString::number(1000*count/sum));
 //    qDebug() << (double)sum / (double)count * 25 / 4;
 
     painter->end();
@@ -66,6 +65,8 @@ void MainWindow::paintBackground(QPainter *painter)
     static QList<QPoint*> stars;
     QPoint *star;
     static QList<int> starsSpeed;
+    static int deathstarMove = 0;
+    deathstarMove ++;
 
     QRect rect = QApplication::desktop()->screenGeometry();
     int w = rect.width();
@@ -77,7 +78,10 @@ void MainWindow::paintBackground(QPainter *painter)
     while(stars.size() < 1000)
     {
         stars.append(new QPoint(qrand()%w, qrand()%h));
-        starsSpeed.append(qrand()%3 + 1);
+        if(stars.size() == 1)
+            starsSpeed.append(0);
+        else
+            starsSpeed.append((qrand()%12 + 1));
     }
 
     QPoint *tmp;
@@ -91,6 +95,11 @@ void MainWindow::paintBackground(QPainter *painter)
         tmp->setX(tmp->x() - starsSpeed.at(i));
         if(i==0)
         {
+            if(deathstarMove == 5)
+            {
+                deathstarMove = 0;
+                tmp->setX(tmp->x() - 1);
+            }
             painter->drawPixmap(*tmp, image);
             if(tmp->x() < - image.width())
             {
@@ -115,27 +124,31 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
     static int htoh;
     static int cooldown = -60;
     static QColor color;
+    static int size;
     int tmp;
 
     QRect rect = QApplication::desktop()->screenGeometry();
 
-    if(frame < cooldown)
+    if((frame < cooldown) && frame < 0)
     {
         p1 = ((double)(qrand()%100))/100.0;
         p2 = ((double)(qrand()%100))/100.0;
-        frame = qrand()%5 + 5;
+        frame = qrand()%12 + 5;
+        size = frame;
         htoh = qrand()%2;
-        cooldown = - (qrand()%4)*60;
+        cooldown = - (qrand()%16)*60 + 320;
         tmp = qrand()%3;
         color = QColor((tmp==0)*255, (tmp==1)*255, (tmp==2)*255);
     }
 
     if(frame > 0)
     {
-
         QPen ppen = painter->pen();
         QPen pen(color);
-        pen.setWidth(frame);
+        if(frame > size/2)
+            pen.setWidth(size - frame);
+        else
+            pen.setWidth(frame);
         painter->setPen(pen);
 
         if(htoh == 1)
@@ -144,6 +157,7 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
                               0,
                               p2 * rect.width(),
                               rect.height());
+
         }
         else
         {
@@ -163,6 +177,7 @@ void MainWindow::paintGame(QPainter *painter)
     paintMap(painter);
     paintPlayer(painter);
     paintProjectiles(painter);
+    paintHUD(painter);
 }
 
 void MainWindow::paintMap(QPainter *painter)
@@ -172,7 +187,14 @@ void MainWindow::paintMap(QPainter *painter)
     const Tile *tiles = m_game.level()->tiles();
     QSize tileSize = m_game.level()->tileSize();
 
-    QPixmap map(m_levelDim.width(), m_levelDim.height());
+    uint w = m_game.level()->grid()->width();
+    uint h = m_game.level()->grid()->height();
+
+    QSize mapSize;
+    mapSize.setWidth(tileSize.width()*w);
+    mapSize.setHeight(tileSize.height()*h);
+
+    QPixmap map(mapSize);
     map.fill(QColor(0,0,0,0));
     QPainter mapPainter(&map);
 
@@ -237,16 +259,47 @@ void MainWindow::paintWaitingSign(QPainter *painter)
 
 void MainWindow::paintProjectiles(QPainter *painter)
 {
-    ProjectileList projectiles = m_game.level()->projectiles();
+    const ProjectileList *projectiles = m_game.level()->projectiles();
     Projectile * projectile;
 
     QPixmap projectileModel;
 
-    for(int i=0; i<projectiles.size(); i++)
+    for(int i=0; i<projectiles->size(); i++)
     {
-        projectile = projectiles.at(i);
+        projectile = projectiles->at(i);
         projectileModel = *projectile->model();
         painter->drawPixmap(relativePosition(projectile->position(), projectileModel.size()), projectileModel);
+    }
+}
+
+void MainWindow::paintHUD(QPainter *painter)
+{
+    int w;
+    for(int i=0; i<2; i++)
+    {
+        const Player *player = m_game.level()->player(i);
+
+        QSize tileSize = m_game.level()->tileSize();
+
+        Point position = player->position();
+        position.y -= tileSize.height()/2 + 20;
+        position.x -= tileSize.width()/2;
+
+        w = tileSize.width();
+        QRect lifeBarRect(relativePosition(position), QSize(w, 5));
+        painter->setBrush(QColor(255,0,0));
+        painter->drawRect(lifeBarRect);
+
+        lifeBarRect.setWidth(w * player->lifeAnim()/player->maxLife());
+        painter->setBrush(QColor(200,255,0));
+        painter->drawRect(lifeBarRect);
+
+        if(player->life() <= player->lifeAnim())
+        {
+            lifeBarRect.setWidth(w * player->life()/player->maxLife());
+            painter->setBrush(QColor(0,255,0));
+            painter->drawRect(lifeBarRect);
+        }
     }
 }
 
@@ -289,8 +342,8 @@ QPoint MainWindow::toMap(Point p)
 {
     QPoint res;
 
-    res.setX(width()/2 - m_levelDim.width()*p.x);
-    res.setY(height()/2 - m_levelDim.height()*p.y);
+    res.setX(width()/2 - p.x);
+    res.setY(height()/2 - p.y);
 
     return res;
 }
@@ -300,8 +353,8 @@ QPoint MainWindow::relativePosition(Point p, QSize size)
     Point playerPosition = m_game.level()->player()->position();
     QPoint playerOnScreen(0.5 * m_screenDim.width(), 0.5 * m_screenDim.height());
 
-    QPoint deltaPos((playerPosition.x - p.x)*m_levelDim.width() + size.width()/2,
-                    (playerPosition.y - p.y)*m_levelDim.height() + size.height()/2);
+    QPoint deltaPos((playerPosition.x - p.x) + size.width()/2 + 1,
+                    (playerPosition.y - p.y) + size.height()/2 + 1);
 
     return playerOnScreen - deltaPos;
 }

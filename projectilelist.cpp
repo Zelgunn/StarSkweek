@@ -1,11 +1,13 @@
 #include "projectilelist.h"
 
-ProjectileList::ProjectileList()
+ProjectileList::ProjectileList(QObject *parent)
+    : QObject(parent)
 {
 
 }
 
-ProjectileList::ProjectileList(QDomElement element)
+ProjectileList::ProjectileList(QDomElement element, QObject *parent)
+    : QObject(parent)
 {
     QDomNode node = element.firstChild();
 
@@ -30,15 +32,15 @@ void ProjectileList::append(int type, int faction, GameObject::Directions direct
    m_projectiles.append(copy);
 }
 
-void ProjectileList::moveProjectiles(double ratio)
+void ProjectileList::moveProjectiles()
 {
     Projectile *projectile, *projectile2;
-    const GameObject *gameObject;
+    GameObject *gameObject;
 
     for(int i=0; i<m_projectiles.size(); i++)
     {
         projectile = m_projectiles.at(i);
-        projectile->move(ratio);
+        projectile->move();
         if(projectile->ttl() < 0)
         {
             m_projectiles.removeAt(i);
@@ -52,8 +54,10 @@ void ProjectileList::moveProjectiles(double ratio)
                 gameObject = m_gameObjects.at(j);
                 if(gameObject->faction() != projectile->faction())
                 {
-                    if(GameObject::euclidianDistance(gameObject->position(), projectile->position()) < 0.02)
+                    if(GameObject::euclidianDistance(gameObject->position(), projectile->position()) < 20)
                     {
+                        if(gameObject->isPlayer())
+                            emit hitPlayer(gameObject, projectile->type());
                         m_projectiles.removeAt(i);
                         delete projectile;
                         i--;
@@ -78,7 +82,7 @@ void ProjectileList::moveProjectiles(double ratio)
     }
 }
 
-void ProjectileList::appendCollision(const GameObject *gameObject)
+void ProjectileList::appendCollision(GameObject *gameObject)
 {
     m_gameObjects.append(gameObject);
 }

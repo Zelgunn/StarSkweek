@@ -8,6 +8,7 @@ class Weapon
 {
 public:
     Weapon();
+    Weapon(const QDomElement &element);
 
     int ammunition() const;
     void setAmmunition(int ammunitionType);

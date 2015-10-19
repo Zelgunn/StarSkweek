@@ -9,7 +9,7 @@ Tile::Tile()
 Tile::Tile(const QString &filename, const QSize &size, TileType type)
     : m_type(type)
 {
-    m_texture = QPixmap(filename).scaled(size);
+    m_texture = QPixmap(filename).scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
 
 void Tile::resize(QSize size)

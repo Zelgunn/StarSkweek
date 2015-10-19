@@ -40,6 +40,7 @@ protected:
     void paintPlayer(QPainter *painter);
     void paintWaitingSign(QPainter *painter);
     void paintProjectiles(QPainter *painter);
+    void paintHUD(QPainter *painter);
     void movePlayer(GameObject::Directions direction);
 
     QPoint toMap(Point p);
@@ -49,7 +50,6 @@ private:
     Game m_game;
     QTimer *m_timer;
     QSize m_screenDim;
-    QSize m_levelDim;
 };
 
 #endif // MAINWINDOW_H

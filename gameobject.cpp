@@ -28,13 +28,13 @@ void GameObject::setPosition(const Point &position)
     m_position = position;
 }
 
-void GameObject::setPosition(double x, double y)
+void GameObject::setPosition(int x, int y)
 {
     m_position.x = x;
     m_position.y = y;
 }
 
-double GameObject::speed() const
+int GameObject::speed() const
 {
     return m_speed;
 }
@@ -50,7 +50,7 @@ void GameObject::setDirection(const Directions &direction)
 }
 
 
-void GameObject::setSpeed(double speed)
+void GameObject::setSpeed(int speed)
 {
     m_speed = speed;
 }
@@ -65,7 +65,27 @@ void GameObject::setFaction(int faction)
     m_faction = faction;
 }
 
-Point GameObject::displacement(GameObject::Directions direction, double speed, double ratio)
+bool GameObject::isUnit() const
+{
+    return false;
+}
+
+bool GameObject::isPlayer() const
+{
+    return false;
+}
+
+bool GameObject::isMonster() const
+{
+    return false;
+}
+
+bool GameObject::isProjectile() const
+{
+    return false;
+}
+
+Point GameObject::displacement(GameObject::Directions direction, int speed)
 {
     Point res;
     switch (direction) {
@@ -75,7 +95,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed, d
         break;
     case Up:
         res.x = 0;
-        res.y = -speed*ratio;
+        res.y = -speed;
         break;
     case Left:
         res.x = -speed;
@@ -83,7 +103,7 @@ Point GameObject::displacement(GameObject::Directions direction, double speed, d
         break;
     case Down:
         res.x = 0;
-        res.y = speed*ratio;
+        res.y = speed;
         break;
     default:
         res.x = 0;

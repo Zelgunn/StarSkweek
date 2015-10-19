@@ -15,7 +15,7 @@ Projectile::Projectile()
 Projectile::Projectile(GameObject::Directions direction, int faction)
 {
     m_ttl = 120;
-    m_speed = 0.002;
+    m_speed = 1;
 
     QString dir = QApplication::applicationDirPath();
     m_models[Right] = QPixmap(dir + "/images/laser_right.png").scaledToHeight(15);
@@ -44,7 +44,8 @@ Projectile::Projectile(const QDomElement &element)
         if(elem.tagName() == "Spec")
         {
             m_ttl = elem.attribute("ttl").toInt();
-            m_speed = elem.attribute("speed").toDouble();
+            m_speed = elem.attribute("speed").toInt();
+            m_damage = elem.attribute("damage").toInt();
         }
 
         if(elem.tagName() == "ModelSize")
@@ -75,9 +76,9 @@ Projectile::~Projectile()
 
 }
 
-void Projectile::move(double ratio)
+void Projectile::move()
 {
-    Point delta = displacement(m_direction, m_speed, ratio);
+    Point delta = displacement(m_direction, m_speed);
     m_position.x += delta.x;
     m_position.y += delta.y;
     m_ttl --;
@@ -102,6 +103,21 @@ void Projectile::setType(int type)
 {
     m_type = type;
 }
+
+bool Projectile::isProjectile() const
+{
+    return true;
+}
+int Projectile::damage() const
+{
+    return m_damage;
+}
+
+void Projectile::setDamage(int damage)
+{
+    m_damage = damage;
+}
+
 
 
 

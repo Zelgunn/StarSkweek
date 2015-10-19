@@ -7,6 +7,11 @@ Weapon::Weapon()
     m_ammunitionType = 0;
 }
 
+Weapon::Weapon(const QDomElement &element)
+{
+
+}
+
 int Weapon::ammunition() const
 {
     return m_ammunitionType;

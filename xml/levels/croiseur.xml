@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <Level>
-	<TileSize width="80" height="50"/>
+	<TileSize width="64" height="40"/>
 	<Grid>
 		<Size width="32" height="16"/>
-		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbddddddddbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaadbbbbbbbbbbbbbbbbbbbbccdaaaaaaaadcccccccccccccccccccccccddddddddcccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbbbbbbbbbbbbbbbbccdaaaaaaaafccccccccccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
 	</Grid>
 	<Tile type="a" filename="/images/void.png"/>
 	<Tile type="b" filename="/images/Tile_pink.png"/>
 	<Tile type="c" filename="/images/Tile_blue.png"/>
 	<Tile type="d" filename="/images/ArrowTile_Right.png"/>
+	<Tile type="e" filename="/images/ArrowTile_Up.png"/>
+	<Tile type="f" filename="/images/ArrowTile_Left.png"/>
+	<Tile type="g" filename="/images/ArrowTile_Down.png"/>
 </Level>

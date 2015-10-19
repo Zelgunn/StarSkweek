@@ -4,23 +4,27 @@
 #include <QList>
 #include "projectile.h"
 
-class ProjectileList
+class ProjectileList : public QObject
 {
+    Q_OBJECT
 public:
-    ProjectileList();
-    ProjectileList(QDomElement element);
+    ProjectileList(QObject *parent = Q_NULLPTR);
+    ProjectileList(QDomElement element, QObject *parent = Q_NULLPTR);
 
     void append(int type, int faction, GameObject::Directions direction, Point position);
-    void moveProjectiles(double ratio);
+    void moveProjectiles();
 
-    void appendCollision(const GameObject* gameObject);
+    void appendCollision(GameObject* gameObject);
     Projectile *at(int i) const;
     int size() const;
+
+signals:
+    void hitPlayer(GameObject* player, int type);
 
 private:
     QList<Projectile> m_prototypes; /** @brief Liste des prototypes de projectiles instanciables. */
     QList<Projectile *> m_projectiles; /** @brief Liste des projectiles instanciés et mutables. */
-    QList<const GameObject *> m_gameObjects;
+    QList<GameObject *> m_gameObjects;
 };
 
 #endif // PROJECTILELIST_H

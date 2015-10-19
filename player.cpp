@@ -4,7 +4,7 @@ Player::Player()
 {
     m_position.x = 0;
     m_position.y = 0;
-    m_speed = 0.0025;
+    m_speed = 10;
     m_tileType = Tile::Player1Tile;
     m_direction = InvalidDirection;
     m_previousDirection = Down;
@@ -39,8 +39,13 @@ Player::Player(const QDomElement &element) :
 
     m_position.x = 0;
     m_position.y = 0;
-    m_speed = 0.0015;
+    m_speed = 4;
     m_direction = InvalidDirection;
+}
+
+Player::~Player()
+{
+
 }
 
 Tile::TileType Player::tileType() const
@@ -84,6 +89,7 @@ int Player::fire()
     return m_weapon.fire();
 }
 
-
-
-
+bool Player::isPlayer() const
+{
+    return true;
+}

@@ -7,6 +7,8 @@ class Monster : public Unit
 {
 public:
     Monster();
+
+    bool isMonster() const;
 };
 
 #endif // MONSTER_H

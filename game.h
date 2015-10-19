@@ -49,6 +49,7 @@ private:
     MultiplayerUpdater m_multiplayerUpdater;
     QStringList m_levels;
     QDomElement m_projectilesElement;
+    QDomElement m_weaponsElement;
 };
 
 #endif // GAME_H

@@ -34,22 +34,24 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
 
         if(elem.tagName() == "Projectiles")
         {
-            m_projectiles = ProjectileList(elem);
+            m_projectiles = new ProjectileList(elem);
         }
 
         node = node.nextSibling();
     }
 
     m_players[0] = new Player(m_characters->at(0));
-    m_players[0]->setPosition(0.5, 0.25);
+    m_players[0]->setPosition(width()/2, height()/4);
     m_players[0]->setFaction(0);
 
     m_players[1] = new Player(m_characters->at(1));
-    m_players[1]->setPosition(0.5, 0.75);
+    m_players[1]->setPosition(width()/2, height()*3/4);
     m_players[1]->setFaction(1);
 
-    m_projectiles.appendCollision(m_players[0]);
-    m_projectiles.appendCollision(m_players[1]);
+    m_projectiles->appendCollision(m_players[0]);
+    m_projectiles->appendCollision(m_players[1]);
+
+    QObject::connect(m_projectiles, SIGNAL(hitPlayer(GameObject*,int)), this, SLOT(onPlayerHit(GameObject*,int)));
 }
 
 void Level::setMyPlayer(int playerNumber)
@@ -69,6 +71,14 @@ const Grid *Level::grid() const
     return m_grid;
 }
 
+const Player *Level::player(int index) const
+{
+    if(m_myPlayer == index)
+        return m_players[0];
+    else
+        return m_players[1];
+}
+
 const Player *Level::player() const
 {
     if(m_myPlayer == 0)
@@ -85,7 +95,7 @@ const Player *Level::player2() const
         return m_players[0];
 }
 
-ProjectileList Level::projectiles() const
+const ProjectileList *Level::projectiles() const
 {
     return m_projectiles;
 }
@@ -100,29 +110,34 @@ Tile *Level::tiles() const
     return m_tiles;
 }
 
+int Level::width() const
+{
+    return m_tileSize.width() * m_grid->width();
+}
+
+int Level::height() const
+{
+    return m_tileSize.height() * m_grid->height();
+}
+
 bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
 {
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
     Player *player = m_players[playerNumber], *player2 = m_players[!playerNumber];
 
-    double speedRatio = (double)(m_tileSize.width() * m_grid->width())/ (double)(m_tileSize.height() * m_grid->height());
-
-    Point displacement = GameObject::displacement(direction, player->speed(), speedRatio);
+    Point displacement = GameObject::displacement(direction, player->speed());
     displacement.x += player->position().x;
     displacement.y += player->position().y;
 
-    if((displacement.x < 0) ||
-       (displacement.y < 0)  ||
-       (displacement.x > 1)  ||
-       (displacement.y > 1)) return false;
+    int w = m_tileSize.width(), h = m_tileSize.height();
 
-    if(displacement.x < 0) displacement.x = 0;
-    if(displacement.y < 0) displacement.y = 0;
-    if(displacement.x > 1) displacement.x = 1;
-    if(displacement.y > 1) displacement.y = 1;
+    if((displacement.x < 0)         ||
+       (displacement.y < 0)         ||
+       (displacement.x >= width())  ||
+       (displacement.y >= height())) return false;
 
-    uint x = displacement.x * m_grid->width();
-    uint y = displacement.y * m_grid->height();
+    uint x = displacement.x / w;
+    uint y = displacement.y / h;
 
     if(m_grid->tileAt(x, y) == Tile::Void)
         return false;
@@ -158,7 +173,7 @@ bool Level::playerFires(int playerId)
 
     if(type >= 0)
     {
-        m_projectiles.append(type, playerId, player->previousDirection(), player->position());
+        m_projectiles->append(type, playerId, player->previousDirection(), player->position());
 
         return true;
     }
@@ -191,10 +206,17 @@ double Level::playerTileRatio() const
 
 void Level::nextFrame()
 {
-    double speedRatio = (double)(m_tileSize.width() * m_grid->width())/ (double)(m_tileSize.height() * m_grid->height());
-
-    m_projectiles.moveProjectiles(speedRatio);
+    m_projectiles->moveProjectiles();
 
     movePlayer1(m_players[0]->direction());
     movePlayer2(m_players[1]->direction());
+
+    m_players[0]->updateLifeAnim();
+    m_players[1]->updateLifeAnim();
+}
+
+void Level::onPlayerHit(GameObject *player, int type)
+{
+    Player *p = (Player*) player;
+    p->takeDamage(m_projectiles->at(type)->damage());
 }

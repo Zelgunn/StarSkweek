@@ -35,6 +35,11 @@ Game::Game() :
             m_projectilesElement = elem;
         }
 
+        if(elem.tagName() == "Weapons")
+        {
+            m_weaponsElement = elem;
+        }
+
         node = node.nextSibling();
     }
 

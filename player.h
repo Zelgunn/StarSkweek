@@ -11,6 +11,7 @@ class Player : public Unit
 public:
     Player();
     Player(const QDomElement &element);
+    virtual ~Player();
 
     Tile::TileType tileType() const;
     void setTileType(Tile::TileType tileType);
@@ -23,6 +24,8 @@ public:
     void setDirection(const Directions &direction);
 
     int fire();
+
+    bool isPlayer() const;
 
 private:
     Tile::TileType m_tileType;

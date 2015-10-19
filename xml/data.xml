@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <root>
-    <Character name="Dark Vador">
-        <Tile type="b"/>
-        <Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player1.png"/>
-    </Character>
-    <Character name="Obi Wan Kenobi">
-        <Tile type="c"/>
-        <Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player2.png"/>
-    </Character>
+	<Character name="Dark Vador">
+		<Tile type="b"/>
+		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player1.png"/>
+	</Character>
+	<Character name="Obi Wan Kenobi">
+		<Tile type="c"/>
+		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player2.png"/>
+	</Character>
 	<Projectiles>
 		<Projectile name="Laser Bolt" type="a">
-			<Spec speed="0.005" ttl="120" />
-			<ModelSize width="20" height="10"/>
+			<Spec speed="20" ttl="120" damage="25"/>
+			<ModelSize width="30" height="15"/>
 			<Model right="/images/laser_right.png" up="/images/laser_up.png" left="/images/laser_left.png" down="/images/laser_down.png"/>
 		</Projectile>
 	</Projectiles>
+	<Weapons>
+		<Weapon name="Laser Bolt">
+			<Spec reload="500" ammo="a"/>
+		</Weapon>
+	</Weapons>
 </root>

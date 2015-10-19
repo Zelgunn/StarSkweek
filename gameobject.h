@@ -8,7 +8,7 @@
 #include "grid.h"
 
 struct Point{
-    double x,y;
+    int x,y;
 };
 
 class GameObject
@@ -27,22 +27,27 @@ public:
     void setModel(const QPixmap &model, Directions direction);
     Point position() const;
     void setPosition(const Point &position);
-    void setPosition(double x, double y);
-    void setSpeed(double speed);
-    double speed() const;
+    void setPosition(int x, int y);
+    void setSpeed(int speed);
+    int speed() const;
     Directions direction() const;
     void setDirection(const Directions &direction);
     int faction() const;
     void setFaction(int faction);
 
-    static Point displacement(Directions direction, double speed, double ratio = 1.0);
+    virtual bool isUnit() const;
+    virtual bool isPlayer() const;
+    virtual bool isMonster() const;
+    virtual bool isProjectile() const;
+
+    static Point displacement(Directions direction, int speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
 protected:
     Point m_position;
     Grid *m_grid;
     QPixmap m_models[4];
-    double m_speed;
+    int m_speed;
     Directions m_direction;
     int m_faction;
 };
