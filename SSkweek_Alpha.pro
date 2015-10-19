@@ -7,6 +7,7 @@
 QT       += core gui
 QT       += serialport
 QT       += network
+QT       += xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,7 +30,6 @@ SOURCES += main.cpp\
     multiplayerupdater.cpp \
     weapon.cpp \
     tile.cpp \
-    windowappearance.cpp \
     animation.cpp
 
 HEADERS  += mainwindow.h \
@@ -46,7 +46,9 @@ HEADERS  += mainwindow.h \
     multiplayerupdater.h \
     weapon.h \
     tile.h \
-    windowappearance.h \
     animation.h
 
 FORMS    +=
+
+RESOURCES += \
+    data.qrc
