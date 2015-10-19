@@ -9,12 +9,12 @@ class Weapon
 public:
     Weapon();
 
-    Projectile ammunition() const;
-    void setAmmunition(const Projectile &ammunition);
-    bool fire(Projectile *projectile);
+    int ammunition() const;
+    void setAmmunition(int ammunitionType);
+    int fire();
 
 private:
-    Projectile m_ammunition;
+    int m_ammunitionType;
     double m_reloadTime;
     QTime m_lastUse;
 

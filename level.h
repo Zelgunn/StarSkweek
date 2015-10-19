@@ -7,6 +7,7 @@
 #include "player.h"
 #include "monster.h"
 #include "tile.h"
+#include "projectilelist.h"
 
 class Level
 {
@@ -17,7 +18,7 @@ public:
     const Grid *grid() const;
     const Player *player() const;
     const Player *player2() const;
-    QList<Projectile *> projectiles() const;
+    ProjectileList projectiles() const;
     QSize tileSize() const;
     Tile *tiles() const;
 
@@ -39,7 +40,7 @@ private:
     Player **m_players;
     QList<Player> *m_characters;
     int m_myPlayer;
-    QList<Projectile *> m_projectiles;
+    ProjectileList m_projectiles;
     QSize m_tileSize;
     Tile *m_tiles;
 };

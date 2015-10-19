@@ -79,9 +79,9 @@ void Player::setDirection(const GameObject::Directions &direction)
     m_direction = direction;
 }
 
-bool Player::fire(Projectile *projectile)
+int Player::fire()
 {
-    return m_weapon.fire(projectile);
+    return m_weapon.fire();
 }
 
 

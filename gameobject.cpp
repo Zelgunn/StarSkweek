@@ -55,6 +55,16 @@ void GameObject::setSpeed(double speed)
     m_speed = speed;
 }
 
+int GameObject::faction() const
+{
+    return m_faction;
+}
+
+void GameObject::setFaction(int faction)
+{
+    m_faction = faction;
+}
+
 Point GameObject::displacement(GameObject::Directions direction, double speed, double ratio)
 {
     Point res;

@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     multiplayerupdater.cpp \
     weapon.cpp \
     tile.cpp \
-    animation.cpp
+    animation.cpp \
+    projectilelist.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -46,7 +47,8 @@ HEADERS  += mainwindow.h \
     multiplayerupdater.h \
     weapon.h \
     tile.h \
-    animation.h
+    animation.h \
+    projectilelist.h
 
 FORMS    +=
 

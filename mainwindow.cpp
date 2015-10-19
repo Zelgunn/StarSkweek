@@ -237,7 +237,7 @@ void MainWindow::paintWaitingSign(QPainter *painter)
 
 void MainWindow::paintProjectiles(QPainter *painter)
 {
-    QList<Projectile *> projectiles = m_game.level()->projectiles();
+    ProjectileList projectiles = m_game.level()->projectiles();
     Projectile * projectile;
 
     QPixmap projectileModel;

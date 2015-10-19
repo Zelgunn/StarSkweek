@@ -13,6 +13,7 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
     while(!node.isNull())
     {
         elem = node.toElement();
+
         if(elem.tagName() == "Grid")
         {
             m_grid = new Grid(elem);
@@ -31,14 +32,24 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
             m_tiles[tileIndex] = Tile(filename, m_tileSize, (Tile::TileType)tileIndex);
         }
 
+        if(elem.tagName() == "Projectiles")
+        {
+            m_projectiles = ProjectileList(elem);
+        }
+
         node = node.nextSibling();
     }
 
     m_players[0] = new Player(m_characters->at(0));
     m_players[0]->setPosition(0.5, 0.25);
+    m_players[0]->setFaction(0);
 
     m_players[1] = new Player(m_characters->at(1));
     m_players[1]->setPosition(0.5, 0.75);
+    m_players[1]->setFaction(1);
+
+    m_projectiles.appendCollision(m_players[0]);
+    m_projectiles.appendCollision(m_players[1]);
 }
 
 void Level::setMyPlayer(int playerNumber)
@@ -74,7 +85,7 @@ const Player *Level::player2() const
         return m_players[0];
 }
 
-QList<Projectile *> Level::projectiles() const
+ProjectileList Level::projectiles() const
 {
     return m_projectiles;
 }
@@ -143,19 +154,15 @@ void Level::setPlayerDirection(int playerId, GameObject::Directions direction)
 bool Level::playerFires(int playerId)
 {
     Player *player = m_players[playerId];
+    int type = player->fire();
 
-    Projectile *projectile = new Projectile;
-    if(player->fire(projectile))
+    if(type >= 0)
     {
-        projectile->setPosition(player->position());
-        projectile->setDirection(player->previousDirection());
-        projectile->setOwnerID(playerId);
-        m_projectiles.append(projectile);
+        m_projectiles.append(type, playerId, player->previousDirection(), player->position());
 
         return true;
     }
 
-    delete projectile;
     return false;
 }
 
@@ -185,30 +192,8 @@ double Level::playerTileRatio() const
 void Level::nextFrame()
 {
     double speedRatio = (double)(m_tileSize.width() * m_grid->width())/ (double)(m_tileSize.height() * m_grid->height());
-    Projectile *projectile;
-    Player *player;
 
-    for(int i=0; i<m_projectiles.size(); i++)
-    {
-        projectile = m_projectiles.at(i);
-        projectile->move(speedRatio);
-        if(projectile->ttl() < 0)
-        {
-            m_projectiles.removeAt(i);
-            delete projectile;
-            i--;
-        }
-        else
-        {
-            player = m_players[!projectile->ownerID()];
-            if(GameObject::euclidianDistance(projectile->position(), player->position()) < 0.025)
-            {
-                m_projectiles.removeAt(i);
-                delete projectile;
-                i--;
-            }
-        }
-    }
+    m_projectiles.moveProjectiles(speedRatio);
 
     movePlayer1(m_players[0]->direction());
     movePlayer2(m_players[1]->direction());

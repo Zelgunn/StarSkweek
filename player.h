@@ -22,7 +22,7 @@ public:
     void setPreviousDirection(const Directions &previousDirection);
     void setDirection(const Directions &direction);
 
-    bool fire(Projectile *projectile);
+    int fire();
 
 private:
     Tile::TileType m_tileType;

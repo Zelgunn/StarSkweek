@@ -4,25 +4,27 @@ Weapon::Weapon()
 {
     m_reloadTime = 500;
     m_lastUse = QTime::currentTime();
+    m_ammunitionType = 0;
 }
 
-Projectile Weapon::ammunition() const
+int Weapon::ammunition() const
 {
-    return m_ammunition;
+    return m_ammunitionType;
 }
 
-void Weapon::setAmmunition(const Projectile &ammunition)
+void Weapon::setAmmunition(int ammunitionType)
 {
-    m_ammunition = ammunition;
+    m_ammunitionType = ammunitionType;
 }
 
-bool Weapon::fire(Projectile *projectile)
+int Weapon::fire()
 {
+    int type = -1;
     if(m_lastUse.msecsTo(QTime::currentTime()) >= m_reloadTime)
     {
-        *projectile = m_ammunition;
         m_lastUse = QTime::currentTime();
-        return true;
+        type =  m_ammunitionType;
     }
-    return false;
+
+    return type;
 }

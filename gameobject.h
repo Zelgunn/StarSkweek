@@ -32,10 +32,11 @@ public:
     double speed() const;
     Directions direction() const;
     void setDirection(const Directions &direction);
+    int faction() const;
+    void setFaction(int faction);
 
     static Point displacement(Directions direction, double speed, double ratio = 1.0);
     static double euclidianDistance(const Point &p1, const Point &p2);
-
 
 protected:
     Point m_position;
@@ -43,6 +44,7 @@ protected:
     QPixmap m_models[4];
     double m_speed;
     Directions m_direction;
+    int m_faction;
 };
 
 #endif // GAMEOBJECT_H

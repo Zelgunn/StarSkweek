@@ -7,7 +7,7 @@ class Projectile : public GameObject
 {
 public:
     Projectile();
-    Projectile(Directions direction, int ownerID);
+    Projectile(Directions direction, int faction);
     Projectile(const QDomElement &element);
     ~Projectile();
 
@@ -16,12 +16,12 @@ public:
     const QPixmap *model() const;
     int ttl() const;
 
-    int ownerID() const;
-    void setOwnerID(int ownerID);
+    int type() const;
+    void setType(int type);
 
 private:
     int m_ttl;
-    int m_ownerID;
+    int m_type;
 };
 
 #endif // PROJECTILE_H

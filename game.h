@@ -48,6 +48,7 @@ private:
     SoundPlayer m_soundPlayer;
     MultiplayerUpdater m_multiplayerUpdater;
     QStringList m_levels;
+    QDomElement m_projectilesElement;
 };
 
 #endif // GAME_H

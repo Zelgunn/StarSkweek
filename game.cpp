@@ -30,6 +30,11 @@ Game::Game() :
             m_characters.append(Player(elem));
         }
 
+        if(elem.tagName() == "Projectiles")
+        {
+            m_projectilesElement = elem;
+        }
+
         node = node.nextSibling();
     }
 
@@ -111,6 +116,7 @@ void Game::loadLevel(const QString &filename)
     dom.setContent(&file);
 
     QDomElement elem = dom.documentElement();
+    elem.appendChild(m_projectilesElement);
 
     m_level = new Level(elem, &m_characters);
 }
