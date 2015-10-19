@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     weapon.cpp \
     tile.cpp \
     animation.cpp \
-    projectilelist.cpp
+    projectilelist.cpp \
+    weaponlist.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     weapon.h \
     tile.h \
     animation.h \
-    projectilelist.h
+    projectilelist.h \
+    weaponlist.h
 
 FORMS    +=
 

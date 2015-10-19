@@ -17,7 +17,7 @@
 	</Projectiles>
 	<Weapons>
 		<Weapon name="Laser Bolt">
-			<Spec reload="500" ammo="a"/>
+                        <Spec reload="500" ammo="a"/>
 		</Weapon>
 	</Weapons>
 </root>

@@ -8,6 +8,7 @@
 #include "monster.h"
 #include "tile.h"
 #include "projectilelist.h"
+#include "weaponlist.h"
 
 class Level : public QObject
 {
@@ -47,6 +48,7 @@ private:
     QList<Player> *m_characters;
     int m_myPlayer;
     ProjectileList *m_projectiles;
+    WeaponList m_weapons;
     QSize m_tileSize;
     Tile *m_tiles;
 };

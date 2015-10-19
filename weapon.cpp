@@ -9,7 +9,23 @@ Weapon::Weapon()
 
 Weapon::Weapon(const QDomElement &element)
 {
+    m_lastUse = QTime::currentTime();
 
+    QDomNode node = element.firstChild();
+    QDomElement elem;
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+
+        if(elem.tagName() == "Spec")
+        {
+            m_reloadTime = elem.attribute("reload").toInt();
+            m_ammunitionType = elem.attribute("ammo").toLatin1().at(0) - 'a';
+        }
+
+        node = node.nextSibling();
+    }
 }
 
 int Weapon::ammunition() const

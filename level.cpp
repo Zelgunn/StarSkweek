@@ -37,16 +37,23 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
             m_projectiles = new ProjectileList(elem);
         }
 
+        if(elem.tagName() == "Weapons")
+        {
+            m_weapons = WeaponList(elem);
+        }
+
         node = node.nextSibling();
     }
 
     m_players[0] = new Player(m_characters->at(0));
     m_players[0]->setPosition(width()/2, height()/4);
     m_players[0]->setFaction(0);
+    m_players[0]->setWeapon(m_weapons.at(0));
 
     m_players[1] = new Player(m_characters->at(1));
     m_players[1]->setPosition(width()/2, height()*3/4);
     m_players[1]->setFaction(1);
+    m_players[1]->setWeapon(m_weapons.at(0));
 
     m_projectiles->appendCollision(m_players[0]);
     m_projectiles->appendCollision(m_players[1]);
