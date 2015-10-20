@@ -74,6 +74,8 @@ bool GameObject::dead() const
 void GameObject::setDead(bool dead)
 {
     m_dead = dead;
+    if(m_dead)
+        m_deadTime = QTime::currentTime();
 }
 
 bool GameObject::isUnit() const

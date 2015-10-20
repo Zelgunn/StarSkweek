@@ -6,8 +6,8 @@
 	</Character>
 	<Character name="Obi Wan Kenobi">
 		<Tile type="c"/>
-		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player2.png"/>
-	</Character>
+                <Model right="/images/player2.png" up="/images/player2.png" left="/images/player2.png" down="/images/player2.png"/>
+        </Character>
 	<Projectiles>
 		<Projectile name="Laser Bolt" type="a">
                         <Spec ttl="150" damage="25" acc="-0.1" acc2="0.01"/>

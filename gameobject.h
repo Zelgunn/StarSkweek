@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include <QApplication>
 #include <QtCore/qmath.h>
+#include <QTime>
 
 #include "grid.h"
 
@@ -53,6 +54,7 @@ protected:
     Directions m_direction;
     int m_faction;
     bool m_dead;
+    QTime m_deadTime;
 };
 
 #endif // GAMEOBJECT_H

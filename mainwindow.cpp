@@ -40,7 +40,6 @@ void MainWindow::paintEvent(QPaintEvent *)
     static int count = 0; count ++;
     static int sum = 0;
 
-
     paintBackground(painter);
     paintBackgroundLaser(painter);
     paintGame(painter);
