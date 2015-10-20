@@ -97,3 +97,8 @@ int ProjectileList::size() const
     return m_projectiles.size();
 }
 
+Projectile ProjectileList::prototype(int i) const
+{
+    return m_prototypes.at(i);
+}
+

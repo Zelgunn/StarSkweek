@@ -7,7 +7,6 @@ class Projectile : public GameObject
 {
 public:
     Projectile();
-    Projectile(Directions direction, int faction);
     Projectile(const QDomElement &element);
     virtual ~Projectile();
 

@@ -17,6 +17,7 @@ public:
     void appendCollision(GameObject* gameObject);
     Projectile *at(int i) const;
     int size() const;
+    Projectile prototype(int i) const;
 
 signals:
     void hitPlayer(GameObject* player, int type);

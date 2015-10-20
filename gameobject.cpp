@@ -4,6 +4,7 @@ GameObject::GameObject()
 {
     m_position.x = 0;
     m_position.y = 0;
+    m_dead = false;
 }
 
 const QPixmap *GameObject::model() const
@@ -34,9 +35,15 @@ void GameObject::setPosition(int x, int y)
     m_position.y = y;
 }
 
-int GameObject::speed() const
+void GameObject::setSpeed(double speed)
 {
-    return m_speed;
+    if(m_speed.size() < 1) m_speed.append(speed);
+    else m_speed.replace(0, speed);
+}
+
+double GameObject::speed() const
+{
+    return m_speed.first();
 }
 
 GameObject::Directions GameObject::direction() const
@@ -49,12 +56,6 @@ void GameObject::setDirection(const Directions &direction)
     m_direction = direction;
 }
 
-
-void GameObject::setSpeed(int speed)
-{
-    m_speed = speed;
-}
-
 int GameObject::faction() const
 {
     return m_faction;
@@ -63,6 +64,16 @@ int GameObject::faction() const
 void GameObject::setFaction(int faction)
 {
     m_faction = faction;
+}
+
+bool GameObject::dead() const
+{
+    return m_dead;
+}
+
+void GameObject::setDead(bool dead)
+{
+    m_dead = dead;
 }
 
 bool GameObject::isUnit() const
@@ -85,25 +96,25 @@ bool GameObject::isProjectile() const
     return false;
 }
 
-Point GameObject::displacement(GameObject::Directions direction, int speed)
+Point GameObject::displacement(GameObject::Directions direction, double speed)
 {
     Point res;
     switch (direction) {
     case Right:
-        res.x = speed;
+        res.x = (int)speed;
         res.y = 0;
         break;
     case Up:
         res.x = 0;
-        res.y = -speed;
+        res.y = - (int)speed;
         break;
     case Left:
-        res.x = -speed;
+        res.x = - (int)speed;
         res.y = 0;
         break;
     case Down:
         res.x = 0;
-        res.y = speed;
+        res.y = (int)speed;
         break;
     default:
         res.x = 0;

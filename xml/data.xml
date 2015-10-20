@@ -10,14 +10,28 @@
 	</Character>
 	<Projectiles>
 		<Projectile name="Laser Bolt" type="a">
-			<Spec speed="20" ttl="120" damage="25"/>
+                        <Spec ttl="150" damage="25" acc="-0.1" acc2="0.01"/>
 			<ModelSize width="30" height="15"/>
 			<Model right="/images/laser_right.png" up="/images/laser_up.png" left="/images/laser_left.png" down="/images/laser_down.png"/>
+                        <Speed value="20"/>
+                        <Speed value="-0.1"/>
+                        <Speed value="0"/>
 		</Projectile>
+                <Projectile name="Bullet" type="b">
+                        <Spec ttl="200" damage="1"/>
+                        <ModelSize width="10" height="4"/>
+                        <Model right="/images/laser_right.png" up="/images/laser_up.png" left="/images/laser_left.png" down="/images/laser_down.png"/>
+                        <Speed value="10"/>
+                        <Speed value="0.03"/>
+                        <Speed value="-0.001"/>
+                </Projectile>
 	</Projectiles>
 	<Weapons>
 		<Weapon name="Laser Bolt">
                         <Spec reload="500" ammo="a"/>
 		</Weapon>
+                <Weapon name="Machin Gun">
+                        <Spec reload="20" ammo="b"/>
+                <Weapon>
 	</Weapons>
 </root>

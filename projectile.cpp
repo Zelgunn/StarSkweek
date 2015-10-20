@@ -3,28 +3,7 @@
 Projectile::Projectile()
 {
     m_ttl = 120;
-    m_speed = 0.02;
-
-    QString dir = QApplication::applicationDirPath();
-    m_models[Right] = QPixmap(dir + "/images/laser_right.png").scaledToHeight(15);
-    m_models[Up] = QPixmap(dir + "/images/laser_up.png").scaledToWidth(15);
-    m_models[Left] = QPixmap(dir + "/images/laser_left.png").scaledToHeight(15);
-    m_models[Down] = QPixmap(dir + "/images/laser_down.png").scaledToWidth(15);
-}
-
-Projectile::Projectile(GameObject::Directions direction, int faction)
-{
-    m_ttl = 120;
-    m_speed = 1;
-
-    QString dir = QApplication::applicationDirPath();
-    m_models[Right] = QPixmap(dir + "/images/laser_right.png").scaledToHeight(15);
-    m_models[Up] = QPixmap(dir + "/images/laser_up.png").scaledToWidth(15);
-    m_models[Left] = QPixmap(dir + "/images/laser_left.png").scaledToHeight(15);
-    m_models[Down] = QPixmap(dir + "/images/laser_down.png").scaledToWidth(15);
-
-    m_direction = direction;
-    m_faction = faction;
+    m_speed.append(10);
 }
 
 Projectile::Projectile(const QDomElement &element)
@@ -44,7 +23,6 @@ Projectile::Projectile(const QDomElement &element)
         if(elem.tagName() == "Spec")
         {
             m_ttl = elem.attribute("ttl").toInt();
-            m_speed = elem.attribute("speed").toInt();
             m_damage = elem.attribute("damage").toInt();
         }
 
@@ -60,6 +38,11 @@ Projectile::Projectile(const QDomElement &element)
             m_models[Up] = QPixmap(dir + elem.attribute("up"));
             m_models[Left] = QPixmap(dir + elem.attribute("left"));
             m_models[Down] = QPixmap(dir + elem.attribute("down"));
+        }
+
+        if(elem.tagName() == "Speed")
+        {
+            m_speed.append(elem.attribute("value").toDouble());
         }
 
         node = node.nextSibling();
@@ -78,10 +61,14 @@ Projectile::~Projectile()
 
 void Projectile::move()
 {
-    Point delta = displacement(m_direction, m_speed);
+    Point delta = displacement(m_direction, m_speed.first());
     m_position.x += delta.x;
     m_position.y += delta.y;
     m_ttl --;
+    for(int i=1; i<m_speed.size(); i++)
+    {
+        m_speed.replace(i-1, m_speed.at(i) + m_speed.at(i - 1));
+    }
 }
 
 const QPixmap *Projectile::model() const

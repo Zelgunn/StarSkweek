@@ -4,7 +4,7 @@ Player::Player()
 {
     m_position.x = 0;
     m_position.y = 0;
-    m_speed = 10;
+    m_speed.append(4);
     m_tileType = Tile::Player1Tile;
     m_direction = InvalidDirection;
     m_previousDirection = Down;
@@ -39,7 +39,7 @@ Player::Player(const QDomElement &element) :
 
     m_position.x = 0;
     m_position.y = 0;
-    m_speed = 4;
+    m_speed.append(4);
     m_direction = InvalidDirection;
 }
 
@@ -86,6 +86,7 @@ void Player::setDirection(const GameObject::Directions &direction)
 
 int Player::fire()
 {
+    if(m_dead) return -1;
     return m_weapon.fire();
 }
 

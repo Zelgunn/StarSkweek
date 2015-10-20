@@ -35,7 +35,11 @@ void Unit::updateLifeAnim()
 void Unit::takeDamage(int damage)
 {
     m_life -= damage;
-    if(m_life < 0) m_life = 0;
+    if(m_life < 0)
+    {
+        m_life = 0;
+        m_dead = true;
+    }
 }
 
 bool Unit::isUnit() const

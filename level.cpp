@@ -48,10 +48,10 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
     m_players[0] = new Player(m_characters->at(0));
     m_players[0]->setPosition(width()/2, height()/4);
     m_players[0]->setFaction(0);
-    m_players[0]->setWeapon(m_weapons.at(0));
+    m_players[0]->setWeapon(m_weapons.at(1));
 
     m_players[1] = new Player(m_characters->at(1));
-    m_players[1]->setPosition(width()/2, height()*3/4);
+    m_players[1]->setPosition(width()/2, height()*3/4 - 5);
     m_players[1]->setFaction(1);
     m_players[1]->setWeapon(m_weapons.at(0));
 
@@ -147,7 +147,19 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     uint y = displacement.y / h;
 
     if(m_grid->tileAt(x, y) == Tile::Void)
-        return false;
+    {
+        player->takeDamage(999);
+        player->setSpeed(0);
+    }
+
+    if(m_grid->tileAt(x,y) == Tile::ArrowTileDown)
+        displacement.y += 2;
+    if(m_grid->tileAt(x,y) == Tile::ArrowTileLeft)
+        displacement.x -= 2;
+    if(m_grid->tileAt(x,y) == Tile::ArrowTileRight)
+        displacement.x += 2;
+    if(m_grid->tileAt(x,y) == Tile::ArrowTileUp)
+        displacement.y -= 2;
 
     player->setPosition(displacement);
     player->setDirection(direction);
@@ -225,5 +237,5 @@ void Level::nextFrame()
 void Level::onPlayerHit(GameObject *player, int type)
 {
     Player *p = (Player*) player;
-    p->takeDamage(m_projectiles->at(type)->damage());
+    p->takeDamage(m_projectiles->prototype(type).damage());
 }

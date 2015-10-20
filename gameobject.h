@@ -28,28 +28,31 @@ public:
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(int x, int y);
-    void setSpeed(int speed);
-    int speed() const;
+    void setSpeed(double speed);
+    double speed() const;
     Directions direction() const;
     void setDirection(const Directions &direction);
     int faction() const;
     void setFaction(int faction);
+    bool dead() const;
+    void setDead(bool dead);
 
     virtual bool isUnit() const;
     virtual bool isPlayer() const;
     virtual bool isMonster() const;
     virtual bool isProjectile() const;
 
-    static Point displacement(Directions direction, int speed);
+    static Point displacement(Directions direction, double speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
 protected:
     Point m_position;
     Grid *m_grid;
     QPixmap m_models[4];
-    int m_speed;
+    QList<double> m_speed;
     Directions m_direction;
     int m_faction;
+    bool m_dead;
 };
 
 #endif // GAMEOBJECT_H
