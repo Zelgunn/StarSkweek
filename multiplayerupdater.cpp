@@ -23,13 +23,6 @@ MultiplayerUpdater::MultiplayerUpdater()
     QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readDatagram()));
     QTimer::singleShot(50, this, SLOT(broadcastAddress()));
 
-    m_server = new QTcpServer;
-    if(!m_server->listen(m_localAddress, PORT_COM))
-        qDebug() <<  m_server->errorString();
-    else
-        qDebug() << "Server démarré sur le port" << m_server->serverPort();
-    QObject::connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewTcpConnection()));
-
     m_tcpSocket = new QTcpSocket;
     QObject::connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readTcpDatagram()));
 }
@@ -85,54 +78,25 @@ void MultiplayerUpdater::readDatagram()
 
                 m_player2Address = QHostAddress(message.section('/', 0, 0));
                 m_player2Time = message.section('/', -1).toInt();
-                qDebug() << m_player2Address;
+
                 m_tcpSocket->connectToHost(m_player2Address, PORT_COM);
             }
-        }
-        else
-        {
-            m_receivedUpdates.append(message);
         }
     }
 }
 
 void MultiplayerUpdater::readTcpDatagram()
 {
-    QDataStream in(m_tcpSocket);
-    in.setVersion(QDataStream::Qt_4_0);
-
-    if (m_datagramSize == 0)
+    while(m_clientSocket->canReadLine())
     {
-        if (m_tcpSocket->bytesAvailable() < (int)sizeof(quint16))
-        {
-            qDebug() << "Pas assez de données à lire (pas de taille).";
-            return;
-        }
-        in >> m_datagramSize;
+        QString message = QString::fromUtf8(m_clientSocket->readLine());
+        qDebug() << "Update recue :" << message;
     }
-
-    if (m_tcpSocket->bytesAvailable() < m_datagramSize)
-    {
-        qDebug() << "Pas assez de données à lire (pas de données).";
-        return;
-    }
-    else
-    {
-        qDebug() << m_tcpSocket->bytesAvailable() << "octets lisibles";
-    }
-
-    QString message;
-    in >> message;
-    if(message.size() > 0)
-        qDebug() << "Message recu :" << message;
 }
 
-void MultiplayerUpdater::onNewTcpConnection()
+void MultiplayerUpdater::disconnected()
 {
-    m_clientSocket = m_server->nextPendingConnection();
-    QObject::connect(m_clientSocket, SIGNAL(disconnected()), m_clientSocket, SLOT(deleteLater()));
-    m_datagramSize = 0;
-    qDebug() << "Connection initialisée";
+    qDebug() << "Deconnexion";
 }
 
 void MultiplayerUpdater::broadcastAddress()
@@ -140,13 +104,15 @@ void MultiplayerUpdater::broadcastAddress()
     if(m_player2Address.isNull())
     {
         if(!m_timer->isActive())
-            m_timer->start(100);
+            m_timer->start(20);
     }
     else
     {
         if(m_timer->isActive())
         {
             m_timer->stop();
+            listen(m_localAddress, PORT_COM);
+
             emit gameConnected();
         }
     }
@@ -162,17 +128,20 @@ void MultiplayerUpdater::sendUpdate(const QString &update)
 {
     if(!m_clientSocket) return;
 
-    QByteArray datagram;
-    QDataStream out(&datagram, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << (quint16)0;
-    out << update;
-    out.device()->seek(0);
-    out << (quint16)(datagram.size() - sizeof(quint16));
-
-    m_clientSocket->write(datagram);
-    //m_clientSocket->flush();
+    m_clientSocket->write(QString(update + '\n').toUtf8());
 }
+
+void MultiplayerUpdater::incomingConnection(int socketfd)
+{
+    m_clientSocket = new QTcpSocket(this);
+    m_clientSocket->setSocketDescriptor(socketfd);
+
+    qDebug() << "Nouvelle connexion :" << m_clientSocket->peerAddress().toString();
+
+    connect(m_clientSocket, SIGNAL(readyRead()), this, SLOT(readTcpDatagram()));
+    connect(m_clientSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+}
+
 void MultiplayerUpdater::setPlayerDirection(int playerDirection)
 {
     m_playerDirection = playerDirection;

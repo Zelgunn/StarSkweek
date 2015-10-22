@@ -15,7 +15,7 @@
 
 #define PORT_COM 45454
 
-class MultiplayerUpdater : public QObject
+class MultiplayerUpdater : public QTcpServer
 {
     Q_OBJECT
 public:
@@ -30,7 +30,7 @@ public:
 public slots:
     void readDatagram();
     void readTcpDatagram();
-    void onNewTcpConnection();
+    void disconnected();
     void broadcastAddress();
 
 signals:
@@ -38,12 +38,12 @@ signals:
 
 protected:
     void sendUpdate(const QString &update);
+    void incomingConnection(int socketfd);
 
 private:
     QStringList m_updates;
     QStringList m_receivedUpdates;
     QUdpSocket *m_udpSocket;
-    QTcpServer *m_server;
     QTcpSocket *m_tcpSocket;
     QTcpSocket *m_clientSocket;
     QHostAddress m_localAddress;
