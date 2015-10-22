@@ -4,7 +4,6 @@ GameObject::GameObject()
 {
     m_position.x = 0;
     m_position.y = 0;
-    m_dead = false;
 }
 
 const QPixmap *GameObject::model() const
@@ -64,18 +63,6 @@ int GameObject::faction() const
 void GameObject::setFaction(int faction)
 {
     m_faction = faction;
-}
-
-bool GameObject::dead() const
-{
-    return m_dead;
-}
-
-void GameObject::setDead(bool dead)
-{
-    m_dead = dead;
-    if(m_dead)
-        m_deadTime = QTime::currentTime();
 }
 
 bool GameObject::isUnit() const

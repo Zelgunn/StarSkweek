@@ -290,13 +290,19 @@ void MainWindow::paintHUD(QPainter *painter)
         painter->drawRect(lifeBarRect);
 
         lifeBarRect.setWidth(w * player->lifeAnim()/player->maxLife());
-        painter->setBrush(QColor(200,255,0));
+        if(player->invulnerable())
+            painter->setBrush(QColor(0,200,255));
+        else
+            painter->setBrush(QColor(200,255,0));
         painter->drawRect(lifeBarRect);
 
         if(player->life() <= player->lifeAnim())
         {
             lifeBarRect.setWidth(w * player->life()/player->maxLife());
-            painter->setBrush(QColor(0,255,0));
+            if(player->invulnerable())
+                painter->setBrush(QColor(0,255,255));
+            else
+                painter->setBrush(QColor(0,255,0));
             painter->drawRect(lifeBarRect);
         }
     }
@@ -329,7 +335,8 @@ void MainWindow::onEnter()
         m_game.startGame();
         return;
     }
-    m_game.playerFires(0);
+    if(m_game.isStarted())
+        m_game.playerFires(0);
 }
 
 void MainWindow::movePlayer(GameObject::Directions direction)

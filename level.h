@@ -14,7 +14,7 @@ class Level : public QObject
 {
     Q_OBJECT
 public:
-    Level(const QDomElement &element, QList<Player> *characters);
+    Level(const QDomElement &element, QList<Player *> *characters);
 
     void setMyPlayer(int playerNumber);
     const Grid *grid() const;
@@ -45,7 +45,7 @@ private slots:
 private:
     Grid *m_grid;
     Player **m_players;
-    QList<Player> *m_characters;
+    QList<Player*> *m_characters;
     int m_myPlayer;
     ProjectileList *m_projectiles;
     WeaponList m_weapons;

@@ -43,7 +43,7 @@ private:
     int m_score;
 
     QTimer *m_timer;
-    QList<Player> m_characters;
+    QList<Player *> m_characters;
     Level *m_level;
     SoundPlayer m_soundPlayer;
     MultiplayerUpdater m_multiplayerUpdater;

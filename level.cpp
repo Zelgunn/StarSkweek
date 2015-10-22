@@ -1,6 +1,6 @@
 #include "level.h"
 
-Level::Level(const QDomElement &element, QList<Player> *characters)
+Level::Level(const QDomElement &element, QList<Player *> *characters)
     : m_characters(characters), m_myPlayer(0)
 {
     m_players = new Player*[2];
@@ -45,12 +45,12 @@ Level::Level(const QDomElement &element, QList<Player> *characters)
         node = node.nextSibling();
     }
 
-    m_players[0] = new Player(m_characters->at(0));
+    m_players[0] = m_characters->at(0);
     m_players[0]->setPosition(width()/2, height()/4);
     m_players[0]->setFaction(0);
     m_players[0]->setWeapon(m_weapons.at(1));
 
-    m_players[1] = new Player(m_characters->at(1));
+    m_players[1] = m_characters->at(1);
     m_players[1]->setPosition(width()/2, height()*3/4 - 5);
     m_players[1]->setFaction(1);
     m_players[1]->setWeapon(m_weapons.at(0));
@@ -80,26 +80,17 @@ const Grid *Level::grid() const
 
 const Player *Level::player(int index) const
 {
-    if(m_myPlayer == index)
-        return m_players[0];
-    else
-        return m_players[1];
+    return m_players[index];
 }
 
 const Player *Level::player() const
 {
-    if(m_myPlayer == 0)
-        return m_players[0];
-    else
-        return m_players[1];
+    return m_players[0];
 }
 
 const Player *Level::player2() const
 {
-    if(m_myPlayer == 0)
-        return m_players[1];
-    else
-        return m_players[0];
+    return m_players[1];
 }
 
 const ProjectileList *Level::projectiles() const
@@ -131,6 +122,8 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
 {
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
     Player *player = m_players[playerNumber], *player2 = m_players[!playerNumber];
+    if(player->dead())
+        return false;
 
     Point displacement = GameObject::displacement(direction, player->speed());
     displacement.x += player->position().x;
@@ -148,8 +141,9 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
 
     if(m_grid->tileAt(x, y) == Tile::Void)
     {
+        if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
+            return false;
         player->takeDamage(999);
-        player->setSpeed(0);
     }
 
     if(m_grid->tileAt(x,y) == Tile::ArrowTileDown)

@@ -27,7 +27,7 @@ Game::Game() :
 
         if(elem.tagName() == "Character")
         {
-            m_characters.append(Player(elem));
+            m_characters.append(new Player(elem));
         }
 
         if(elem.tagName() == "Projectiles")
@@ -58,9 +58,7 @@ void Game::movePlayer(GameObject::Directions direction)
     if(!m_timer->isActive()) return;
 
     m_level->setPlayerDirection(0, direction);
-    QString update = "pm";  // p = player, m = move
-    update.append('0' + direction);
-    m_multiplayerUpdater.sendUpdate(update);
+    m_multiplayerUpdater.setPlayerDirection((int)m_level->player()->direction());
 }
 
 void Game::player2Command(QString command)
@@ -92,7 +90,7 @@ void Game::playerFires(int playerID)
         if(playerID == 0)
         {
             QString update = "ps";  // p = player, s = shoot
-            m_multiplayerUpdater.sendUpdate(update);
+            m_multiplayerUpdater.appendUpdate(update);
         }
     }
 }
@@ -128,6 +126,7 @@ void Game::loadLevel(const QString &filename)
 
 void Game::nextFrame()
 {
+    m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
     QString update;

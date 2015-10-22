@@ -35,8 +35,7 @@ public:
     void setDirection(const Directions &direction);
     int faction() const;
     void setFaction(int faction);
-    bool dead() const;
-    void setDead(bool dead);
+
 
     virtual bool isUnit() const;
     virtual bool isPlayer() const;
@@ -46,6 +45,7 @@ public:
     static Point displacement(Directions direction, double speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
+
 protected:
     Point m_position;
     Grid *m_grid;
@@ -53,8 +53,6 @@ protected:
     QList<double> m_speed;
     Directions m_direction;
     int m_faction;
-    bool m_dead;
-    QTime m_deadTime;
 };
 
 #endif // GAMEOBJECT_H
