@@ -36,26 +36,51 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
 
+    switch(m_game.state())
+    {
+    case Game::MenuState:
+        paintMenu(painter);
+        break;
+    case Game::LobbyState:
+        paintLobby(painter);
+        break;
+    case Game::PlayingState:
+        paintGame(painter);
+        break;
+    }
+
+    painter->end();
+    delete painter;
+}
+
+void MainWindow::paintMenu(QPainter *painter)
+{
+    paintBackground(painter);
+}
+
+void MainWindow::paintLobby(QPainter *painter)
+{
+    paintBackground(painter);
+}
+
+void MainWindow::paintGame(QPainter *painter)
+{
     static QTime time = QTime::currentTime();;
     static int count = 0; count ++;
     static int sum = 0;
 
     paintBackground(painter);
     paintBackgroundLaser(painter);
-    paintGame(painter);
-
-    if(!m_game.isStarted())
-        paintWaitingSign(painter);
+    paintMap(painter);
+    paintPlayer(painter);
+    paintProjectiles(painter);
+    paintHUD(painter);
 
     sum += time.msecsTo(QTime::currentTime());
     time = QTime::currentTime();
 
     painter->setFont(QFont("Times", 16, QFont::Bold));
     painter->drawText(width() - 150, 50, "FPS : " + QString::number(1000*count/sum));
-//    qDebug() << (double)sum / (double)count * 25 / 4;
-
-    painter->end();
-    delete painter;
 }
 
 void MainWindow::paintBackground(QPainter *painter)
@@ -169,14 +194,6 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
         painter->setPen(ppen);
     }
     frame --;
-}
-
-void MainWindow::paintGame(QPainter *painter)
-{
-    paintMap(painter);
-    paintPlayer(painter);
-    paintProjectiles(painter);
-    paintHUD(painter);
 }
 
 void MainWindow::paintMap(QPainter *painter)

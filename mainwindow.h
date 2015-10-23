@@ -33,9 +33,14 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *);
+
+    void paintMenu(QPainter *painter);
+
+    void paintLobby(QPainter *painter);
+
+    void paintGame(QPainter *painter);
     void paintBackground(QPainter *painter);
     void paintBackgroundLaser(QPainter *painter);
-    void paintGame(QPainter *painter);
     void paintMap(QPainter *painter);
     void paintPlayer(QPainter *painter);
     void paintWaitingSign(QPainter *painter);

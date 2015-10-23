@@ -21,38 +21,36 @@ class MultiplayerUpdater : public QTcpServer
 public:
     MultiplayerUpdater();
 
+    void appendUpdate(const QString &update);
     void sendUpdates();
     QStringList receivedUpdates();
     bool isFirst() const;
-    void setPlayerDirection(int playerDirection);
-    void appendUpdate(const QString &update);
-
-public slots:
-    void readDatagram();
-    void readTcpDatagram();
-    void disconnected();
-    void broadcastAddress();
-
-signals:
-    void gameConnected();
+    bool isConnected() const;
 
 protected:
     void sendUpdate(const QString &update);
     void incomingConnection(int socketfd);
+    void connectToPlayer2();
+
+protected slots:
+    void broadcastAddress();
+    void readUdp();
+    void readTcp();
+    void disconnected();
+
+signals:
+    void gameConnected();
 
 private:
     QStringList m_updates;
     QStringList m_receivedUpdates;
     QUdpSocket *m_udpSocket;
-    QTcpSocket *m_tcpSocket;
-    QTcpSocket *m_clientSocket;
+    QTcpSocket *m_client;
     QHostAddress m_localAddress;
     QHostAddress m_player2Address;
     QTimer *m_timer;
     int m_initTime;
     int m_player2Time;
-    int m_playerDirection;
-    quint16 m_datagramSize;
 };
 
 #endif // MULTIPLAYERUPDATER_H

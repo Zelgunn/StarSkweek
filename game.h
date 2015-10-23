@@ -16,6 +16,11 @@ class Game : public QObject
 {
     Q_OBJECT
 public:
+    enum GameStates{
+        MenuState,
+        LobbyState,
+        PlayingState
+    };
     Game();
 
     const Level *level();
@@ -31,6 +36,9 @@ public:
     void loadLevel(int level);
     void loadLevel(const QString &filename);
 
+    GameStates state() const;
+    void setState(const GameStates &state);
+
 public slots:
     void onGameConnected();
     void nextFrame();
@@ -39,9 +47,7 @@ signals:
     void gameReady();
 
 private:
-    int m_lifes;
-    int m_score;
-
+    GameStates m_state;
     QTimer *m_timer;
     QList<Player *> m_characters;
     Level *m_level;

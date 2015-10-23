@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     tile.cpp \
     animation.cpp \
     projectilelist.cpp \
-    weaponlist.cpp
+    weaponlist.cpp \
+    menu.cpp
 
 HEADERS  += mainwindow.h \
     game.h \
@@ -50,7 +51,8 @@ HEADERS  += mainwindow.h \
     tile.h \
     animation.h \
     projectilelist.h \
-    weaponlist.h
+    weaponlist.h \
+    menu.h
 
 FORMS    +=
 

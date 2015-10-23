@@ -1,7 +1,7 @@
 #include "game.h"
 
 Game::Game() :
-    m_lifes(0), m_score(0), m_timer(NULL)
+    m_state(MenuState), m_timer(Q_NULLPTR)
 {
     QString dir = QApplication::applicationDirPath() + "/xml/levels";
     QDirIterator dirIt(dir ,QDirIterator::Subdirectories);
@@ -58,7 +58,7 @@ void Game::movePlayer(GameObject::Directions direction)
     if(!m_timer->isActive()) return;
 
     m_level->setPlayerDirection(0, direction);
-    m_multiplayerUpdater.setPlayerDirection((int)m_level->player()->direction());
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->direction()));
 }
 
 void Game::player2Command(QString command)
@@ -129,6 +129,8 @@ void Game::nextFrame()
     m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
+    foreach(QString up, updates)
+        qDebug() << "r" << up;
     QString update;
     char firstChar;
 
@@ -147,6 +149,16 @@ void Game::nextFrame()
 
     level->nextFrame();
 }
+Game::GameStates Game::state() const
+{
+    return m_state;
+}
+
+void Game::setState(const GameStates &state)
+{
+    m_state = state;
+}
+
 
 void Game::onGameConnected()
 {

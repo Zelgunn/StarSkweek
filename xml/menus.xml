@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<root>
+	<Menu name="Menu principal">
+		<Menu name="Jouer">
+			<Menu name="Solo"/>
+				<Menu name="Nouvelle partie"/>
+				<Menu name="Continuer"/>
+				<Menu name="Charger partie"/>
+			<Menu name="Multijoueur">
+				<Menu name="Local"/>
+				<Menu name="IP directe"/>
+			<Menu />
+		<Menu/>
+		<Menu name="Options">
+			<Menu name="Graphismes"/>
+			<Menu name="Audio"/>
+		</Menu>
+	</Menu>
+	<Menu name="Tutoriel"/>
+</root>

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/xml">
         <file>xml/data.xml</file>
+        <file>xml/menus.xml</file>
     </qresource>
 </RCC>

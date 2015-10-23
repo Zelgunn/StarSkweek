@@ -15,32 +15,35 @@ MultiplayerUpdater::MultiplayerUpdater()
         }
     }
 
-    m_playerDirection = -1;
+    m_client = Q_NULLPTR;
+
     m_initTime = QTime::currentTime().msecsSinceStartOfDay();
     m_timer = new QTimer(this);
 
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(broadcastAddress()));
-    QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readDatagram()));
+    QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
     QTimer::singleShot(50, this, SLOT(broadcastAddress()));
+}
 
-    m_tcpSocket = new QTcpSocket;
-    QObject::connect(m_tcpSocket, SIGNAL(readyRead()), this, SLOT(readTcpDatagram()));
+
+void MultiplayerUpdater::appendUpdate(const QString &update)
+{
+    m_updates.append(update);
 }
 
 void MultiplayerUpdater::sendUpdates()
 {
-    if(m_player2Address.isNull()) return;
-
-    if(m_playerDirection > 0)
+    if(!isConnected())
     {
-        QString playerDirectionUpdate = "pm" + QString::number(m_playerDirection);
-        sendUpdate(playerDirectionUpdate);
+        return;
     }
 
     for(int i=0; i<m_updates.size(); i++)
     {
         sendUpdate(m_updates.at(i));
     }
+
+    m_updates.clear();
 }
 
 QStringList MultiplayerUpdater::receivedUpdates()
@@ -55,13 +58,75 @@ bool MultiplayerUpdater::isFirst() const
     return m_initTime < m_player2Time;
 }
 
-void MultiplayerUpdater::readDatagram()
+bool MultiplayerUpdater::isConnected() const
+{
+    return ((m_client != Q_NULLPTR) && (m_client->isOpen()));
+}
+
+void MultiplayerUpdater::sendUpdate(const QString &update)
+{
+    m_client->write(QString(update + '\n').toUtf8());
+}
+
+void MultiplayerUpdater::incomingConnection(int socketfd)
+{
+    m_client = new QTcpSocket(this);
+    m_client->setSocketDescriptor(socketfd);
+
+    qDebug() << "Nouvelle connexion :" << m_client->peerAddress().toString();
+
+    QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
+    QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
+
+    emit gameConnected();
+}
+
+void MultiplayerUpdater::connectToPlayer2()
+{
+    if(m_client != Q_NULLPTR) return;
+
+    m_client = new QTcpSocket(this);
+    qDebug() << "Connexion au serveur en cours...";
+    m_client->connectToHost(m_player2Address, PORT_COM);
+    if(m_client->isOpen())
+        qDebug() << "Connecté.";
+    else
+    {
+        qDebug() << "Impossible de se connecter";
+        delete m_client;
+        m_client = Q_NULLPTR;
+        return;
+    }
+
+    QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
+    QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    emit gameConnected();
+}
+
+void MultiplayerUpdater::broadcastAddress()
+{
+    if(!isListening())
+        listen(m_localAddress, PORT_COM);
+
+    if(!isConnected())
+    {
+        QByteArray adressDatagram = QString(m_localAddress.toString() + '/' + QString::number(m_initTime)).toUtf8();
+        m_udpSocket->writeDatagram(adressDatagram.data(), adressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
+
+        if(!m_timer->isActive())
+            m_timer->start(1000);
+    }
+    else
+    {
+        if(m_timer->isActive())
+            m_timer->stop();
+    }
+}
+
+void MultiplayerUpdater::readUdp()
 {
     QByteArray datagram;
     QString message;
-
-    if(m_udpSocket->state() != QAbstractSocket::BoundState)
-        return;
 
     while(m_udpSocket->hasPendingDatagrams())
     {
@@ -69,86 +134,29 @@ void MultiplayerUpdater::readDatagram()
         m_udpSocket->readDatagram(datagram.data(), datagram.size());
         message = datagram.data();
 
-        if(m_player2Address.isNull())
+        if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
         {
-            if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
-            {
-                QObject::disconnect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readDatagram()));
-                m_udpSocket->abort();
+            m_player2Address = QHostAddress(message.section('/', 0, 0));
+            m_player2Time = message.section('/', -1).toInt();
 
-                m_player2Address = QHostAddress(message.section('/', 0, 0));
-                m_player2Time = message.section('/', -1).toInt();
-
-                m_tcpSocket->connectToHost(m_player2Address, PORT_COM);
-            }
+            connectToPlayer2();
         }
     }
 }
 
-void MultiplayerUpdater::readTcpDatagram()
+void MultiplayerUpdater::readTcp()
 {
-    while(m_clientSocket->canReadLine())
+    while(m_client->canReadLine())
     {
-        QString message = QString::fromUtf8(m_clientSocket->readLine());
-        qDebug() << "Update recue :" << message;
+        QString message = QString::fromUtf8(m_client->readLine());
+        m_receivedUpdates.append(message);
     }
 }
 
 void MultiplayerUpdater::disconnected()
 {
-    qDebug() << "Deconnexion";
-}
-
-void MultiplayerUpdater::broadcastAddress()
-{
-    if(m_player2Address.isNull())
-    {
-        if(!m_timer->isActive())
-            m_timer->start(20);
-    }
-    else
-    {
-        if(m_timer->isActive())
-        {
-            m_timer->stop();
-            listen(m_localAddress, PORT_COM);
-
-            emit gameConnected();
-        }
-    }
-
-    QString message = m_localAddress.toString();
-    message.append("/");
-    message.append(QString::number(m_initTime));
-    QByteArray adressDatagram = message.toUtf8();
-    m_udpSocket->writeDatagram(adressDatagram.data(), adressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
-}
-
-void MultiplayerUpdater::sendUpdate(const QString &update)
-{
-    if(!m_clientSocket) return;
-
-    m_clientSocket->write(QString(update + '\n').toUtf8());
-}
-
-void MultiplayerUpdater::incomingConnection(int socketfd)
-{
-    m_clientSocket = new QTcpSocket(this);
-    m_clientSocket->setSocketDescriptor(socketfd);
-
-    qDebug() << "Nouvelle connexion :" << m_clientSocket->peerAddress().toString();
-
-    connect(m_clientSocket, SIGNAL(readyRead()), this, SLOT(readTcpDatagram()));
-    connect(m_clientSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-}
-
-void MultiplayerUpdater::setPlayerDirection(int playerDirection)
-{
-    m_playerDirection = playerDirection;
-}
-
-void MultiplayerUpdater::appendUpdate(const QString &update)
-{
-    m_updates.append(update);
+    qDebug() << "Deconnexion du joueur 2.";
+    delete m_client;
+    m_client = Q_NULLPTR;
 }
 

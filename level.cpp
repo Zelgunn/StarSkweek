@@ -224,6 +224,8 @@ void Level::nextFrame()
     movePlayer1(m_players[0]->direction());
     movePlayer2(m_players[1]->direction());
 
+    qDebug() << m_players[1]->position().x << m_players[1]->position().y;
+
     m_players[0]->updateLifeAnim();
     m_players[1]->updateLifeAnim();
 }
