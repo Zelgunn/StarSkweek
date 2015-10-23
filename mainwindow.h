@@ -7,9 +7,12 @@
 #include <QDesktopWidget>
 #include <QLinearGradient>
 #include <QTime>
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 #include "game.h"
 #include "tile.h"
+#include "menu.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,11 +33,13 @@ public slots:
     void onLeft();
     void onDown();
     void onEnter();
+    void onBackpace();
 
 protected:
     void paintEvent(QPaintEvent *);
 
     void paintMenu(QPainter *painter);
+    QRect paintTextMenu(QPainter *painter, int fontSize, const QString &text, const QPoint &center);
 
     void paintLobby(QPainter *painter);
 
@@ -46,6 +51,7 @@ protected:
     void paintWaitingSign(QPainter *painter);
     void paintProjectiles(QPainter *painter);
     void paintHUD(QPainter *painter);
+
     void movePlayer(GameObject::Directions direction);
 
     QPoint toMap(Point p);
@@ -55,6 +61,9 @@ private:
     Game m_game;
     QTimer *m_timer;
     QSize m_screenDim;
+    Menu *m_menu;
+    QMediaPlayer *m_musicPlayer;
+    QMediaPlaylist *m_playlist;
 };
 
 #endif // MAINWINDOW_H

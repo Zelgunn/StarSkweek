@@ -3,4 +3,7 @@
         <file>xml/data.xml</file>
         <file>xml/menus.xml</file>
     </qresource>
+    <qresource prefix="/musics">
+        <file>musics/Main.mp3</file>
+    </qresource>
 </RCC>

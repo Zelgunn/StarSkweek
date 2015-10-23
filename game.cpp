@@ -98,6 +98,7 @@ void Game::playerFires(int playerID)
 void Game::startGame()
 {
     m_timer->start(16);
+    m_state = PlayingState;
 }
 
 bool Game::isStarted() const
@@ -129,8 +130,6 @@ void Game::nextFrame()
     m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
-    foreach(QString up, updates)
-        qDebug() << "r" << up;
     QString update;
     char firstChar;
 

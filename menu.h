@@ -14,6 +14,7 @@ public:
     Menu(const QDomElement &element, Menu *parent = Q_NULLPTR);
 
     QStringList menusNames() const;
+    Menu *menuAt(int index) const;
 
     QString name() const;
     void setName(const QString &name);
@@ -25,13 +26,20 @@ public:
     static Menu *createBackMenu(Menu *parent);
     static Menu *createExitMenu(Menu *parent);
 
-signals:
-    void currentMenuChanged(const Menu *previousMenu, const Menu *menu);
+    uint selectedMenu() const;
+    void setSelectedMenu(const uint &selectedMenu);
+    void selectPreviousMenu();
+    void selectNextMenu();
+
+    QList<Menu *> subMenus() const;
+
+    Menu *parent() const;
 
 private:
     Menu *m_parent;
     QString m_name;
     QList<Menu *> m_subMenus;
+    int m_selectedMenu;
 };
 
 #endif // MENU_H
