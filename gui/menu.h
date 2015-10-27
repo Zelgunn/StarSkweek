@@ -28,8 +28,8 @@ public:
 
     uint selectedMenu() const;
     void setSelectedMenu(const uint &selectedMenu);
-    void selectPreviousMenu();
-    void selectNextMenu();
+    void selectAboveMenu();
+    void selectBelowMenu();
 
     QList<Menu *> subMenus() const;
 

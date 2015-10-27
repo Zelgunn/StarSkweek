@@ -15,9 +15,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = SSkweek_Alpha
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    gui/mainwindow.cpp \
     game.cpp \
     level.cpp \
     soundplayer.cpp \
@@ -27,16 +26,17 @@ SOURCES += main.cpp\
     monster.cpp \
     gameobject.cpp \
     projectile.cpp \
-    arduinohandler.cpp \
-    multiplayerupdater.cpp \
+    network/arduinohandler.cpp \
+    network/multiplayerupdater.cpp \
     weapon.cpp \
     tile.cpp \
     animation.cpp \
     projectilelist.cpp \
     weaponlist.cpp \
-    menu.cpp
+    gui/menu.cpp \
+    gui/mainmenuwidget.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += gui/mainwindow.h \
     game.h \
     level.h \
     soundplayer.h \
@@ -46,14 +46,15 @@ HEADERS  += mainwindow.h \
     monster.h \
     gameobject.h \
     projectile.h \
-    arduinohandler.h \
-    multiplayerupdater.h \
+    network/arduinohandler.h \
+    network/multiplayerupdater.h \
     weapon.h \
     tile.h \
     animation.h \
     projectilelist.h \
     weaponlist.h \
-    menu.h
+    gui/menu.h \
+    gui/mainmenuwidget.h
 
 FORMS    +=
 

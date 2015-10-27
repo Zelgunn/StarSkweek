@@ -110,16 +110,17 @@ void Menu::setSelectedMenu(const uint &selectedMenu)
     m_selectedMenu = selectedMenu;
 }
 
-void Menu::selectPreviousMenu()
+void Menu::selectAboveMenu()
 {
     m_selectedMenu --;
     if(m_selectedMenu < 0) m_selectedMenu = m_subMenus.size() - 1;
 }
 
-void Menu::selectNextMenu()
+void Menu::selectBelowMenu()
 {
     m_selectedMenu = (m_selectedMenu + 1)%m_subMenus.size();
 }
+
 QList<Menu *> Menu::subMenus() const
 {
     return m_subMenus;

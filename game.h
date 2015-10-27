@@ -10,7 +10,7 @@
 
 #include "level.h"
 #include "soundplayer.h"
-#include "multiplayerupdater.h"
+#include "network/multiplayerupdater.h"
 
 class Game : public QObject
 {

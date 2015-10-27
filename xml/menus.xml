@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Menu name="Menu principal">
 	<Menu name="Jouer">
 		<Menu name="Solo">
@@ -7,6 +7,7 @@
 			<Menu name="Charger partie"/>
 		</Menu>
 		<Menu name="Multijoueur">
+                        <Menu name="Héberger partie"/>
 			<Menu name="Local"/>
 			<Menu name="IP directe"/>
 		</Menu>

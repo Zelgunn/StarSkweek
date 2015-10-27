@@ -1,7 +1,7 @@
 #ifndef SOUNDPLAYER_H
 #define SOUNDPLAYER_H
 
-#include "arduinohandler.h"
+#include "network/arduinohandler.h"
 
 class SoundPlayer
 {

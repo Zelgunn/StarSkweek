@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QWidget(parent)
+    QStackedWidget(parent)
 {
     setWindowTitle("Super Skweek v0.1 (alpha)");
     setWindowState(Qt::WindowFullScreen);
@@ -22,13 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
     m_timer->start(16);
 
-    // Menu
-    QFile file(":/xml/xml/menus.xml");
-    file.open(QIODevice::ReadOnly);
+    // Widgets
+    m_menuWidget = new MainMenuWidget(this);
+    addWidget(m_menuWidget);
+    QObject::connect(m_menuWidget, SIGNAL(onExit()), this, SLOT(close()));
 
-    QDomDocument dom;
-    dom.setContent(&file);
-    m_menu = new Menu(dom.documentElement());
+    setCurrentIndex(0);
 
     // Musique
     m_musicPlayer = new QMediaPlayer;
@@ -55,11 +54,11 @@ void MainWindow::onGameReady()
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter *painter = new QPainter(this);
+    paintBackground(painter);
 
     switch(m_game.state())
     {
     case Game::MenuState:
-        paintMenu(painter);
         break;
     case Game::LobbyState:
         paintLobby(painter);
@@ -71,52 +70,6 @@ void MainWindow::paintEvent(QPaintEvent *)
 
     painter->end();
     delete painter;
-}
-
-void MainWindow::paintMenu(QPainter *painter)
-{
-    paintBackground(painter);
-
-    QStringList names = m_menu->menusNames();
-
-    QPoint center(width()/2, height()/2);
-    QPoint nameCenter(center.x(), height()/8);
-
-    paintTextMenu(painter, 42, m_menu->name(), nameCenter);
-    if(names.size() == 0) return;
-
-    QRect selectionRect, tmp;
-
-    for(int i=0; i<names.size(); i++)
-    {
-        tmp = paintTextMenu(painter, 20, names.at(i), center);
-        if(tmp.width() > selectionRect.width())
-            selectionRect = tmp;
-
-        center += QPoint(0, 60);
-    }
-
-    selectionRect.setWidth(selectionRect.width() + 20);
-    selectionRect.setHeight(selectionRect.height() + 5);
-
-    selectionRect.moveCenter(QPoint(width()/2, height()/2 + 60*m_menu->selectedMenu()));
-    painter->drawRect(selectionRect);
-}
-
-QRect MainWindow::paintTextMenu(QPainter *painter, int fontSize, const QString &text, const QPoint &center)
-{
-    QFont font("Times", fontSize, QFont::Bold);
-    painter->setFont(font);
-
-    QFontMetrics metrics(font);
-    QRect boundingRect = metrics.boundingRect(text);
-    boundingRect.moveCenter(center);
-
-    painter->setBrush(QBrush(QColor(255,255,255,100)));
-
-    painter->drawText(boundingRect, Qt::AlignCenter, text);
-
-    return boundingRect;
 }
 
 void MainWindow::paintLobby(QPainter *painter)
@@ -197,7 +150,6 @@ void MainWindow::paintBackground(QPainter *painter)
             star = stars.at(i);
             star->setX(w);
             star->setY(qrand()%h);
-            //starsSpeed.replace(i, qrand()%3 + 1);
         }
     }
 }
@@ -396,7 +348,7 @@ void MainWindow::onUp()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menu->selectPreviousMenu();
+        m_menuWidget->aboveMenu();
         break;
     case Game::LobbyState:
         break;
@@ -416,7 +368,7 @@ void MainWindow::onDown()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menu->selectNextMenu();
+        m_menuWidget->belowMenu();
         break;
     case Game::LobbyState:
         break;
@@ -431,11 +383,7 @@ void MainWindow::onEnter()
     switch(m_game.state())
     {
     case Game::MenuState:
-        if(m_menu->menuAt(m_menu->selectedMenu()) != Q_NULLPTR)
-            m_menu = m_menu->menuAt(m_menu->selectedMenu());
-        if(m_menu->isExitMenu()) close();
-        if(m_menu->name() == "Local")
-            m_game.startGame();
+        m_menuWidget->selectMenu();
         break;
     case Game::LobbyState:
         break;
@@ -450,8 +398,7 @@ void MainWindow::onBackpace()
     switch(m_game.state())
     {
     case Game::MenuState:
-        if(m_menu->parent() != Q_NULLPTR)
-            m_menu = m_menu->parent();
+        m_menuWidget->previousMenu();
         break;
     case Game::LobbyState:
         break;

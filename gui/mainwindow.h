@@ -9,20 +9,30 @@
 #include <QTime>
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QStackedWidget>
 
 #include "game.h"
 #include "tile.h"
-#include "menu.h"
+#include "mainmenuwidget.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QWidget
+class MainWindow : public QStackedWidget
 {
     Q_OBJECT
 
 public:
+    enum WidgetsID{
+        MenuWidget,
+        GraphicsMenuWidget,
+        AudioMenuWidget,
+        ControlsMenuWidget,
+        TutorialMenuWidget,
+        LobbyWidget,
+        GameWidget
+    };
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
@@ -37,9 +47,6 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *);
-
-    void paintMenu(QPainter *painter);
-    QRect paintTextMenu(QPainter *painter, int fontSize, const QString &text, const QPoint &center);
 
     void paintLobby(QPainter *painter);
 
@@ -61,7 +68,7 @@ private:
     Game m_game;
     QTimer *m_timer;
     QSize m_screenDim;
-    Menu *m_menu;
+    MainMenuWidget *m_menuWidget;
     QMediaPlayer *m_musicPlayer;
     QMediaPlaylist *m_playlist;
 };
