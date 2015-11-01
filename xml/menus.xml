@@ -13,8 +13,18 @@
 		</Menu>
 	</Menu>
 	<Menu name="Options">
-		<Menu name="Graphismes"/>
-		<Menu name="Audio"/>
+                <Menu name="Jeu">
+                    <Option name="Nom de profil" type="line" base=""/>
+                    <Option name="Afficher vie" type="bool" base="true"/>
+                </Menu>
+                <Menu name="Graphismes">
+                    <Option name="Plein écran" type="bool" base="true"/>
+                </Menu>
+                <Menu name="Audio">
+                    <Option name="Principal" type="spin" base="100" min="0" max="100"/>
+                    <Option name="Musique" type="spin" base="100" min="0" max="100"/>
+                    <Option name="Effets" type="spin" base="100" min="0" max="100"/>
+                </Menu>
 	</Menu>
         <Menu name="Tutoriel"/>
 </Menu>

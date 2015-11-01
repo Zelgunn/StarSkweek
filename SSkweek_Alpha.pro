@@ -34,7 +34,9 @@ SOURCES += main.cpp\
     projectilelist.cpp \
     weaponlist.cpp \
     gui/menu.cpp \
-    gui/mainmenuwidget.cpp
+    gui/mainmenuwidget.cpp \
+    gui/optionwidget.cpp \
+    gui/messagebox.cpp
 
 HEADERS  += gui/mainwindow.h \
     game.h \
@@ -54,7 +56,9 @@ HEADERS  += gui/mainwindow.h \
     projectilelist.h \
     weaponlist.h \
     gui/menu.h \
-    gui/mainmenuwidget.h
+    gui/mainmenuwidget.h \
+    gui/optionwidget.h \
+    gui/messagebox.h
 
 FORMS    +=
 

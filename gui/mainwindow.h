@@ -64,6 +64,8 @@ protected:
     QPoint toMap(Point p);
     QPoint relativePosition(Point p, QSize size = QSize(0,0));
 
+    void checkFullscreen();
+
 private:
     Game m_game;
     QTimer *m_timer;

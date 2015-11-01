@@ -7,7 +7,7 @@ Menu::Menu(Menu *parent)
 }
 
 Menu::Menu(const QDomElement &element, Menu *parent)
-    : QObject(parent), m_parent(parent), m_selectedMenu(0)
+    : QObject(parent), m_baseElement(element), m_type(SimpleMenu), m_parent(parent), m_selectedMenu(0)
 {
     QDomNode node = element.firstChild();
     QDomElement elem;
@@ -20,6 +20,12 @@ Menu::Menu(const QDomElement &element, Menu *parent)
 
         if(elem.tagName() == "Menu")
             m_subMenus.append(new Menu(elem, this));
+
+        if(elem.tagName() == "Option")
+        {
+            m_type = OptionMenu;
+            m_options.append(elem);
+        }
 
         node = node.nextSibling();
     }
@@ -77,6 +83,46 @@ bool Menu::isExitMenu() const
     return (m_name == "Quitter");
 }
 
+bool Menu::hasOption(const QString &name)
+{
+    for(int i=0; i<m_options.size(); i++)
+    {
+        if(m_options.at(i).attribute("name") == name)
+            return true;
+    }
+
+    return false;
+}
+
+bool Menu::hasOptions() const
+{
+    return (m_type == OptionMenu);
+}
+
+void Menu::setOptions(const QList<QDomElement> &options)
+{
+    m_options.clear();
+    for(int i=0; i<options.size(); i++)
+    {
+        m_options.append(options.at(i).cloneNode().toElement());
+    }
+}
+
+void Menu::setOption(const QString &name, const QString &value)
+{
+    QDomElement elem;
+    for(int i=0; i<m_options.size(); i++)
+    {
+        elem = m_options.at(i);
+        if(elem.attribute("name") == name)
+        {
+            elem.setAttribute("value", value);
+            m_options.replace(i, elem);
+            return;
+        }
+    }
+}
+
 void Menu::appendMenu(Menu *child)
 {
     if(child != Q_NULLPTR)
@@ -112,12 +158,14 @@ void Menu::setSelectedMenu(const uint &selectedMenu)
 
 void Menu::selectAboveMenu()
 {
+    if(m_subMenus.size() == 0) return;
     m_selectedMenu --;
     if(m_selectedMenu < 0) m_selectedMenu = m_subMenus.size() - 1;
 }
 
 void Menu::selectBelowMenu()
 {
+    if(m_subMenus.size() == 0) return;
     m_selectedMenu = (m_selectedMenu + 1)%m_subMenus.size();
 }
 
@@ -125,6 +173,12 @@ QList<Menu *> Menu::subMenus() const
 {
     return m_subMenus;
 }
+
+QList<QDomElement> Menu::options() const
+{
+    return m_options;
+}
+
 Menu *Menu::parent() const
 {
     return m_parent;

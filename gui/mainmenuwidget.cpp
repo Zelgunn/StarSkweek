@@ -1,7 +1,7 @@
 #include "mainmenuwidget.h"
 
 MainMenuWidget::MainMenuWidget(QWidget *parent)
-    : QWidget(parent), m_selectMenuFrame(0)
+    : QWidget(parent), m_selectMenuFrame(0), m_configLoaded(false), m_currentWidget(Q_NULLPTR), m_messageBox(this)
 {
     // Menu
     QFile file(":/xml/xml/menus.xml");
@@ -11,52 +11,185 @@ MainMenuWidget::MainMenuWidget(QWidget *parent)
     dom.setContent(&file);
 
     m_menu = new Menu(dom.documentElement());
+
+    m_layout = new QGridLayout(this);
+    this->setLayout(m_layout);
+
+    m_optionsWidget =  new OptionWidget;
+
+    m_configLoaded = openConfigFile();
+    //createConfigFile("Zelgunn");
 }
 
-void MainMenuWidget::previousMenu()
+void MainMenuWidget::onRight()
 {
-    if(m_menu->parent() != Q_NULLPTR)
+    if(!m_configLoaded)
     {
-        m_menu = m_menu->parent();
-        m_selectMenuFrame = -width()/2;
+        m_messageBox.moveCursor(1);
+        return;
+    }
+
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
+    {
+        m_optionsWidget->onRight();
     }
 }
 
-void MainMenuWidget::selectMenu()
+void MainMenuWidget::onUp()
 {
+    if(!m_configLoaded)
+    {
+        m_messageBox.changeLineChar(1);
+        return;
+    }
+
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
+    {
+        m_optionsWidget->selectPreviousOption();
+    }
+    else
+    {
+        m_menu->selectAboveMenu();
+    }
+}
+
+void MainMenuWidget::onLeft()
+{
+    if(!m_configLoaded)
+    {
+        m_messageBox.moveCursor(-1);
+        return;
+    }
+
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
+    {
+        m_optionsWidget->onLeft();
+    }
+}
+
+void MainMenuWidget::onDown()
+{
+    if(!m_configLoaded)
+    {
+        m_messageBox.changeLineChar(-1);
+        return;
+    }
+
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
+    {
+        m_optionsWidget->selectNextOption();
+    }
+    else
+        m_menu->selectBelowMenu();
+}
+
+void MainMenuWidget::onEnter()
+{
+    if(!m_configLoaded)
+    {
+        if(m_messageBox.isProfileCorrect())
+        {
+            createConfigFile(m_messageBox.profile());
+        }
+        return;
+    }
+
     if(m_selectMenuFrame != 0)
     {
         m_selectMenuFrame = 0;
         return;
     }
 
-    Menu *selectedMenu = m_menu->menuAt(m_menu->selectedMenu());
 
-    if(selectedMenu != Q_NULLPTR)
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
     {
-        if(selectedMenu == m_menu->parent())
+        if(m_optionsWidget->isCancelSelected())
+            previousMenu();
+        else if(m_optionsWidget->isApplySelected())
         {
-            m_selectMenuFrame = -width()/2;
+            m_menu->setOptions(m_optionsWidget->options());
+            saveConfig();
+            previousMenu();
         }
         else
-        {
-            m_selectMenuFrame = width()/2;
-        }
-        m_menu = selectedMenu;
+            m_optionsWidget->onEnter();
+        return;
     }
-    if(m_menu->isExitMenu()) emit onExit();
-//    if(m_menu->name() == "Local")
-    //        emit onLocalSelected;
+
+
+    selectMenu();
 }
 
-void MainMenuWidget::aboveMenu()
+void MainMenuWidget::onBackspace()
 {
-    m_menu->selectAboveMenu();
+    if(!m_configLoaded)
+    {
+        m_messageBox.removeChar();
+        return;
+    }
+
+    if((m_menu->hasOptions()) && (m_optionsWidget != Q_NULLPTR))
+    {
+        if(m_optionsWidget->isCancelSelected())
+            previousMenu();
+        else
+            m_optionsWidget->onBackspace();
+    }
+    else
+        previousMenu();
 }
 
-void MainMenuWidget::belowMenu()
+Menu *MainMenuWidget::optionsMenu() const
 {
-    m_menu->selectBelowMenu();
+    Menu *menu = m_menu;
+    while(menu->parent() != Q_NULLPTR) menu = menu->parent();
+    QList<Menu *> subMenus = menu->subMenus();
+    for(int i=0; i<subMenus.size(); i++)
+    {
+        if(subMenus.at(i)->name() == "Options")
+        {
+            menu = subMenus.at(i);
+            return menu;
+        }
+    }
+    return Q_NULLPTR;
+}
+
+QList<QDomElement> MainMenuWidget::allOptions() const
+{
+    QList<QDomElement> options;
+    Menu *menu = optionsMenu();
+    if(menu == Q_NULLPTR)
+        return options;
+
+    QList <Menu *> subMenus = menu->subMenus();
+    for(int i=0; i<subMenus.size(); i++)
+    {
+        if(subMenus.at(i)->hasOptions())
+        {
+            options.append(subMenus.at(i)->options());
+        }
+    }
+
+    return options;
+}
+
+bool MainMenuWidget::isFullScreenChecked() const
+{
+    QList<QDomElement> options = allOptions();
+    QDomElement option;
+
+    for(int i=0; options.size(); i++)
+    {
+        option = options.at(i);
+
+        if(option.attribute("name").startsWith("Plein"))
+        {
+            return OptionWidget::optionValue(option) == "true";
+        }
+    }
+
+    return false;
 }
 
 void MainMenuWidget::paintEvent(QPaintEvent *)
@@ -65,7 +198,14 @@ void MainMenuWidget::paintEvent(QPaintEvent *)
 
     painter.setBrush(QBrush(QColor(255,255,255,100)));
     painter.setPen(QPen(QColor(255,255,255)));
-    paintMenu(&painter);
+    if(!m_configLoaded)
+    {
+        m_messageBox.drawNoProfileMessage();
+    }
+    else
+    {
+        paintMenu(&painter);
+    }
 
     painter.end();
 }
@@ -103,6 +243,7 @@ void MainMenuWidget::paintMenu(QPainter *painter, Menu *menu, bool offset)
 
     if(!offset)
     {
+
         center += QPoint(width()/2, 0);
         QPoint nameCenter(center.x(), height()/8);
         paintTextMenu(painter, 42, menu->name(), nameCenter);
@@ -158,4 +299,198 @@ QRect MainMenuWidget::paintTextMenu(QPainter *painter, int fontSize, const QStri
     painter->drawText(boundingRect, Qt::AlignCenter, text);
 
     return boundingRect;
+}
+
+void MainMenuWidget::previousMenu()
+{
+    if(m_menu->hasOptions())
+    {
+        m_optionsWidget->setOptions(m_menu->options());
+    }
+
+    if(m_menu->parent() != Q_NULLPTR)
+    {
+        m_menu = m_menu->parent();
+        m_selectMenuFrame = -width()/2;
+
+        if(m_currentWidget)
+        {
+            m_currentWidget->hide();
+        }
+    }
+}
+
+void MainMenuWidget::selectMenu()
+{
+    Menu *selectedMenu = m_menu->menuAt(m_menu->selectedMenu());
+
+    if(selectedMenu != Q_NULLPTR)
+    {
+        if(selectedMenu == m_menu->parent())
+        {
+            m_selectMenuFrame = -width()/2;
+        }
+        else
+        {
+            m_selectMenuFrame = width()/2;
+        }
+
+        if(selectedMenu->hasOptions())
+        {
+            showOptions(selectedMenu->options());
+        }
+
+        m_menu = selectedMenu;
+    }
+
+    if(m_menu->isExitMenu()) emit onExit();
+
+
+
+//    if(m_menu->name() == "Local")
+    //        emit onLocalSelected;
+}
+
+void MainMenuWidget::aboveMenu()
+{
+    m_menu->selectAboveMenu();
+}
+
+void MainMenuWidget::belowMenu()
+{
+    m_menu->selectBelowMenu();
+}
+
+void MainMenuWidget::showOptions(const QList<QDomElement> &options)
+{
+    if(m_currentWidget)
+    {
+        m_layout->removeWidget(m_currentWidget);
+        //m_layout->replaceWidget(m_currentWidget, m_optionsWidget);
+    }
+//    else
+//    {
+
+//    }
+    m_layout->addWidget(m_optionsWidget);
+
+    m_optionsWidget->setOptions(options);
+    m_currentWidget = m_optionsWidget;
+    m_optionsWidget->show();
+}
+
+void MainMenuWidget::createConfigFile(const QString &profile)
+{
+    QDomDocument dom;
+    QDomElement root, elem, option;
+    QDomProcessingInstruction qdpi = dom.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    dom.appendChild(qdpi);
+    root = dom.createElement("root");
+    dom.appendChild(root);
+
+    QList <QDomElement> options = allOptions();
+
+    for(int i=0; i<options.size(); i++)
+    {
+        option = options.at(i);
+        elem = dom.createElement(option.tagName());
+        elem.setAttribute("name", option.attribute("name"));
+        if(option.attribute("name") == "Nom de profil")
+            elem.setAttribute("value", profile);
+        else
+            elem.setAttribute("value", option.attribute("base"));
+        root.appendChild(elem);
+    }
+
+    QFile file(QApplication::applicationDirPath() + "/config.xml");
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+        return;
+    }
+
+    QTextStream out(&file);
+    out.setCodec("UTF-8");
+    out << dom.toString();
+
+    file.close();
+    m_configLoaded = true;
+    openConfigFile();
+}
+
+void MainMenuWidget::saveConfig() const
+{
+    QDomDocument dom;
+    QDomElement root, elem, option;
+    QDomProcessingInstruction qdpi = dom.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    dom.appendChild(qdpi);
+    root = dom.createElement("root");
+    dom.appendChild(root);
+
+    QList <QDomElement> options = allOptions();
+
+    for(int i=0; i<options.size(); i++)
+    {
+        option = options.at(i);
+        elem = dom.createElement(option.tagName());
+        elem.setAttribute("name", option.attribute("name"));
+        elem.setAttribute("value", option.attribute("value"));
+        root.appendChild(elem);
+    }
+
+    QFile file(QApplication::applicationDirPath() + "/config.xml");
+    if (!file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+        return;
+    }
+
+    QTextStream out(&file);
+    out.setCodec("UTF-8");
+    out << dom.toString();
+
+    file.close();
+}
+
+bool MainMenuWidget::openConfigFile()
+{
+    QString configPath = QApplication::applicationDirPath() + "/config.xml";
+    if(!QFile::exists(configPath))
+        return false;
+
+    QFile file(configPath);
+    if(!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QDomDocument dom;
+    if(!dom.setContent(&file))
+        return false;
+
+    QDomElement elem = dom.documentElement();
+    QDomNode node = elem.firstChild();
+
+    Menu *menu = optionsMenu();
+    if(menu == Q_NULLPTR)
+        return false;
+
+    QList<Menu *> subMenus = menu->subMenus();
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+
+        for(int i=0; i<subMenus.size(); i++)
+        {
+            menu = subMenus.at(i);
+            if(menu->hasOption(elem.attribute("name")))
+            {
+                menu->setOption(elem.attribute("name"), elem.attribute("value"));
+                break;
+            }
+        }
+
+        node = node.nextSibling();
+    }
+
+    return true;
 }

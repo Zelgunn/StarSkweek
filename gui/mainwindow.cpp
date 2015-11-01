@@ -24,7 +24,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Widgets
     m_menuWidget = new MainMenuWidget(this);
-    addWidget(m_menuWidget);
+    checkFullscreen();
+    this->addWidget(m_menuWidget);
+
+    //addWidget();
     QObject::connect(m_menuWidget, SIGNAL(onExit()), this, SLOT(close()));
 
     setCurrentIndex(0);
@@ -340,7 +343,17 @@ void MainWindow::paintHUD(QPainter *painter)
 
 void MainWindow::onRight()
 {
-    movePlayer(GameObject::Right);
+    switch(m_game.state())
+    {
+    case Game::MenuState:
+        m_menuWidget->onRight();
+        break;
+    case Game::LobbyState:
+        break;
+    case Game::PlayingState:
+        movePlayer(GameObject::Right);
+        break;
+    }
 }
 
 void MainWindow::onUp()
@@ -348,7 +361,7 @@ void MainWindow::onUp()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menuWidget->aboveMenu();
+        m_menuWidget->onUp();
         break;
     case Game::LobbyState:
         break;
@@ -360,7 +373,17 @@ void MainWindow::onUp()
 
 void MainWindow::onLeft()
 {
-    movePlayer(GameObject::Left);
+    switch(m_game.state())
+    {
+    case Game::MenuState:
+        m_menuWidget->onLeft();
+        break;
+    case Game::LobbyState:
+        break;
+    case Game::PlayingState:
+        movePlayer(GameObject::Left);
+        break;
+    }
 }
 
 void MainWindow::onDown()
@@ -368,7 +391,7 @@ void MainWindow::onDown()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menuWidget->belowMenu();
+        m_menuWidget->onDown();
         break;
     case Game::LobbyState:
         break;
@@ -383,7 +406,8 @@ void MainWindow::onEnter()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menuWidget->selectMenu();
+        m_menuWidget->onEnter();
+        checkFullscreen();
         break;
     case Game::LobbyState:
         break;
@@ -398,7 +422,7 @@ void MainWindow::onBackpace()
     switch(m_game.state())
     {
     case Game::MenuState:
-        m_menuWidget->previousMenu();
+        m_menuWidget->onBackspace();
         break;
     case Game::LobbyState:
         break;
@@ -431,4 +455,29 @@ QPoint MainWindow::relativePosition(Point p, QSize size)
                     (playerPosition.y - p.y) + size.height()/2 + 1);
 
     return playerOnScreen - deltaPos;
+}
+
+void MainWindow::checkFullscreen()
+{
+    static Qt::WindowState previousState = Qt::WindowMaximized;
+
+    if(isFullScreen())
+    {
+        if(!m_menuWidget->isFullScreenChecked())
+        {
+            setWindowState(previousState);
+        }
+    }
+    else
+    {
+        if(m_menuWidget->isFullScreenChecked())
+        {
+            if(isMaximized())
+                previousState = Qt::WindowMaximized;
+            else
+                previousState = Qt::WindowNoState;
+
+            setWindowState(Qt::WindowFullScreen);
+        }
+    }
 }
