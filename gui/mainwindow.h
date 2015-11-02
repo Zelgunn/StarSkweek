@@ -14,6 +14,7 @@
 #include "game.h"
 #include "tile.h"
 #include "mainmenuwidget.h"
+#include "lobbywidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,7 +31,7 @@ public:
         AudioMenuWidget,
         ControlsMenuWidget,
         TutorialMenuWidget,
-        LobbyWidget,
+        Lobby,
         GameWidget
     };
     explicit MainWindow(QWidget *parent = 0);
@@ -44,6 +45,14 @@ public slots:
     void onDown();
     void onEnter();
     void onBackpace();
+
+    void onSpinOptionChanged(const QString &name, int value);
+
+    void onHostGame();
+    void onLocalGame();
+    void onIPGame(const QString &ip);
+
+    void onGameStateChanged(Game::GameStates state);
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -69,10 +78,11 @@ protected:
 private:
     Game m_game;
     QTimer *m_timer;
-    QSize m_screenDim;
     MainMenuWidget *m_menuWidget;
+    LobbyWidget *m_lobbyWidget;
     QMediaPlayer *m_musicPlayer;
     QMediaPlaylist *m_playlist;
+    ArduinoHandler *m_arduinoHandler;
 };
 
 #endif // MAINWINDOW_H

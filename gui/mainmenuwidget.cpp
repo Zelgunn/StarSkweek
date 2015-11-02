@@ -116,8 +116,26 @@ void MainMenuWidget::onEnter()
         return;
     }
 
-
     selectMenu();
+
+    switch (m_menu->type())
+    {
+    case Menu::HostGame:
+        emit hostGameSelected();
+        break;
+    case Menu::LocalGame:
+        emit localGameSelected();
+        break;
+    case Menu::IPGame:
+        break;
+    case Menu::SimpleMenu:
+        break;
+    case Menu::OptionMenu:
+        break;
+    case Menu::Tutorial:
+        break;
+    }
+
 }
 
 void MainMenuWidget::onBackspace()
@@ -172,6 +190,44 @@ QList<QDomElement> MainMenuWidget::allOptions() const
     }
 
     return options;
+}
+
+int MainMenuWidget::musicVolume() const
+{
+    return spinValue("Musique");
+}
+
+int MainMenuWidget::mainVolume() const
+{
+    return spinValue("Principal");
+}
+
+int MainMenuWidget::spinValue(const QString &name) const
+{
+    QList<QDomElement> options = m_optionsWidget->options();
+    foreach(QDomElement option, options)
+    {
+        if(option.attribute("name") == name)
+        {
+            return OptionWidget::optionValue(option).toInt();
+        }
+    }
+
+    options = allOptions();
+    foreach(QDomElement option, options)
+    {
+        if(option.attribute("name") == name)
+        {
+            return OptionWidget::optionValue(option).toInt();
+        }
+    }
+
+    return -1;
+}
+
+OptionWidget *MainMenuWidget::optionsWidget() const
+{
+    return m_optionsWidget;
 }
 
 bool MainMenuWidget::isFullScreenChecked() const
@@ -494,3 +550,4 @@ bool MainMenuWidget::openConfigFile()
 
     return true;
 }
+

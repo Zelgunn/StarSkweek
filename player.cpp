@@ -34,6 +34,12 @@ Player::Player(const QDomElement &element) :
             m_tileType = (Tile::TileType)(elem.attribute("type").toLatin1().at(0) - 'a');
         }
 
+        if(elem.tagName() == "Portrait")
+        {
+            m_portrait = QPixmap(dir + elem.attribute("complete"));
+            m_thumbnail = QPixmap(dir + elem.attribute("thumbnail")).scaled(256,256);
+        }
+
         node = node.nextSibling();
     }
 
@@ -68,6 +74,15 @@ void Player::setWeapon(const Weapon &weapon)
     m_weapon = weapon;
 }
 
+QPixmap Player::portrait() const
+{
+    return m_portrait;
+}
+QPixmap Player::thumbnail() const
+{
+    return m_thumbnail;
+}
+
 GameObject::Directions Player::previousDirection() const
 {
     return m_previousDirection;
@@ -94,3 +109,4 @@ bool Player::isPlayer() const
 {
     return true;
 }
+

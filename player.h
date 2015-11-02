@@ -19,6 +19,9 @@ public:
     Weapon weapon() const;
     void setWeapon(const Weapon &weapon);
 
+    QPixmap portrait() const;
+    QPixmap thumbnail() const;
+
     Directions previousDirection() const;
     void setPreviousDirection(const Directions &previousDirection);
     void setDirection(const Directions &direction);
@@ -31,6 +34,8 @@ private:
     Tile::TileType m_tileType;
     Directions m_previousDirection;
     Weapon m_weapon;
+    QPixmap m_portrait;
+    QPixmap m_thumbnail;
 };
 
 #endif // PLAYER_H

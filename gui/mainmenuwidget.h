@@ -29,6 +29,11 @@ public:
 
     Menu *optionsMenu() const;
     QList<QDomElement> allOptions() const;
+    OptionWidget *optionsWidget() const;
+
+    int musicVolume() const;
+    int mainVolume() const;
+    int spinValue(const QString &name) const;
 
     bool isFullScreenChecked() const;
 
@@ -51,6 +56,9 @@ protected:
 
 signals:
     void onExit();
+    void hostGameSelected();
+    void localGameSelected();
+    void ipGameSelected(const QString &ip);
 
 private:
     Menu *m_menu;

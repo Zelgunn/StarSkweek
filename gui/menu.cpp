@@ -19,11 +19,11 @@ Menu::Menu(const QDomElement &element, Menu *parent)
         elem = node.toElement();
 
         if(elem.tagName() == "Menu")
-            m_subMenus.append(new Menu(elem, this));
-
-        if(elem.tagName() == "Option")
         {
-            m_type = OptionMenu;
+            m_subMenus.append(new Menu(elem, this));
+        }
+        else if(elem.tagName() == "Option")
+        {
             m_options.append(elem);
         }
 
@@ -41,6 +41,8 @@ Menu::Menu(const QDomElement &element, Menu *parent)
             createBackMenu(this);
         }
     }
+
+    defineType();
 }
 
 QStringList Menu::menusNames() const
@@ -123,6 +125,21 @@ void Menu::setOption(const QString &name, const QString &value)
     }
 }
 
+bool Menu::isHostGame() const
+{
+    return m_type == HostGame;
+}
+
+bool Menu::isLocalGame() const
+{
+    return m_type == LocalGame;
+}
+
+bool Menu::isIPGame() const
+{
+    return m_type == IPGame;
+}
+
 void Menu::appendMenu(Menu *child)
 {
     if(child != Q_NULLPTR)
@@ -184,5 +201,37 @@ Menu *Menu::parent() const
     return m_parent;
 }
 
+void Menu::defineType()
+{
+    if(m_options.size() > 0)
+    {
+        m_type = OptionMenu;
+        return;
+    }
 
+    if(m_baseElement.attribute("name") == "Local")
+    {
+        m_type = LocalGame;
+        return;
+    }
+
+    if(m_baseElement.attribute("name") == "IP directe")
+    {
+        m_type = IPGame;
+        return;
+    }
+
+    if(m_baseElement.attribute("name").contains("berger partie"))
+    {
+        m_type = HostGame;
+        return;
+    }
+
+    m_type = SimpleMenu;
+}
+
+Menu::MenuType Menu::type() const
+{
+    return m_type;
+}
 

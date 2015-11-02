@@ -23,10 +23,11 @@ public:
     };
     Game();
 
-    const Level *level();
+    const Level *level() const;
+    const QList<Player *> *players() const;
     void movePlayer(GameObject::Directions direction);
     void player2Command(QString command);
-    void movePlayer2(char direction);
+    void movePlayer2(QString command);
 
     void playerFires(int playerID);
 
@@ -39,11 +40,16 @@ public:
     GameStates state() const;
     void setState(const GameStates &state);
 
+    void startHost();
+    void lookForLocalHost();
+    void connectToIP(const QString &ip);
+
 public slots:
     void onGameConnected();
     void nextFrame();
 
 signals:
+    void stateChanged(Game::GameStates state);
     void gameReady();
 
 private:

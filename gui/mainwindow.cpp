@@ -3,32 +3,43 @@
 MainWindow::MainWindow(QWidget *parent) :
     QStackedWidget(parent)
 {
+    QTime test = QTime::currentTime();
     setWindowTitle("Super Skweek v0.1 (alpha)");
     setWindowState(Qt::WindowFullScreen);
 
+    // TMP (remplacement Arduino + Fix choix de niveau)
     new QShortcut(tr("Right"), this, SLOT(onRight()));
     new QShortcut(tr("Left"), this, SLOT(onLeft()));
     new QShortcut(tr("Up"), this, SLOT(onUp()));
     new QShortcut(tr("Down"), this, SLOT(onDown()));
     new QShortcut(tr("Return"), this, SLOT(onEnter()));
     new QShortcut(tr("Backspace"), this, SLOT(onBackpace()));
-
     m_game.loadLevel(0);
 
-    m_screenDim = QApplication::desktop()->screenGeometry().size();
-
+    // Timer de rafraichissement
     m_timer = new QTimer(this);
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
-    QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
     m_timer->start(16);
 
     // Widgets
+    // // Menu
     m_menuWidget = new MainMenuWidget(this);
     checkFullscreen();
-    this->addWidget(m_menuWidget);
+    addWidget(m_menuWidget);
 
-    //addWidget();
     QObject::connect(m_menuWidget, SIGNAL(onExit()), this, SLOT(close()));
+    QObject::connect(m_menuWidget, SIGNAL(hostGameSelected()), this, SLOT(onHostGame()));
+    QObject::connect(m_menuWidget, SIGNAL(localGameSelected()), this, SLOT(onLocalGame()));
+    QObject::connect(m_menuWidget, SIGNAL(ipGameSelected(QString)), this, SLOT(onIPGame(QString)));
+    QObject::connect(m_menuWidget->optionsWidget(), SIGNAL(spinChanged(QString,int)), SLOT(onSpinOptionChanged(QString, int)));
+
+    // // Lobby
+    m_lobbyWidget = new LobbyWidget(m_game.players() ,this);
+    addWidget(m_lobbyWidget);
+
+    // // Jeu
+    QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
+    QObject::connect(&m_game, SIGNAL(stateChanged(Game::GameStates)), this, SLOT(onGameStateChanged(Game::GameStates)));
 
     setCurrentIndex(0);
 
@@ -38,10 +49,14 @@ MainWindow::MainWindow(QWidget *parent) :
     m_playlist = new QMediaPlaylist;
     m_playlist->setPlaybackMode(QMediaPlaylist::Loop);
     m_playlist->addMedia(QUrl("qrc:/musics/musics/Main.mp3"));
-    m_musicPlayer->setVolume(50);
+    onSpinOptionChanged("Musique", m_menuWidget->musicVolume());
 
     m_musicPlayer->setPlaylist(m_playlist);
     m_musicPlayer->play();
+
+    // Gestionnaire Arduino
+    m_arduinoHandler = new ArduinoHandler;
+    qDebug() << "Temps de chargement :" << test.msecsTo(QTime::currentTime()) << "mscs";
 }
 
 MainWindow::~MainWindow()
@@ -64,7 +79,6 @@ void MainWindow::paintEvent(QPaintEvent *)
     case Game::MenuState:
         break;
     case Game::LobbyState:
-        paintLobby(painter);
         break;
     case Game::PlayingState:
         paintGame(painter);
@@ -255,8 +269,8 @@ void MainWindow::paintPlayer(QPainter *painter)
     const Player *player2 = m_game.level()->player2();
 
     QPixmap pImage = player->model()->scaled(tileSize.height(), tileSize.height());
-    QPoint playerOnScreen(0.5 * m_screenDim.width() - pImage.width()/2,
-                          0.5 * m_screenDim.height() - pImage.height()/2);
+    QPoint playerOnScreen(0.5 * width() - pImage.width()/2,
+                          0.5 * height() - pImage.height()/2);
     painter->drawPixmap(playerOnScreen, pImage);
 
     pImage = player2->model()->scaled(tileSize.height(), tileSize.height());
@@ -275,11 +289,11 @@ void MainWindow::paintWaitingSign(QPainter *painter)
     QFont font("Times", 30, QFont::Bold);
     painter->setFont(font);
 
-    int w = m_screenDim.width() * 3/5;
-    int h = m_screenDim.height() / 10;
+    int w = width() * 3/5;
+    int h = height() / 10;
     QRect rect;
-    rect.setX((m_screenDim.width() - w)/2);
-    rect.setY((m_screenDim.height() - h)/2);
+    rect.setX((width() - w)/2);
+    rect.setY((height() - h)/2);
     rect.setWidth(w);
     rect.setHeight(h);
 
@@ -349,6 +363,7 @@ void MainWindow::onRight()
         m_menuWidget->onRight();
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onRight();
         break;
     case Game::PlayingState:
         movePlayer(GameObject::Right);
@@ -379,6 +394,7 @@ void MainWindow::onLeft()
         m_menuWidget->onLeft();
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onLeft();
         break;
     case Game::PlayingState:
         movePlayer(GameObject::Left);
@@ -431,6 +447,51 @@ void MainWindow::onBackpace()
     }
 }
 
+void MainWindow::onSpinOptionChanged(const QString &name, int value)
+{
+    if(name == "Musique")
+    {
+        value *= m_menuWidget->mainVolume();
+        value /= 100;
+        m_musicPlayer->setVolume(value);
+    }
+    else if(name == "Principal")
+    {
+        value *= m_menuWidget->musicVolume();
+        value /= 100;
+        m_musicPlayer->setVolume(value);
+    }
+}
+
+void MainWindow::onHostGame()
+{
+    m_game.startHost();
+}
+
+void MainWindow::onLocalGame()
+{
+    m_game.lookForLocalHost();
+}
+
+void MainWindow::onIPGame(const QString &ip)
+{
+    m_game.connectToIP(ip);
+}
+
+void MainWindow::onGameStateChanged(Game::GameStates state)
+{
+    switch (state) {
+    case Game::MenuState:
+        setCurrentIndex(0);
+        break;
+    case Game::LobbyState:
+        setCurrentIndex(1);
+        break;
+    case Game::PlayingState:
+        break;
+    }
+}
+
 void MainWindow::movePlayer(GameObject::Directions direction)
 {
     m_game.movePlayer(direction);
@@ -449,7 +510,7 @@ QPoint MainWindow::toMap(Point p)
 QPoint MainWindow::relativePosition(Point p, QSize size)
 {
     Point playerPosition = m_game.level()->player()->position();
-    QPoint playerOnScreen(0.5 * m_screenDim.width(), 0.5 * m_screenDim.height());
+    QPoint playerOnScreen(0.5 * width(), 0.5 * height());
 
     QPoint deltaPos((playerPosition.x - p.x) + size.width()/2 + 1,
                     (playerPosition.y - p.y) + size.height()/2 + 1);

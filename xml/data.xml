@@ -3,10 +3,12 @@
 	<Character name="Dark Vador">
 		<Tile type="b"/>
 		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player1.png"/>
+                <Portrait complete="/images/Portrait_Darkvador.png" thumbnail="/images/TN_Darkvador.png"/>
 	</Character>
 	<Character name="Obi Wan Kenobi">
 		<Tile type="c"/>
                 <Model right="/images/player2.png" up="/images/player2.png" left="/images/player2.png" down="/images/player2.png"/>
+                <Portrait complete="/images/Portrait_Obiwan.png" thumbnail="/images/TN_Obiwan.png"/>
         </Character>
 	<Projectiles>
 		<Projectile name="Laser Bolt" type="a">

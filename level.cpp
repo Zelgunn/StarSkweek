@@ -179,6 +179,37 @@ void Level::setPlayerDirection(int playerId, GameObject::Directions direction)
     m_players[playerId]->setDirection(direction);
 }
 
+void Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction)
+{
+    Q_ASSERT((playerId == 0) || (playerId == 1));
+    Player *player = m_players[playerId], *player2 = m_players[!playerId];
+
+    int w = m_tileSize.width(), h = m_tileSize.height();
+
+    if((x < 0)         ||
+       (y < 0)         ||
+       (x >= width())  ||
+       (y >= height())) return;
+
+    uint tx = x / w;
+    uint ty = y / h;
+
+    if(m_grid->tileAt(tx, ty) == Tile::Void)
+    {
+        if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
+            return;
+        player->takeDamage(999);
+    }
+
+    player->setPosition(x, y);
+    player->setDirection(direction);
+
+    if(m_grid->tileAt(tx, ty) == player2->tileType())
+        m_grid->setTileAt(tx, ty, player->tileType());
+
+    return;
+}
+
 bool Level::playerFires(int playerId)
 {
     Player *player = m_players[playerId];

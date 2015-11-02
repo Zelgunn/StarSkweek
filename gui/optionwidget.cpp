@@ -95,11 +95,12 @@ void OptionWidget::onRight()
     {
         if(m_isSelectionLocked)
         {
-            if(m_options.at(m_selectedLine).attribute("type")=="line")
+            QDomElement option = m_options.at(m_selectedLine);
+            if(option.attribute("type")=="line")
             {
                 moveCursor(1);
             }
-            else if(m_options.at(m_selectedLine).attribute("type")=="spin")
+            else if(option.attribute("type")=="spin")
             {
                 moveSpin(1);
             }
@@ -484,6 +485,8 @@ void OptionWidget::moveSpin(int delta)
 
     option.setAttribute("value", value);
     m_options.replace(m_selectedLine, option);
+
+    emit spinChanged(option.attribute("name"), optionValue(option).toInt());
 }
 
 void OptionWidget::removeChar()

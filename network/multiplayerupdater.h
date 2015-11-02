@@ -27,6 +27,10 @@ public:
     bool isFirst() const;
     bool isConnected() const;
 
+    void startHost();
+    void lookForLocalHost();
+    void connectToIP(const QString &ip);
+
 protected:
     void sendUpdate(const QString &update);
     void incomingConnection(int socketfd);

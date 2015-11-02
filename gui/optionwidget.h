@@ -50,6 +50,9 @@ protected:
     void removeChar();
     bool isProfileCorrect() const;
 
+signals:
+    void spinChanged(const QString &name, int value);
+
 private:
     int m_currentLine;
     int m_selectedLine;

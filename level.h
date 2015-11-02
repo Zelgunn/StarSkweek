@@ -32,6 +32,7 @@ public:
     bool movePlayer2(GameObject::Directions direction);
 
     void setPlayerDirection(int playerId, GameObject::Directions direction);
+    void setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction);
 
     bool playerFires(int playerId);
 

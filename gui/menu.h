@@ -15,6 +15,9 @@ public:
     enum MenuType {
         SimpleMenu,
         OptionMenu,
+        HostGame,
+        LocalGame,
+        IPGame,
         Tutorial
     };
 
@@ -27,12 +30,18 @@ public:
     QString name() const;
     void setName(const QString &name);
 
+    // Options
     bool isBackMenu() const;
     bool isExitMenu() const;
     bool hasOption(const QString &name);
     bool hasOptions() const;
     void setOptions(const QList<QDomElement> &options);
     void setOption(const QString &name, const QString &value);
+
+    // Multijoueur
+    bool isHostGame() const;
+    bool isLocalGame() const;
+    bool isIPGame() const;
 
     void appendMenu(Menu *child);
     static Menu *createBackMenu(Menu *parent);
@@ -47,6 +56,11 @@ public:
     QList<QDomElement> options() const;
 
     Menu *parent() const;
+
+    MenuType type() const;
+
+protected:
+    void defineType();
 
 private:
     QDomElement m_baseElement;

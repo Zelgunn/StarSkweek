@@ -48,9 +48,14 @@ Game::Game() :
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
 }
 
-const Level *Game::level()
+const Level *Game::level() const
 {
     return m_level;
+}
+
+const QList<Player *> *Game::players() const
+{
+    return &m_characters;
 }
 
 void Game::movePlayer(GameObject::Directions direction)
@@ -58,7 +63,6 @@ void Game::movePlayer(GameObject::Directions direction)
     if(!m_timer->isActive()) return;
 
     m_level->setPlayerDirection(0, direction);
-    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->direction()));
 }
 
 void Game::player2Command(QString command)
@@ -67,7 +71,7 @@ void Game::player2Command(QString command)
 
     switch (firstChar) {
     case 'm':
-        movePlayer2(command.at(1).toLatin1());
+        movePlayer2(command);
         break;
     case 's':
         playerFires(1);
@@ -76,10 +80,14 @@ void Game::player2Command(QString command)
     }
 }
 
-void Game::movePlayer2(char direction)
+void Game::movePlayer2(QString command)
 {
-    GameObject::Directions dir = (GameObject::Directions) (char)(direction - '0');
-    m_level->setPlayerDirection(1, dir);
+    command = command.remove(0, 1);
+    int x = command.section(',',0,0).toInt();
+    int y = command.section(',',1,1).toInt();
+    int dir = command.section(',',-1,-1).toInt();
+
+    m_level->setPlayerPosition(1, x, y, (GameObject::Directions) dir);
 }
 
 void Game::playerFires(int playerID)
@@ -98,7 +106,7 @@ void Game::playerFires(int playerID)
 void Game::startGame()
 {
     m_timer->start(16);
-    m_state = PlayingState;
+    setState(PlayingState);
 }
 
 bool Game::isStarted() const
@@ -127,6 +135,7 @@ void Game::loadLevel(const QString &filename)
 
 void Game::nextFrame()
 {
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x) + ',' + QString::number(m_level->player()->position().y));
     m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
     QStringList updates = m_multiplayerUpdater.receivedUpdates();
@@ -156,8 +165,23 @@ Game::GameStates Game::state() const
 void Game::setState(const GameStates &state)
 {
     m_state = state;
+    emit stateChanged(state);
 }
 
+void Game::startHost()
+{
+    m_multiplayerUpdater.startHost();
+}
+
+void Game::lookForLocalHost()
+{
+    m_multiplayerUpdater.lookForLocalHost();
+}
+
+void Game::connectToIP(const QString &ip)
+{
+    m_multiplayerUpdater.connectToIP(ip);
+}
 
 void Game::onGameConnected()
 {
@@ -169,5 +193,7 @@ void Game::onGameConnected()
     {
         m_level->setMyPlayer(1);
     }
-    emit gameReady();
+
+    setState(LobbyState);
+    //emit gameReady();
 }

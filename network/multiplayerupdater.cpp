@@ -21,10 +21,7 @@ MultiplayerUpdater::MultiplayerUpdater()
     m_timer = new QTimer(this);
 
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(broadcastAddress()));
-    QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
-    QTimer::singleShot(50, this, SLOT(broadcastAddress()));
 }
-
 
 void MultiplayerUpdater::appendUpdate(const QString &update)
 {
@@ -61,6 +58,23 @@ bool MultiplayerUpdater::isFirst() const
 bool MultiplayerUpdater::isConnected() const
 {
     return ((m_client != Q_NULLPTR) && (m_client->isOpen()));
+}
+
+void MultiplayerUpdater::startHost()
+{
+    broadcastAddress();
+}
+
+void MultiplayerUpdater::lookForLocalHost()
+{
+    qDebug() << "Looking for local host...";
+    QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
+}
+
+void MultiplayerUpdater::connectToIP(const QString &ip)
+{
+    m_player2Address = QHostAddress(ip);
+    connectToPlayer2();
 }
 
 void MultiplayerUpdater::sendUpdate(const QString &update)
@@ -105,6 +119,7 @@ void MultiplayerUpdater::connectToPlayer2()
 
 void MultiplayerUpdater::broadcastAddress()
 {
+    qDebug() << "Broadcastinhg...";
     if(!isListening())
         listen(m_localAddress, PORT_COM);
 
@@ -133,6 +148,8 @@ void MultiplayerUpdater::readUdp()
         datagram.resize(m_udpSocket->pendingDatagramSize());
         m_udpSocket->readDatagram(datagram.data(), datagram.size());
         message = datagram.data();
+
+        qDebug() << message;
 
         if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
         {
