@@ -5,6 +5,9 @@
 #include <QPixmap>
 #include <QApplication>
 #include <QPainter>
+#include <QDirIterator>
+#include <QFileInfo>
+#include <QFile>
 
 #include "player.h"
 
@@ -20,6 +23,10 @@ public:
 
     void onRight();
     void onLeft();
+    void onUp();
+    void onDown();
+    void onEnter();
+    void onBackspace();
 
     int leftPortraitIndex() const;
     void setLeftPortraitIndex(int leftPortraitIndex);
@@ -29,9 +36,16 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *);
+
+    void paintMapList(QPainter *painter);
+    void paintMapPreview(QPainter *painter);
+
     void paintPortrait(QPainter *painter, int panel);
     void paintThumbnails(QPainter *painter);
     void paintVersus(QPainter *painter, const QSize &size);
+
+    void loadMaps();
+    void loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes);
 
 private:
     QList<QPixmap> m_portraits;
@@ -42,7 +56,10 @@ private:
     int m_selectedPortrait;
 
     const QList<Player *> *m_players;
-    bool m_mapSelected;
+
+    int m_mapChoosen;
+    QList<QPixmap> m_maps;
+    QStringList m_mapNames;
 };
 
 #endif // LOBBYWIDGET_H

@@ -379,6 +379,7 @@ void MainWindow::onUp()
         m_menuWidget->onUp();
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onUp();
         break;
     case Game::PlayingState:
         movePlayer(GameObject::Up);
@@ -410,6 +411,7 @@ void MainWindow::onDown()
         m_menuWidget->onDown();
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onDown();
         break;
     case Game::PlayingState:
         movePlayer(GameObject::Down);
@@ -424,8 +426,10 @@ void MainWindow::onEnter()
     case Game::MenuState:
         m_menuWidget->onEnter();
         checkFullscreen();
+        m_game.setState(Game::LobbyState);
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onEnter();
         break;
     case Game::PlayingState:
         m_game.playerFires(0);
@@ -441,6 +445,7 @@ void MainWindow::onBackpace()
         m_menuWidget->onBackspace();
         break;
     case Game::LobbyState:
+        m_lobbyWidget->onBackspace();
         break;
     case Game::PlayingState:
         break;

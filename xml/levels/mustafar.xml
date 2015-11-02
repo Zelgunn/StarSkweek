@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Level name="Mustafar">
+	<TileSize width="80" height="50"/>
+	<Grid>
+		<Size width="32" height="16"/>
+		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+	</Grid>
+	<Tile type="a" filename="/images/void.png"/>
+	<Tile type="b" filename="/images/Tile_pink.png"/>
+	<Tile type="c" filename="/images/Tile_blue.png"/>
+	<Tile type="d" filename="/images/Tile_blue_old.png"/>
+</Level>

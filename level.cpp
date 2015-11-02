@@ -3,6 +3,7 @@
 Level::Level(const QDomElement &element, QList<Player *> *characters)
     : m_characters(characters), m_myPlayer(0)
 {
+    m_name = element.attribute("name");
     m_players = new Player*[2];
     m_tiles = new Tile[Tile::TypeCount];
     int tileIndex;

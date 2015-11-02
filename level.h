@@ -52,6 +52,7 @@ private:
     WeaponList m_weapons;
     QSize m_tileSize;
     Tile *m_tiles;
+    QString m_name;
 };
 
 #endif // LEVEL_H

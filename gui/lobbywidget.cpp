@@ -1,12 +1,11 @@
 #include "lobbywidget.h"
 
 LobbyWidget::LobbyWidget(const QList<Player *> *players, QWidget *parent)
-    : QWidget(parent), m_leftPortraitIndex(1), m_rightPortraitIndex(0), m_selectedPortrait(m_leftPortraitIndex), m_players(players), m_mapSelected(false)
+    : QWidget(parent), m_leftPortraitIndex(1), m_rightPortraitIndex(0), m_selectedPortrait(0), m_players(players), m_mapChoosen(-1)
 {
+    // Chargement des portraits et miniatures.
     Player *player;
-
     QString dir = QApplication::applicationDirPath();
-
     for(int i=0; i<m_players->size(); i++)
     {
         player = m_players->at(i);
@@ -16,31 +15,162 @@ LobbyWidget::LobbyWidget(const QList<Player *> *players, QWidget *parent)
 
     m_portraits.append(QPixmap(dir + "/images/Portrait_random.png"));
     m_thumbnails.append(QPixmap(dir + "/images/TN_random.png"));
+
+    loadMaps();
 }
 
 void LobbyWidget::onRight()
 {
+    if(m_mapChoosen < 0) return;
     m_leftPortraitIndex = (m_leftPortraitIndex + 1)%m_portraits.size();
 }
 
 void LobbyWidget::onLeft()
 {
+    if(m_mapChoosen < 0) return;
     m_leftPortraitIndex--;
     if(m_leftPortraitIndex < 0)
         m_leftPortraitIndex = m_portraits.size() - 1;
 }
 
+void LobbyWidget::onUp()
+{
+    if(m_mapChoosen > 0) return;
+    m_selectedPortrait = (m_selectedPortrait + 1)%m_maps.size();
+}
+
+void LobbyWidget::onDown()
+{
+    if(m_mapChoosen > 0) return;
+    m_selectedPortrait--;
+    if(m_selectedPortrait < 0)
+        m_selectedPortrait = m_maps.size() - 1;
+}
+
+void LobbyWidget::onEnter()
+{
+    m_mapChoosen = m_selectedPortrait;
+    m_selectedPortrait = 0;
+}
+
+void LobbyWidget::onBackspace()
+{
+    if(m_mapChoosen < 0) return; // TMP : Emit leaving
+    m_selectedPortrait = m_mapChoosen;
+    m_mapChoosen = -1;
+}
+
 void LobbyWidget::paintEvent(QPaintEvent *)
 {
-    // Dessiner bande de personnages
-
     QPainter painter(this);
 
-    paintPortrait(&painter, 0);
-    paintPortrait(&painter, 1);
-    paintThumbnails(&painter);
+    if(m_mapChoosen < 0)
+    {
+        paintMapList(&painter);
+        paintMapPreview(&painter);
+    }
+    else
+    {
+        paintPortrait(&painter, 0);
+        paintPortrait(&painter, 1);
+        paintThumbnails(&painter);
+    }
 
     painter.end();
+}
+
+void LobbyWidget::paintMapList(QPainter *painter)
+{
+    static QList<QPixmap> thumbnails;
+    static int storedWidth = width();
+
+    if(storedWidth != width())
+    {
+        storedWidth = width();
+        thumbnails.clear();
+    }
+
+    if(thumbnails.isEmpty())
+    {
+        for(int i=0; i<m_maps.size(); i++)
+        {
+            thumbnails.append(m_maps.at(i).scaledToWidth((width()/3 - LOBBY_PADDING)/2, Qt::SmoothTransformation));
+        }
+    }
+
+    QFont font("Times", 16);
+    painter->setFont(font);
+    QPixmap thumbnail;
+    int h = LOBBY_PADDING + 1;
+    for(int i=0; i<thumbnails.size(); i++)
+    {
+        thumbnail = thumbnails.at(i);
+        painter->drawPixmap(LOBBY_PADDING, h, thumbnail);
+        if(i==m_selectedPortrait)
+        {
+            painter->setPen(QPen(QColor(0,0,255)));
+        }
+        else
+        {
+            painter->setPen(QPen(QColor(255,255,255)));
+        }
+        painter->drawRect(QRect(QPoint(LOBBY_PADDING + 1, h), thumbnail.size()));
+        painter->drawText(QRect(QPoint(LOBBY_PADDING + 2 + thumbnail.width(), h),
+                                thumbnail.size()), Qt::AlignCenter, m_mapNames.at(i));
+        h += thumbnail.height() + 1;
+    }
+
+    painter->setPen(QPen(QColor(255,255,255)));
+    QRect container(LOBBY_PADDING, LOBBY_PADDING, width()/3 - LOBBY_PADDING, height() - 2*LOBBY_PADDING);
+    painter->drawRect(container);
+}
+
+void LobbyWidget::paintMapPreview(QPainter *painter)
+{
+    static QList<QPixmap> previews;
+    static int storedHeight = height();
+    static int storedWidth = width();
+
+    if(storedWidth != width())
+    {
+        storedWidth = width();
+        previews.clear();
+    }
+
+    if(storedHeight != height())
+    {
+        storedHeight = height();
+        previews.clear();
+    }
+
+    QRect container(LOBBY_PADDING + width()/3, LOBBY_PADDING, width()*2/3 - 2*LOBBY_PADDING, height() - 2*LOBBY_PADDING);
+    double previewRatio = (double)container.width()/(double)container.height();
+
+    QPixmap map;
+    if(previews.isEmpty())
+    {
+        for(int i=0; i<m_maps.size(); i++)
+        {
+            map = m_maps.at(i);
+            double mapRatio = (double)map.width()/(double)map.height();
+            if(mapRatio < previewRatio)
+            {
+                previews.append(m_maps.at(i).scaledToHeight(container.height(), Qt::SmoothTransformation));
+            }
+            else
+            {
+                previews.append(m_maps.at(i).scaledToWidth(container.width(), Qt::SmoothTransformation));
+            }
+        }
+    }
+
+    QPoint corner = container.topLeft();
+    corner += QPoint((container.width() - previews.at(m_selectedPortrait).width())/2,
+                     (container.height() - previews.at(m_selectedPortrait).height())/2);
+    painter->drawPixmap(corner, previews.at(m_selectedPortrait));
+
+    painter->setPen(QPen(QColor(255,255,255)));
+    painter->drawRect(container);
 }
 
 void LobbyWidget::paintPortrait(QPainter *painter, int panel)
@@ -145,6 +275,115 @@ void LobbyWidget::paintVersus(QPainter *painter, const QSize &size)
     painter->drawPixmap(rect.center() - QPoint(versus.width()/2, versus.height()/2), versus);
 }
 
+void LobbyWidget::loadMaps()
+{
+    // Chargement des aperçus des niveaux.
+    QString dir = QApplication::applicationDirPath();
+    QDirIterator dirIt(dir + "/xml/levels",QDirIterator::Subdirectories);
+    QStringList levels;
+    while (dirIt.hasNext())
+    {
+        dirIt.next();
+        if (QFileInfo(dirIt.filePath()).isFile())
+            if (QFileInfo(dirIt.filePath()).suffix() == "xml")
+                levels.append(dirIt.filePath());
+    }
+
+    QFile file;
+    QDomDocument dom;
+    QDomElement elem, mapElem;
+    QDomNode node;
+    QSize size;
+    QList<QPixmap> textures;
+    QString texturesIndexes;
+
+    foreach (QString level, levels)
+    {
+        file.setFileName(level);
+        if(!file.open(QIODevice::ReadOnly))
+            continue;
+
+        if(!dom.setContent(&file))
+            continue;
+
+        elem = dom.documentElement();
+        m_mapNames.append(elem.attribute("name"));
+        node = elem.firstChild();
+        while(!node.isNull())
+        {
+            elem = node.toElement();
+
+            if(elem.tagName() == "TileSize")
+            {
+                size.setHeight(elem.attribute("height").toInt());
+                size.setWidth(elem.attribute("width").toInt());
+            }
+
+            if(elem.tagName() == "Grid")
+            {
+                mapElem = elem;
+            }
+
+            if(elem.tagName() == "Tile")
+            {
+                textures.append(QPixmap(dir + elem.attribute("filename")));
+                texturesIndexes.append(elem.attribute("type").at(0));
+            }
+
+            node = node.nextSibling();
+        }
+
+        loadMap(mapElem, size, textures, texturesIndexes);
+        file.close();
+        textures.clear();
+        texturesIndexes.clear();
+    }
+}
+
+void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes)
+{
+    QDomElement elem;
+    QDomNode node = element.firstChild();
+
+    QSize size;
+    QString tiles;
+
+    while(!node.isNull())
+    {
+        elem = node.toElement();
+
+        if(elem.tagName() == "Size")
+        {
+            size.setHeight(elem.attribute("height").toInt());
+            size.setWidth(elem.attribute("width").toInt());
+        }
+        if(elem.tagName() == "Tiles")
+            tiles = elem.attribute("values");
+
+        node = node.nextSibling();
+    }
+
+    QPixmap map(size.width() * tileSize.width(), size.height() * tileSize.height());
+    QPainter painter(&map);
+    for(int i = 0; i<size.width(); i++)
+    {
+        for(int j=0; j<size.height(); j++)
+        {
+            for(int t=0; t<texturesIndexes.size(); t++)
+            {
+                if(texturesIndexes.at(t) == tiles.at(i + j*size.width()))
+                {
+                    painter.drawPixmap(i*tileSize.width(), j*tileSize.height(), tileSize.width(), tileSize.height(),
+                                       textures.at(t));
+                    break;
+                }
+            }
+        }
+    }
+
+    m_maps.append(map);
+}
+
 int LobbyWidget::rightPortraitIndex() const
 {
     return m_rightPortraitIndex;
@@ -164,5 +403,3 @@ void LobbyWidget::setLeftPortraitIndex(int leftPortraitIndex)
 {
     m_leftPortraitIndex = leftPortraitIndex;
 }
-
-
