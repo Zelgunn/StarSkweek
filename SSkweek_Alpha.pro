@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     gui/optionwidget.cpp \
     gui/messagebox.cpp \
     gui/lobbywidget.cpp \
-    gui/gamewidget.cpp
+    gui/gamewidget.cpp \
+    playerinfo.cpp
 
 HEADERS  += gui/mainwindow.h \
     game.h \
@@ -62,7 +63,8 @@ HEADERS  += gui/mainwindow.h \
     gui/optionwidget.h \
     gui/messagebox.h \
     gui/lobbywidget.h \
-    gui/gamewidget.h
+    gui/gamewidget.h \
+    playerinfo.h
 
 FORMS    +=
 

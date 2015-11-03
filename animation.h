@@ -6,13 +6,18 @@
 class Animation
 {
 public:
-    Animation();
+    Animation(const QPoint &position);
 
-    QPixmap nextFrame();
+    virtual QPixmap nextFrame();
+    virtual bool animationDone() const;
 
-private:
+    QPoint position() const;
+    void setPosition(const QPoint &position);
+
+protected:
     int m_frame;
     QList<QPixmap> m_frames;
+    QPoint m_position;
 };
 
 #endif // ANIMATION_H
