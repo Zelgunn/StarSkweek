@@ -3,15 +3,6 @@
 Game::Game() :
     m_state(MenuState), m_timer(Q_NULLPTR)
 {
-    QString dir = QApplication::applicationDirPath() + "/xml/levels";
-    QDirIterator dirIt(dir ,QDirIterator::Subdirectories);
-    while (dirIt.hasNext()) {
-        dirIt.next();
-        if (QFileInfo(dirIt.filePath()).isFile())
-            if (QFileInfo(dirIt.filePath()).suffix() == "xml")
-                m_levels.append(dirIt.filePath());
-    }
-
     QFile file(":/xml/xml/data.xml");
     file.open(QIODevice::ReadOnly);
 
@@ -27,7 +18,7 @@ Game::Game() :
 
         if(elem.tagName() == "Character")
         {
-            m_characters.append(new Player(elem));
+            m_players.append(new Player(elem));
         }
 
         if(elem.tagName() == "Projectiles")
@@ -55,39 +46,63 @@ const Level *Game::level() const
 
 const QList<Player *> *Game::players() const
 {
-    return &m_characters;
+    return &m_players;
 }
 
 void Game::movePlayer(GameObject::Directions direction)
 {
     if(!m_timer->isActive()) return;
 
-    m_level->setPlayerDirection(0, direction);
+    m_level->movePlayer(0, direction);
+    //m_level->setPlayerDirection(0, direction);
 }
 
-void Game::player2Command(QString command)
+void Game::processCommands()
+{
+    QStringList updates = m_multiplayerUpdater.receivedUpdates();
+    QString update;
+    char firstChar;
+    m_untreatedCommands.clear();
+
+    for(int i=0; i<updates.size(); i++)
+    {
+        update = updates.at(i);
+        firstChar = update.at(0).toLatin1();
+
+        switch (firstChar) {
+        case 'p':
+            update = update.remove(0,1);
+            playerCommand(1, update);
+            break;
+        default:
+            m_untreatedCommands.append(update);
+            break;
+        }
+    }
+}
+
+void Game::playerCommand(int player, QString command)
 {
     char firstChar = command.at(0).toLatin1();
 
     switch (firstChar) {
     case 'm':
-        movePlayer2(command);
+        movePlayer(player, command);
         break;
     case 's':
-        playerFires(1);
-    default:
+        playerFires(player);
         break;
     }
 }
 
-void Game::movePlayer2(QString command)
+void Game::movePlayer(int player, QString command)
 {
     command = command.remove(0, 1);
     int x = command.section(',',0,0).toInt();
     int y = command.section(',',1,1).toInt();
     int dir = command.section(',',-1,-1).toInt();
 
-    m_level->setPlayerPosition(1, x, y, (GameObject::Directions) dir);
+    m_level->setPlayerPosition(player, x, y, (GameObject::Directions) dir);
 }
 
 void Game::playerFires(int playerID)
@@ -114,49 +129,25 @@ bool Game::isStarted() const
     return m_timer->isActive();
 }
 
-void Game::loadLevel(int level)
-{
-    loadLevel(m_levels.at(level));
-}
-
 void Game::loadLevel(const QString &filename)
 {
     QFile file(filename);
+    qDebug() << filename;
     file.open(QIODevice::ReadOnly);
 
     QDomDocument dom;
     dom.setContent(&file);
 
     QDomElement elem = dom.documentElement();
+
     elem.appendChild(m_projectilesElement);
+    elem.appendChild(m_weaponsElement);
 
-    m_level = new Level(elem, &m_characters);
+    m_level = new Level(elem, &m_players);
+
+    file.close();
 }
 
-void Game::nextFrame()
-{
-    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x) + ',' + QString::number(m_level->player()->position().y));
-    m_multiplayerUpdater.sendUpdates();
-    Level *level = m_level;
-    QStringList updates = m_multiplayerUpdater.receivedUpdates();
-    QString update;
-    char firstChar;
-
-    for(int i=0; i<updates.size(); i++)
-    {
-        update = updates.at(i);
-        firstChar = update.at(0).toLatin1();
-
-        switch (firstChar) {
-        case 'p':
-            update = update.remove(0,1);
-            player2Command(update);
-            break;
-        }
-    }
-
-    level->nextFrame();
-}
 Game::GameStates Game::state() const
 {
     return m_state;
@@ -168,9 +159,51 @@ void Game::setState(const GameStates &state)
     emit stateChanged(state);
 }
 
-void Game::startHost()
+QString Game::levelPath() const
 {
-    m_multiplayerUpdater.startHost();
+    return m_levelPath;
+}
+
+void Game::setLevelPath(const QString &levelPath)
+{
+    m_levelPath = levelPath;
+    if(m_levelPath.contains('/'))
+    {
+        m_multiplayerUpdater.setMapPath(m_levelPath.section('/', -1, -1));
+    }
+    else
+    {
+        m_levelPath.insert(0, QApplication::applicationDirPath() + "/xml/levels/");
+    }
+}
+
+void Game::nextFrame()
+{
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x) + ',' + QString::number(m_level->player()->position().y));
+    m_multiplayerUpdater.sendUpdates();
+    Level *level = m_level;
+
+    processCommands();
+
+    level->nextFrame();
+}
+QStringList Game::untreatedCommands()
+{
+    if(m_untreatedCommands.isEmpty())
+    {
+        processCommands();
+    }
+    return m_untreatedCommands;
+}
+
+void Game::removeUntreadtedCommand(int index)
+{
+    m_untreatedCommands.removeAt(index);
+}
+
+void Game::startHost(bool enable)
+{
+    m_multiplayerUpdater.startHost(enable);
 }
 
 void Game::lookForLocalHost()
@@ -183,14 +216,87 @@ void Game::connectToIP(const QString &ip)
     m_multiplayerUpdater.connectToIP(ip);
 }
 
+void Game::onRight()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Right));
+    if(m_state == PlayingState)
+    {
+        movePlayer(GameObject::Right);
+    }
+    else
+    {
+        m_multiplayerUpdater.sendUpdates();
+    }
+}
+
+void Game::onUp()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Up));
+    if(m_state == PlayingState)
+    {
+        movePlayer(GameObject::Up);
+    }
+    else
+    {
+        m_multiplayerUpdater.sendUpdates();
+    }
+}
+
+void Game::onLeft()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Left));
+    if(m_state == PlayingState)
+    {
+        movePlayer(GameObject::Left);
+    }
+    else
+    {
+        m_multiplayerUpdater.sendUpdates();
+    }
+}
+
+void Game::onDown()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Down));
+    if(m_state == PlayingState)
+    {
+        movePlayer(GameObject::Down);
+    }
+    else
+    {
+        m_multiplayerUpdater.sendUpdates();
+    }
+}
+
+void Game::onEnter()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Enter));
+    if(m_state == PlayingState)
+    {
+        playerFires();
+    }
+    else
+    {
+        m_multiplayerUpdater.sendUpdates();
+    }
+}
+
+void Game::onBackpace()
+{
+    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Backspace));
+}
+
 void Game::onGameConnected()
 {
-    if(m_multiplayerUpdater.isFirst())
+    if(m_multiplayerUpdater.isHost())
     {
+        loadLevel(m_levelPath);
         m_level->setMyPlayer(0);
     }
     else
     {
+        setLevelPath(m_multiplayerUpdater.mapPath());
+        loadLevel(m_levelPath);
         m_level->setMyPlayer(1);
     }
 

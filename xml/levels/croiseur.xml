@@ -6,10 +6,10 @@
 		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbbbbbbbbbbbbbbbbccdaaaaaaaafccccccccccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
 	</Grid>
 	<Tile type="a" filename="/images/void.png"/>
-	<Tile type="b" filename="/images/Tile_pink.png"/>
-	<Tile type="c" filename="/images/Tile_blue.png"/>
-	<Tile type="d" filename="/images/ArrowTile_Right.png"/>
-	<Tile type="e" filename="/images/ArrowTile_Up.png"/>
-	<Tile type="f" filename="/images/ArrowTile_Left.png"/>
-	<Tile type="g" filename="/images/ArrowTile_Down.png"/>
+	<Tile type="b" filename="/images/Cruiser_Tile_Rebels.png"/>
+	<Tile type="c" filename="/images/Cruiser_Tile_Empire.png"/>
+	<Tile type="d" filename="/images/Cruiser_ArrowTile_Right.png"/>
+	<Tile type="e" filename="/images/Cruiser_ArrowTile_Up.png"/>
+	<Tile type="f" filename="/images/Cruiser_ArrowTile_Left.png"/>
+	<Tile type="g" filename="/images/Cruiser_ArrowTile_Down.png"/>
 </Level>

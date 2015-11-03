@@ -14,12 +14,18 @@ MainWindow::MainWindow(QWidget *parent) :
     new QShortcut(tr("Down"), this, SLOT(onDown()));
     new QShortcut(tr("Return"), this, SLOT(onEnter()));
     new QShortcut(tr("Backspace"), this, SLOT(onBackpace()));
-    m_game.loadLevel(0);
 
     // Timer de rafraichissement
     m_timer = new QTimer(this);
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(update()));
     m_timer->start(16);
+
+    // Modèle de données
+    m_game.setLevelPath("croiseur.xml");    // TMP
+    m_game.loadLevel(m_game.levelPath());    // TMP
+
+    QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
+    QObject::connect(&m_game, SIGNAL(stateChanged(Game::GameStates)), this, SLOT(onGameStateChanged(Game::GameStates)));
 
     // Widgets
     // // Menu
@@ -34,12 +40,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_menuWidget->optionsWidget(), SIGNAL(spinChanged(QString,int)), SLOT(onSpinOptionChanged(QString, int)));
 
     // // Lobby
-    m_lobbyWidget = new LobbyWidget(m_game.players() ,this);
+    m_lobbyWidget = new LobbyWidget(&m_game ,this);
     addWidget(m_lobbyWidget);
 
     // // Jeu
-    QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
-    QObject::connect(&m_game, SIGNAL(stateChanged(Game::GameStates)), this, SLOT(onGameStateChanged(Game::GameStates)));
+    m_gameWidget = new GameWidget(&m_game, this);
+    addWidget(m_gameWidget);
+    // // // Le jeu est initialisé au choix entre Multijoueur et Solo
 
     setCurrentIndex(0);
 
@@ -71,52 +78,16 @@ void MainWindow::onGameReady()
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
-    QPainter *painter = new QPainter(this);
-    paintBackground(painter);
+    QPainter painter(this);
 
-    switch(m_game.state())
-    {
-    case Game::MenuState:
-        break;
-    case Game::LobbyState:
-        break;
-    case Game::PlayingState:
-        paintGame(painter);
-        break;
-    }
+    paintBackground(&painter);
 
-    painter->end();
-    delete painter;
-}
-
-void MainWindow::paintLobby(QPainter *painter)
-{
-    paintBackground(painter);
-}
-
-void MainWindow::paintGame(QPainter *painter)
-{
-    static QTime time = QTime::currentTime();;
-    static int count = 0; count ++;
-    static int sum = 0;
-
-    paintBackground(painter);
-    paintBackgroundLaser(painter);
-    paintMap(painter);
-    paintPlayer(painter);
-    paintProjectiles(painter);
-    paintHUD(painter);
-
-    sum += time.msecsTo(QTime::currentTime());
-    time = QTime::currentTime();
-
-    painter->setFont(QFont("Times", 16, QFont::Bold));
-    painter->drawText(width() - 150, 50, "FPS : " + QString::number(1000*count/sum));
+    painter.end();
 }
 
 void MainWindow::paintBackground(QPainter *painter)
 {
-    static QPixmap image(QApplication::applicationDirPath() + "/images/deathstar.png");
+    static QPixmap image = QPixmap(QApplication::applicationDirPath() + "/images/deathstar.png").scaledToHeight(100, Qt::SmoothTransformation);
     static QList<QPoint*> stars;
     QPoint *star;
     static QList<int> starsSpeed;
@@ -169,6 +140,8 @@ void MainWindow::paintBackground(QPainter *painter)
             star->setY(qrand()%h);
         }
     }
+
+    paintBackgroundLaser(painter);
 }
 
 void MainWindow::paintBackgroundLaser(QPainter *painter)
@@ -176,7 +149,7 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
     static int frame = -1;
     static double p1, p2;
     static int htoh;
-    static int cooldown = -60;
+    static int cooldown = -1;
     static QColor color;
     static int size;
     int tmp;
@@ -190,7 +163,7 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
         frame = qrand()%12 + 5;
         size = frame;
         htoh = qrand()%2;
-        cooldown = - (qrand()%16)*60 + 320;
+        cooldown = - (qrand()%10)*60 + 320;;
         tmp = qrand()%3;
         color = QColor((tmp==0)*255, (tmp==1)*255, (tmp==2)*255);
     }
@@ -226,135 +199,6 @@ void MainWindow::paintBackgroundLaser(QPainter *painter)
     frame --;
 }
 
-void MainWindow::paintMap(QPainter *painter)
-{
-    const Tile *tile;
-    const Grid *grid = m_game.level()->grid();
-    const Tile *tiles = m_game.level()->tiles();
-    QSize tileSize = m_game.level()->tileSize();
-
-    uint w = m_game.level()->grid()->width();
-    uint h = m_game.level()->grid()->height();
-
-    QSize mapSize;
-    mapSize.setWidth(tileSize.width()*w);
-    mapSize.setHeight(tileSize.height()*h);
-
-    QPixmap map(mapSize);
-    map.fill(QColor(0,0,0,0));
-    QPainter mapPainter(&map);
-
-    for(uint i=0; i<grid->width(); i++)
-    {
-        for(uint j=0; j<grid->height(); j++)
-        {
-            tile = &tiles[grid->tileAt(i,j)];
-            if(tile->type() != Tile::Void)
-                mapPainter.drawPixmap(i * tileSize.width(),
-                                      j * tileSize.height(),
-                                      tile->texture());
-        }
-    }
-
-    const Player *player = m_game.level()->player();
-
-    painter->drawPixmap(toMap(player->position()), map);
-}
-
-void MainWindow::paintPlayer(QPainter *painter)
-{
-    QSize tileSize = m_game.level()->tileSize();
-
-    const Player *player = m_game.level()->player();
-    const Player *player2 = m_game.level()->player2();
-
-    QPixmap pImage = player->model()->scaled(tileSize.height(), tileSize.height());
-    QPoint playerOnScreen(0.5 * width() - pImage.width()/2,
-                          0.5 * height() - pImage.height()/2);
-    painter->drawPixmap(playerOnScreen, pImage);
-
-    pImage = player2->model()->scaled(tileSize.height(), tileSize.height());
-    painter->drawPixmap(relativePosition(player2->position(), pImage.size()), pImage);
-}
-
-void MainWindow::paintWaitingSign(QPainter *painter)
-{
-    static int dynamicWait = 0;
-    const int dynamicSpeed = 30;
-
-    QString message = "En attente de joueur";
-    for(int i=0; i<dynamicWait/dynamicSpeed; i++) message = message.append('.');
-    dynamicWait = ((dynamicWait + 1) % (dynamicSpeed * 4));
-
-    QFont font("Times", 30, QFont::Bold);
-    painter->setFont(font);
-
-    int w = width() * 3/5;
-    int h = height() / 10;
-    QRect rect;
-    rect.setX((width() - w)/2);
-    rect.setY((height() - h)/2);
-    rect.setWidth(w);
-    rect.setHeight(h);
-
-    painter->setBrush(QBrush(QColor(255,255,255,100)));
-
-    painter->drawRect(rect);
-    painter->drawText(rect, Qt::AlignCenter, message);
-}
-
-void MainWindow::paintProjectiles(QPainter *painter)
-{
-    const ProjectileList *projectiles = m_game.level()->projectiles();
-    Projectile * projectile;
-
-    QPixmap projectileModel;
-
-    for(int i=0; i<projectiles->size(); i++)
-    {
-        projectile = projectiles->at(i);
-        projectileModel = *projectile->model();
-        painter->drawPixmap(relativePosition(projectile->position(), projectileModel.size()), projectileModel);
-    }
-}
-
-void MainWindow::paintHUD(QPainter *painter)
-{
-    int w;
-    for(int i=0; i<2; i++)
-    {
-        const Player *player = m_game.level()->player(i);
-
-        QSize tileSize = m_game.level()->tileSize();
-
-        Point position = player->position();
-        position.y -= tileSize.height()/2 + 20;
-        position.x -= tileSize.width()/2;
-
-        w = tileSize.width();
-        QRect lifeBarRect(relativePosition(position), QSize(w, 5));
-        painter->setBrush(QColor(255,0,0));
-        painter->drawRect(lifeBarRect);
-
-        lifeBarRect.setWidth(w * player->lifeAnim()/player->maxLife());
-        if(player->invulnerable())
-            painter->setBrush(QColor(0,200,255));
-        else
-            painter->setBrush(QColor(200,255,0));
-        painter->drawRect(lifeBarRect);
-
-        if(player->life() <= player->lifeAnim())
-        {
-            lifeBarRect.setWidth(w * player->life()/player->maxLife());
-            if(player->invulnerable())
-                painter->setBrush(QColor(0,255,255));
-            else
-                painter->setBrush(QColor(0,255,0));
-            painter->drawRect(lifeBarRect);
-        }
-    }
-}
-
 void MainWindow::onRight()
 {
     switch(m_game.state())
@@ -366,7 +210,7 @@ void MainWindow::onRight()
         m_lobbyWidget->onRight();
         break;
     case Game::PlayingState:
-        movePlayer(GameObject::Right);
+        m_gameWidget->onRight();
         break;
     }
 }
@@ -382,7 +226,7 @@ void MainWindow::onUp()
         m_lobbyWidget->onUp();
         break;
     case Game::PlayingState:
-        movePlayer(GameObject::Up);
+        m_gameWidget->onUp();
         break;
     }
 }
@@ -398,7 +242,7 @@ void MainWindow::onLeft()
         m_lobbyWidget->onLeft();
         break;
     case Game::PlayingState:
-        movePlayer(GameObject::Left);
+        m_gameWidget->onLeft();
         break;
     }
 }
@@ -414,7 +258,7 @@ void MainWindow::onDown()
         m_lobbyWidget->onDown();
         break;
     case Game::PlayingState:
-        movePlayer(GameObject::Down);
+        m_gameWidget->onDown();
         break;
     }
 }
@@ -426,26 +270,41 @@ void MainWindow::onEnter()
     case Game::MenuState:
         m_menuWidget->onEnter();
         checkFullscreen();
-        m_game.setState(Game::LobbyState);
+
         break;
     case Game::LobbyState:
         m_lobbyWidget->onEnter();
+
         break;
     case Game::PlayingState:
-        m_game.playerFires(0);
+        m_gameWidget->onEnter();
         break;
     }
 }
 
 void MainWindow::onBackpace()
 {
+    bool check1;
     switch(m_game.state())
     {
     case Game::MenuState:
         m_menuWidget->onBackspace();
         break;
     case Game::LobbyState:
-        m_lobbyWidget->onBackspace();
+
+        check1 = m_lobbyWidget->hasChoosenMap();
+        if(!check1)
+        {
+            m_game.setState(Game::MenuState);
+            m_menuWidget->onBackspace();
+        }
+        else
+        {
+            m_lobbyWidget->onBackspace();
+            if(check1 && !m_lobbyWidget->hasChoosenMap())
+                m_game.startHost(false);
+        }
+
         break;
     case Game::PlayingState:
         break;
@@ -470,11 +329,12 @@ void MainWindow::onSpinOptionChanged(const QString &name, int value)
 
 void MainWindow::onHostGame()
 {
-    m_game.startHost();
+    m_game.setState(Game::LobbyState);
 }
 
 void MainWindow::onLocalGame()
 {
+    m_lobbyWidget->setMapChoosen(0);
     m_game.lookForLocalHost();
 }
 
@@ -493,34 +353,9 @@ void MainWindow::onGameStateChanged(Game::GameStates state)
         setCurrentIndex(1);
         break;
     case Game::PlayingState:
+        setCurrentIndex(2);
         break;
     }
-}
-
-void MainWindow::movePlayer(GameObject::Directions direction)
-{
-    m_game.movePlayer(direction);
-}
-
-QPoint MainWindow::toMap(Point p)
-{
-    QPoint res;
-
-    res.setX(width()/2 - p.x);
-    res.setY(height()/2 - p.y);
-
-    return res;
-}
-
-QPoint MainWindow::relativePosition(Point p, QSize size)
-{
-    Point playerPosition = m_game.level()->player()->position();
-    QPoint playerOnScreen(0.5 * width(), 0.5 * height());
-
-    QPoint deltaPos((playerPosition.x - p.x) + size.width()/2 + 1,
-                    (playerPosition.y - p.y) + size.height()/2 + 1);
-
-    return playerOnScreen - deltaPos;
 }
 
 void MainWindow::checkFullscreen()

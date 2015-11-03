@@ -24,12 +24,15 @@ public:
     void appendUpdate(const QString &update);
     void sendUpdates();
     QStringList receivedUpdates();
-    bool isFirst() const;
+    bool isHost() const;
     bool isConnected() const;
 
-    void startHost();
+    void startHost(bool enable = true);
     void lookForLocalHost();
     void connectToIP(const QString &ip);
+
+    QString mapPath() const;
+    void setMapPath(const QString &mapPath);
 
 protected:
     void sendUpdate(const QString &update);
@@ -52,9 +55,9 @@ private:
     QTcpSocket *m_client;
     QHostAddress m_localAddress;
     QHostAddress m_player2Address;
+    QString m_mapPath;
     QTimer *m_timer;
-    int m_initTime;
-    int m_player2Time;
+    bool m_isHost;
 };
 
 #endif // MULTIPLAYERUPDATER_H

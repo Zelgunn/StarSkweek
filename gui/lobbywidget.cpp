@@ -1,14 +1,15 @@
 #include "lobbywidget.h"
 
-LobbyWidget::LobbyWidget(const QList<Player *> *players, QWidget *parent)
-    : QWidget(parent), m_leftPortraitIndex(1), m_rightPortraitIndex(0), m_selectedPortrait(0), m_players(players), m_mapChoosen(-1)
+LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
+    : QWidget(parent), m_leftPortraitIndex(0), m_rightPortraitIndex(0), m_selectedPortrait(0), m_game(game), m_mapChoosen(-1)
 {
     // Chargement des portraits et miniatures.
+    const QList<Player *> *players = m_game->players();
     Player *player;
     QString dir = QApplication::applicationDirPath();
-    for(int i=0; i<m_players->size(); i++)
+    for(int i=0; i<players->size(); i++)
     {
-        player = m_players->at(i);
+        player = players->at(i);
         m_portraits.append(player->portrait());
         m_thumbnails.append(player->thumbnail());
     }
@@ -23,6 +24,7 @@ void LobbyWidget::onRight()
 {
     if(m_mapChoosen < 0) return;
     m_leftPortraitIndex = (m_leftPortraitIndex + 1)%m_portraits.size();
+    m_game->onRight();
 }
 
 void LobbyWidget::onLeft()
@@ -31,6 +33,7 @@ void LobbyWidget::onLeft()
     m_leftPortraitIndex--;
     if(m_leftPortraitIndex < 0)
         m_leftPortraitIndex = m_portraits.size() - 1;
+    m_game->onLeft();
 }
 
 void LobbyWidget::onUp()
@@ -49,13 +52,24 @@ void LobbyWidget::onDown()
 
 void LobbyWidget::onEnter()
 {
-    m_mapChoosen = m_selectedPortrait;
-    m_selectedPortrait = 0;
+    if(m_mapChoosen < 0)
+    {
+        m_mapChoosen = m_selectedPortrait;
+        m_selectedPortrait = 0;
+        m_game->setLevelPath(choosenMapPath());
+        m_game->startHost(true);
+    }
+    else
+    {
+        m_game->setLevelPath(choosenMapPath());
+        m_game->loadLevel(m_game->levelPath());
+        m_game->startGame();
+    }
 }
 
 void LobbyWidget::onBackspace()
 {
-    if(m_mapChoosen < 0) return; // TMP : Emit leaving
+    if(m_mapChoosen < 0) return;
     m_selectedPortrait = m_mapChoosen;
     m_mapChoosen = -1;
 }
@@ -64,6 +78,7 @@ void LobbyWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
+    checkGameUntreatedCommands();
     if(m_mapChoosen < 0)
     {
         paintMapList(&painter);
@@ -74,6 +89,7 @@ void LobbyWidget::paintEvent(QPaintEvent *)
         paintPortrait(&painter, 0);
         paintPortrait(&painter, 1);
         paintThumbnails(&painter);
+        m_game->processCommands();
     }
 
     painter.end();
@@ -280,13 +296,12 @@ void LobbyWidget::loadMaps()
     // Chargement des aperçus des niveaux.
     QString dir = QApplication::applicationDirPath();
     QDirIterator dirIt(dir + "/xml/levels",QDirIterator::Subdirectories);
-    QStringList levels;
     while (dirIt.hasNext())
     {
         dirIt.next();
         if (QFileInfo(dirIt.filePath()).isFile())
             if (QFileInfo(dirIt.filePath()).suffix() == "xml")
-                levels.append(dirIt.filePath());
+                m_mapPaths.append(dirIt.filePath());
     }
 
     QFile file;
@@ -297,7 +312,7 @@ void LobbyWidget::loadMaps()
     QList<QPixmap> textures;
     QString texturesIndexes;
 
-    foreach (QString level, levels)
+    foreach (QString level, m_mapPaths)
     {
         file.setFileName(level);
         if(!file.open(QIODevice::ReadOnly))
@@ -382,6 +397,60 @@ void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, con
     }
 
     m_maps.append(map);
+}
+
+void LobbyWidget::checkGameUntreatedCommands()
+{
+    QStringList untreatedCommands = m_game->untreatedCommands();
+    QString command;
+    Qt::Key key;
+    for(int i=0; i<untreatedCommands.size(); i++)
+    {
+        command = untreatedCommands.at(i);
+        qDebug() << command << (command.toInt() == Qt::Key_Left) << (command.toInt() == Qt::Key_Right);
+        key = (Qt::Key)command.toInt();
+        if(key == Qt::Key_Left)
+        {
+            m_rightPortraitIndex --;
+            if(m_rightPortraitIndex < 0) m_rightPortraitIndex = m_portraits.size() - 1;
+        }
+
+        if(key == Qt::Key_Right)
+        {
+            m_rightPortraitIndex = (m_rightPortraitIndex + 1)%m_portraits.size();
+        }
+    }
+}
+
+void LobbyWidget::setMapChoosen(int mapChoosen)
+{
+    m_mapChoosen = mapChoosen;
+}
+
+int LobbyWidget::mapChoosen() const
+{
+    return m_mapChoosen;
+}
+
+bool LobbyWidget::hasChoosenMap() const
+{
+    return (m_mapChoosen >= 0);
+}
+
+QString LobbyWidget::choosenMapName() const
+{
+    if(hasChoosenMap())
+        return m_mapNames.at(m_mapChoosen);
+    else
+        return QString();
+}
+
+QString LobbyWidget::choosenMapPath() const
+{
+    if(hasChoosenMap())
+        return m_mapPaths.at(m_mapChoosen);
+    else
+        return QString();
 }
 
 int LobbyWidget::rightPortraitIndex() const

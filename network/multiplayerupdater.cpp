@@ -1,6 +1,7 @@
 #include "multiplayerupdater.h"
 
-MultiplayerUpdater::MultiplayerUpdater()
+MultiplayerUpdater::MultiplayerUpdater() :
+    m_client(Q_NULLPTR), m_isHost(false)
 {
     m_udpSocket = new QUdpSocket(this);
     m_udpSocket->bind(PORT_COM);
@@ -15,9 +16,6 @@ MultiplayerUpdater::MultiplayerUpdater()
         }
     }
 
-    m_client = Q_NULLPTR;
-
-    m_initTime = QTime::currentTime().msecsSinceStartOfDay();
     m_timer = new QTimer(this);
 
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(broadcastAddress()));
@@ -50,9 +48,9 @@ QStringList MultiplayerUpdater::receivedUpdates()
     return res;
 }
 
-bool MultiplayerUpdater::isFirst() const
+bool MultiplayerUpdater::isHost() const
 {
-    return m_initTime < m_player2Time;
+    return m_isHost;
 }
 
 bool MultiplayerUpdater::isConnected() const
@@ -60,9 +58,23 @@ bool MultiplayerUpdater::isConnected() const
     return ((m_client != Q_NULLPTR) && (m_client->isOpen()));
 }
 
-void MultiplayerUpdater::startHost()
+void MultiplayerUpdater::startHost(bool enable)
 {
-    broadcastAddress();
+    if(enable)
+    {
+        broadcastAddress();
+    }
+    else if(m_timer != Q_NULLPTR)
+    {
+        if(isConnected())
+        {
+            m_client->disconnectFromHost();
+        }
+        else
+        {
+            m_timer->stop();
+        }
+    }
 }
 
 void MultiplayerUpdater::lookForLocalHost()
@@ -84,6 +96,8 @@ void MultiplayerUpdater::sendUpdate(const QString &update)
 
 void MultiplayerUpdater::incomingConnection(int socketfd)
 {
+    if(m_client != Q_NULLPTR) return;
+
     m_client = new QTcpSocket(this);
     m_client->setSocketDescriptor(socketfd);
 
@@ -119,13 +133,13 @@ void MultiplayerUpdater::connectToPlayer2()
 
 void MultiplayerUpdater::broadcastAddress()
 {
-    qDebug() << "Broadcastinhg...";
+    qDebug() << "Broadcasting...";
     if(!isListening())
         listen(m_localAddress, PORT_COM);
 
     if(!isConnected())
     {
-        QByteArray adressDatagram = QString(m_localAddress.toString() + '/' + QString::number(m_initTime)).toUtf8();
+        QByteArray adressDatagram = QString(m_localAddress.toString() + ',' + m_mapPath).toUtf8();
         m_udpSocket->writeDatagram(adressDatagram.data(), adressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
 
         if(!m_timer->isActive())
@@ -153,9 +167,8 @@ void MultiplayerUpdater::readUdp()
 
         if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
         {
-            m_player2Address = QHostAddress(message.section('/', 0, 0));
-            m_player2Time = message.section('/', -1).toInt();
-
+            m_player2Address = QHostAddress(message.section(',', 0, 0));
+            m_mapPath = message.section(',', 1, 1);
             connectToPlayer2();
         }
     }
@@ -176,4 +189,14 @@ void MultiplayerUpdater::disconnected()
     delete m_client;
     m_client = Q_NULLPTR;
 }
+QString MultiplayerUpdater::mapPath() const
+{
+    return m_mapPath;
+}
+
+void MultiplayerUpdater::setMapPath(const QString &mapPath)
+{
+    m_mapPath = mapPath;
+}
+
 

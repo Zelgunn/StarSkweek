@@ -1,10 +1,9 @@
 #include "level.h"
 
 Level::Level(const QDomElement &element, QList<Player *> *characters)
-    : m_characters(characters), m_myPlayer(0)
+    : m_players(characters), m_myPlayer(0)
 {
     m_name = element.attribute("name");
-    m_players = new Player*[2];
     m_tiles = new Tile[Tile::TypeCount];
     int tileIndex;
     QString filename;
@@ -46,18 +45,18 @@ Level::Level(const QDomElement &element, QList<Player *> *characters)
         node = node.nextSibling();
     }
 
-    m_players[0] = m_characters->at(0);
-    m_players[0]->setPosition(width()/2, height()/4);
-    m_players[0]->setFaction(0);
-    m_players[0]->setWeapon(m_weapons.at(1));
+    Player *player;
+    player = m_players->at(0);
+    player->setPosition(width()/2, height()/4);
+    player->setFaction(0);
+    player->setWeapon(m_weapons.at(0));
+    m_projectiles->appendCollision(player);
 
-    m_players[1] = m_characters->at(1);
-    m_players[1]->setPosition(width()/2, height()*3/4 - 5);
-    m_players[1]->setFaction(1);
-    m_players[1]->setWeapon(m_weapons.at(0));
-
-    m_projectiles->appendCollision(m_players[0]);
-    m_projectiles->appendCollision(m_players[1]);
+    player = m_players->at(1);
+    player->setPosition(width()/2, height()*3/4 - 5);
+    player->setFaction(1);
+    player->setWeapon(m_weapons.at(0));
+    m_projectiles->appendCollision(player);
 
     QObject::connect(m_projectiles, SIGNAL(hitPlayer(GameObject*,int)), this, SLOT(onPlayerHit(GameObject*,int)));
 }
@@ -67,9 +66,9 @@ void Level::setMyPlayer(int playerNumber)
     Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
     if(m_myPlayer != playerNumber)
     {
-        Player *tmp = m_players[0];
-        m_players[0] = m_players[1];
-        m_players[1] = tmp;
+        Player *tmp = m_players->at(0);
+        m_players->replace(0, m_players->at(1));
+        m_players->replace(1, tmp);
         m_myPlayer = playerNumber;
     }
 }
@@ -81,17 +80,7 @@ const Grid *Level::grid() const
 
 const Player *Level::player(int index) const
 {
-    return m_players[index];
-}
-
-const Player *Level::player() const
-{
-    return m_players[0];
-}
-
-const Player *Level::player2() const
-{
-    return m_players[1];
+    return m_players->at(index);
 }
 
 const ProjectileList *Level::projectiles() const
@@ -119,10 +108,11 @@ int Level::height() const
     return m_tileSize.height() * m_grid->height();
 }
 
-bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
+bool Level::movePlayer(int playerId, GameObject::Directions direction)
 {
-    Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
-    Player *player = m_players[playerNumber], *player2 = m_players[!playerNumber];
+    Q_ASSERT((playerId == 0) || (playerId == 1));
+    Player *player = m_players->at(playerId);
+
     if(player->dead())
         return false;
 
@@ -140,13 +130,6 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     uint x = displacement.x / w;
     uint y = displacement.y / h;
 
-    if(m_grid->tileAt(x, y) == Tile::Void)
-    {
-        if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
-            return false;
-        player->takeDamage(999);
-    }
-
     if(m_grid->tileAt(x,y) == Tile::ArrowTileDown)
         displacement.y += 2;
     if(m_grid->tileAt(x,y) == Tile::ArrowTileLeft)
@@ -156,64 +139,65 @@ bool Level::movePlayer(int playerNumber, GameObject::Directions direction)
     if(m_grid->tileAt(x,y) == Tile::ArrowTileUp)
         displacement.y -= 2;
 
-    player->setPosition(displacement);
-    player->setDirection(direction);
-
-    if(m_grid->tileAt(x, y) == player2->tileType())
-        m_grid->setTileAt(x, y, player->tileType());
-
-    return true;
-}
-
-bool Level::movePlayer1(GameObject::Directions direction)
-{
-    return movePlayer(0, direction);
-}
-
-bool Level::movePlayer2(GameObject::Directions direction)
-{
-    return movePlayer(1, direction);
+    return setPlayerPosition(playerId, displacement.x, displacement.y, direction);
 }
 
 void Level::setPlayerDirection(int playerId, GameObject::Directions direction)
 {
-    m_players[playerId]->setDirection(direction);
+    Player *player = m_players->at(playerId);
+    player->setDirection(direction);
 }
 
-void Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction)
+bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction)
 {
     Q_ASSERT((playerId == 0) || (playerId == 1));
-    Player *player = m_players[playerId], *player2 = m_players[!playerId];
+    Player *player = m_players->at(playerId);
+    QList<Player *> otherPlayers;
+    for(int i=0; i<m_players->size(); i++)
+    {
+        if(i != playerId)
+        {
+            otherPlayers.append(m_players->at(i));
+        }
+    }
 
     int w = m_tileSize.width(), h = m_tileSize.height();
 
-    if((x < 0)         ||
-       (y < 0)         ||
-       (x >= width())  ||
-       (y >= height())) return;
+//    if((x < 0)         ||
+//       (y < 0)         ||
+//       (x >= width())  ||
+//       (y >= height())) return false;
 
     uint tx = x / w;
     uint ty = y / h;
 
+    // Case de type vide : La mort !
     if(m_grid->tileAt(tx, ty) == Tile::Void)
     {
         if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
-            return;
+            return false;
         player->takeDamage(999);
     }
 
     player->setPosition(x, y);
     player->setDirection(direction);
 
-    if(m_grid->tileAt(tx, ty) == player2->tileType())
-        m_grid->setTileAt(tx, ty, player->tileType());
+    // Changement de la couleur de la case.
+    foreach(Player *otherPlayer, otherPlayers)
+    {
+        if(m_grid->tileAt(tx, ty) == otherPlayer->tileType())
+        {
+            m_grid->setTileAt(tx, ty, player->tileType());
+            break;
+        }
+    }
 
-    return;
+    return false;
 }
 
 bool Level::playerFires(int playerId)
 {
-    Player *player = m_players[playerId];
+    Player *player = m_players->at(playerId);
     int type = player->fire();
 
     if(type >= 0)
@@ -236,12 +220,12 @@ double Level::playerTileRatio() const
         for(uint j=0; j<m_grid->height(); j++)
         {
             tmp = m_grid->tileAt(i,j);
-            if(tmp == m_players[0]->tileType())
+            if(tmp == m_players->at(0)->tileType())
             {
                 count ++;
                 res ++;
             }
-            else if(tmp == m_players[1]->tileType())
+            else if(tmp == m_players->at(1)->tileType())
                 count ++;
         }
     }
@@ -253,11 +237,13 @@ void Level::nextFrame()
 {
     m_projectiles->moveProjectiles();
 
-    movePlayer1(m_players[0]->direction());
-    movePlayer2(m_players[1]->direction());
-
-    m_players[0]->updateLifeAnim();
-    m_players[1]->updateLifeAnim();
+    Player *player;
+    for(int i=0; i<m_players->size(); i++)
+    {
+        player = m_players->at(i);
+        //movePlayer(i, player->direction());
+        player->updateLifeAnim();
+    }
 }
 
 void Level::onPlayerHit(GameObject *player, int type)

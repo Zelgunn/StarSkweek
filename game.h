@@ -21,28 +21,41 @@ public:
         LobbyState,
         PlayingState
     };
+
     Game();
 
     const Level *level() const;
     const QList<Player *> *players() const;
     void movePlayer(GameObject::Directions direction);
-    void player2Command(QString command);
-    void movePlayer2(QString command);
+    void processCommands();
+    void playerCommand(int player, QString command);
+    void movePlayer(int player, QString command);
 
-    void playerFires(int playerID);
+    void playerFires(int playerID = 0);
 
     void startGame();
     bool isStarted() const;
 
-    void loadLevel(int level);
     void loadLevel(const QString &filename);
 
     GameStates state() const;
     void setState(const GameStates &state);
+    QString levelPath() const;
+    void setLevelPath(const QString &levelPath);
 
-    void startHost();
+    void startHost(bool enable = true);
     void lookForLocalHost();
     void connectToIP(const QString &ip);
+
+    void onRight();
+    void onUp();
+    void onLeft();
+    void onDown();
+    void onEnter();
+    void onBackpace();
+
+    QStringList untreatedCommands();
+    void removeUntreadtedCommand(int index);
 
 public slots:
     void onGameConnected();
@@ -55,13 +68,15 @@ signals:
 private:
     GameStates m_state;
     QTimer *m_timer;
-    QList<Player *> m_characters;
+    QList<Player *> m_players;
     Level *m_level;
+    QString m_levelPath;
     SoundPlayer m_soundPlayer;
     MultiplayerUpdater m_multiplayerUpdater;
     QStringList m_levels;
     QDomElement m_projectilesElement;
     QDomElement m_weaponsElement;
+    QStringList m_untreatedCommands;
 };
 
 #endif // GAME_H

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <Level name="Mustafar">
-	<TileSize width="80" height="50"/>
+	<TileSize width="64" height="38"/>
 	<Grid>
-		<Size width="32" height="16"/>
-		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+		<Size width="23" height="23"/>
+		<Tiles values="fbbbbbbbbbbbbbbaaaaaccdfbbbbbbbbbbbbbbaaaaaccdfbbbdaaabbbbbbbaaaaaccdfbbgaaaaabbbbbaaaaaaccdfbbaaaaaafbbbdaaaaaaccdfbbaaaaaabbbbbaaaaaaccdfbbaaaabbbaaabbbaaaaccdfbbaaaabbbaaabbbaaaaccdfbbaaabbaaaaaaabbaaaccdfbbaabbbaaaaaaabbbaaccdfbbbbbbbbebbbebbbbbaccdfbbbbbbbbbbaccccccccccdfbbacccccgcccgccccccccdfbbaacccaaaaaaacccaaccdfbbaaaccaaaaaaaccaaaccdfbbaaaacccaaacccaaaaccdfbbaaaacccaaacccaaaaccdfbbaaaaaacccccaaaaaaccdfbbaaaaaafcccdaaaaaaccdfbbaaaaaacccccaaaaaeccdfbbaaaaacccccccaaafcccdfbbaaaaaccccccccccccccdfbbaaaaaccccccccccccccd"/>
 	</Grid>
 	<Tile type="a" filename="/images/void.png"/>
-	<Tile type="b" filename="/images/Tile_pink.png"/>
-	<Tile type="c" filename="/images/Tile_blue.png"/>
-	<Tile type="d" filename="/images/Tile_blue_old.png"/>
+	<Tile type="b" filename="/images/Mustafar_Tile_Rebels.png"/>
+	<Tile type="c" filename="/images/Mustafar_Tile_Empire.png"/>
+	<Tile type="d" filename="/images/Mustafar_ArrowTile_Right.png"/>
+	<Tile type="e" filename="/images/Mustafar_ArrowTile_Up.png"/>
+	<Tile type="f" filename="/images/Mustafar_ArrowTile_Left.png"/>
+	<Tile type="g" filename="/images/Mustafar_ArrowTile_Down.png"/>
 </Level>

@@ -9,7 +9,7 @@
 #include <QFileInfo>
 #include <QFile>
 
-#include "player.h"
+#include "game.h"
 
 #include <QDebug>
 
@@ -19,7 +19,7 @@ class LobbyWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LobbyWidget(const QList<Player *> *players, QWidget *parent = 0);
+    explicit LobbyWidget(Game *game, QWidget *parent = 0);
 
     void onRight();
     void onLeft();
@@ -34,6 +34,13 @@ public:
     int rightPortraitIndex() const;
     void setRightPortraitIndex(int rightPortraitIndex);
 
+    int mapChoosen() const;
+    bool hasChoosenMap() const;
+    QString choosenMapName() const;
+    QString choosenMapPath() const;
+
+    void setMapChoosen(int mapChoosen);
+
 protected:
     void paintEvent(QPaintEvent *);
 
@@ -46,6 +53,7 @@ protected:
 
     void loadMaps();
     void loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes);
+    void checkGameUntreatedCommands();
 
 private:
     QList<QPixmap> m_portraits;
@@ -55,11 +63,12 @@ private:
     int m_rightPortraitIndex;
     int m_selectedPortrait;
 
-    const QList<Player *> *m_players;
+    Game *m_game;
 
     int m_mapChoosen;
     QList<QPixmap> m_maps;
     QStringList m_mapNames;
+    QStringList m_mapPaths;
 };
 
 #endif // LOBBYWIDGET_H
