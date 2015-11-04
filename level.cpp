@@ -1,8 +1,15 @@
 #include "level.h"
 
-Level::Level(const QDomElement &element, QList<Player *> *characters)
-    : m_players(characters), m_myPlayer(0)
+Level::Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos) :
+    m_prototypes(prototypes), m_myPlayer(0)
 {
+    qDebug() << "Meow";
+    foreach(PlayerInfo *playerInfo, playersInfos)
+    {
+        qDebug() << playerInfo->nickname() << " : " << playerInfo->characterSelected();
+        m_players.append(m_prototypes->at(playerInfo->characterSelected())->clone());
+    }
+
     m_name = element.attribute("name");
     m_tiles = new Tile[Tile::TypeCount];
     int tileIndex;
@@ -46,29 +53,33 @@ Level::Level(const QDomElement &element, QList<Player *> *characters)
     }
 
     Player *player;
-    player = m_players->at(0);
+    player = m_players.at(0);
     player->setPosition(width()/2, height()/4);
     player->setFaction(0);
     player->setWeapon(m_weapons.at(0));
     m_projectiles->appendCollision(player);
 
-    player = m_players->at(1);
-    player->setPosition(width()/2, height()*3/4 - 5);
-    player->setFaction(1);
-    player->setWeapon(m_weapons.at(0));
-    m_projectiles->appendCollision(player);
+    for(int i=1; i<playersInfos.size(); i++)
+    {
+        player = m_players.at(i);
+
+        player->setPosition(width()/2, height()*3/4 - 5);   // TMP
+        player->setFaction(i);
+        player->setWeapon(m_weapons.at(0));
+        m_projectiles->appendCollision(player);
+    }
 
     QObject::connect(m_projectiles, SIGNAL(hitPlayer(GameObject*,int)), this, SLOT(onPlayerHit(GameObject*,int)));
 }
 
 void Level::setMyPlayer(int playerNumber)
 {
-    Q_ASSERT((playerNumber == 0) || (playerNumber == 1));
-    if(m_myPlayer != playerNumber)
+    if(playerNumber != 0)
     {
-        Player *tmp = m_players->at(0);
-        m_players->replace(0, m_players->at(1));
-        m_players->replace(1, tmp);
+        Player *tmp = m_players.at(0);
+        m_players.replace(0, m_players.at(playerNumber));
+        m_players.replace(playerNumber, tmp);
+
         m_myPlayer = playerNumber;
     }
 }
@@ -80,7 +91,12 @@ const Grid *Level::grid() const
 
 const Player *Level::player(int index) const
 {
-    return m_players->at(index);
+    return m_players.at(index);
+}
+
+QList<Player *> Level::players() const
+{
+    return m_players;
 }
 
 const ProjectileList *Level::projectiles() const
@@ -110,8 +126,7 @@ int Level::height() const
 
 bool Level::movePlayer(int playerId, GameObject::Directions direction)
 {
-    Q_ASSERT((playerId == 0) || (playerId == 1));
-    Player *player = m_players->at(playerId);
+    Player *player = m_players.at(playerId);
 
     if(player->dead())
         return false;
@@ -142,31 +157,19 @@ bool Level::movePlayer(int playerId, GameObject::Directions direction)
     return setPlayerPosition(playerId, displacement.x, displacement.y, direction);
 }
 
-void Level::setPlayerDirection(int playerId, GameObject::Directions direction)
-{
-    Player *player = m_players->at(playerId);
-    player->setDirection(direction);
-}
-
 bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction)
 {
-    Q_ASSERT((playerId == 0) || (playerId == 1));
-    Player *player = m_players->at(playerId);
+    Player *player = m_players.at(playerId);
     QList<Player *> otherPlayers;
-    for(int i=0; i<m_players->size(); i++)
+    for(int i=0; i<m_players.size(); i++)
     {
         if(i != playerId)
         {
-            otherPlayers.append(m_players->at(i));
+            otherPlayers.append(m_players.at(i));
         }
     }
 
     int w = m_tileSize.width(), h = m_tileSize.height();
-
-//    if((x < 0)         ||
-//       (y < 0)         ||
-//       (x >= width())  ||
-//       (y >= height())) return false;
 
     uint tx = x / w;
     uint ty = y / h;
@@ -179,16 +182,29 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
         player->takeDamage(999);
     }
 
+    // L'étage
+    player->setUpstairs(m_grid->tileAt(tx, ty) == Tile::UpstairsTile);
+
     player->setPosition(x, y);
     player->setDirection(direction);
 
     // Changement de la couleur de la case.
-    foreach(Player *otherPlayer, otherPlayers)
+    if(otherPlayers.size() == 0)
     {
-        if(m_grid->tileAt(tx, ty) == otherPlayer->tileType())
+        if(m_grid->tileAt(tx, ty) == Tile::Player2Tile)
         {
-            m_grid->setTileAt(tx, ty, player->tileType());
-            break;
+            m_grid->setTileAt(tx, ty, Tile::Player1Tile);
+        }
+    }
+    else
+    {
+        foreach(Player *otherPlayer, otherPlayers)
+        {
+            if(m_grid->tileAt(tx, ty) == otherPlayer->tileType())
+            {
+                m_grid->setTileAt(tx, ty, player->tileType());
+                break;
+            }
         }
     }
 
@@ -197,7 +213,7 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
 
 bool Level::playerFires(int playerId)
 {
-    Player *player = m_players->at(playerId);
+    Player *player = m_players.at(playerId);
     int type = player->fire();
 
     if(type >= 0)
@@ -220,12 +236,12 @@ double Level::playerTileRatio() const
         for(uint j=0; j<m_grid->height(); j++)
         {
             tmp = m_grid->tileAt(i,j);
-            if(tmp == m_players->at(0)->tileType())
+            if(tmp == m_players.at(0)->tileType())
             {
                 count ++;
                 res ++;
             }
-            else if(tmp == m_players->at(1)->tileType())
+            else if(tmp == m_players.at(1)->tileType())
                 count ++;
         }
     }
@@ -238,9 +254,9 @@ void Level::nextFrame()
     m_projectiles->moveProjectiles();
 
     Player *player;
-    for(int i=0; i<m_players->size(); i++)
+    for(int i=0; i<m_players.size(); i++)
     {
-        player = m_players->at(i);
+        player = m_players.at(i);
         //movePlayer(i, player->direction());
         player->updateLifeAnim();
     }

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "game.h"
+#include "animation.h"
 
 class GameWidget : public QWidget
 {
@@ -25,6 +26,7 @@ protected:
     void paintPlayer(QPainter *painter);
     void paintWaitingSign(QPainter *painter);
     void paintProjectiles(QPainter *painter);
+    void paintAnimations(QPainter *painter);
     void paintHUD(QPainter *painter);
 
     QPoint toMap(Point p);
@@ -33,6 +35,7 @@ protected:
 
 private:
     Game *m_game;
+    QList <Animation *> m_pendingAnimations;
 };
 
 #endif // GAMEWIDGET_H

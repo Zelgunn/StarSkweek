@@ -12,6 +12,7 @@
 #include <QDataStream>
 
 #include <QDebug>
+#include "playerinfo.h"
 
 #define PORT_COM 45454
 
@@ -34,6 +35,8 @@ public:
     QString mapPath() const;
     void setMapPath(const QString &mapPath);
 
+    QList<PlayerInfo *> playersInfos() const;
+
 protected:
     void sendUpdate(const QString &update);
     void incomingConnection(int socketfd);
@@ -54,7 +57,7 @@ private:
     QUdpSocket *m_udpSocket;
     QTcpSocket *m_client;
     QHostAddress m_localAddress;
-    QHostAddress m_player2Address;
+    QList<PlayerInfo *> m_playersInfos;
     QString m_mapPath;
     QTimer *m_timer;
     bool m_isHost;

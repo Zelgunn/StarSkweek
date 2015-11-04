@@ -12,8 +12,14 @@ public:
     Unit();
 
     int life() const;
+    void setLife(int life);
+
     int maxLife() const;
+    void setMaxLife(int maxLife);
+
     int lifeAnim() const;
+    void setLifeAnim(int lifeAnim);
+
     void updateLifeAnim();
     bool dead() const;
     void setDead(bool dead);
@@ -24,6 +30,12 @@ public:
 
     bool invulnerable() const;
     void setInvulnerable(bool invulnerable);
+
+    int deathDuration() const;
+    void setDeathDuration(int deathDuration);
+
+    int invulnerabilityDuration() const;
+    void setInvulnerabilityDuration(int invulnerabilityDuration);
 
 public slots:
     void resurrect();

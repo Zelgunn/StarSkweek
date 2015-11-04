@@ -25,7 +25,7 @@ public:
     Game();
 
     const Level *level() const;
-    const QList<Player *> *players() const;
+    const QList<const Player *> *players() const;
     void movePlayer(GameObject::Directions direction);
     void processCommands();
     void playerCommand(int player, QString command);
@@ -42,6 +42,9 @@ public:
     void setState(const GameStates &state);
     QString levelPath() const;
     void setLevelPath(const QString &levelPath);
+    void setPlayerNickname(const QString &nickname);
+    bool isPlayerReady(int player = 0) const;
+    void setPlayerReady(bool ready, int player = 0);
 
     void startHost(bool enable = true);
     void lookForLocalHost();
@@ -68,7 +71,7 @@ signals:
 private:
     GameStates m_state;
     QTimer *m_timer;
-    QList<Player *> m_players;
+    QList<const Player *> m_playersPrototypes;
     Level *m_level;
     QString m_levelPath;
     SoundPlayer m_soundPlayer;

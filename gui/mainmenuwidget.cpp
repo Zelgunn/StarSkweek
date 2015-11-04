@@ -18,7 +18,6 @@ MainMenuWidget::MainMenuWidget(QWidget *parent)
     m_optionsWidget =  new OptionWidget;
 
     m_configLoaded = openConfigFile();
-    //createConfigFile("Zelgunn");
 }
 
 void MainMenuWidget::onRight()
@@ -235,7 +234,7 @@ bool MainMenuWidget::isFullScreenChecked() const
     QList<QDomElement> options = allOptions();
     QDomElement option;
 
-    for(int i=0; options.size(); i++)
+    for(int i=0; i<options.size(); i++)
     {
         option = options.at(i);
 
@@ -246,6 +245,24 @@ bool MainMenuWidget::isFullScreenChecked() const
     }
 
     return false;
+}
+
+QString MainMenuWidget::playerNickname() const
+{
+    QList<QDomElement> options = allOptions();
+    QDomElement option;
+
+    for(int i=0; i<options.size(); i++)
+    {
+        option = options.at(i);
+
+        if(option.attribute("name") == "Nom de profil")
+        {
+            return OptionWidget::optionValue(option);
+        }
+    }
+
+    return QString("Inconnu");
 }
 
 void MainMenuWidget::paintEvent(QPaintEvent *)

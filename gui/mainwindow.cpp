@@ -21,9 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer->start(16);
 
     // Modèle de données
-    m_game.setLevelPath("croiseur.xml");    // TMP
-    m_game.loadLevel(m_game.levelPath());    // TMP
-
     QObject::connect(&m_game, SIGNAL(gameReady()), this, SLOT(onGameReady()));
     QObject::connect(&m_game, SIGNAL(stateChanged(Game::GameStates)), this, SLOT(onGameStateChanged(Game::GameStates)));
 
@@ -270,6 +267,7 @@ void MainWindow::onEnter()
     case Game::MenuState:
         m_menuWidget->onEnter();
         checkFullscreen();
+        m_game.setPlayerNickname(m_menuWidget->playerNickname());
 
         break;
     case Game::LobbyState:

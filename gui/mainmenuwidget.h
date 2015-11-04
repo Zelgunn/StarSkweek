@@ -36,6 +36,7 @@ public:
     int spinValue(const QString &name) const;
 
     bool isFullScreenChecked() const;
+    QString playerNickname() const;
 
 protected:
     void paintEvent(QPaintEvent *);

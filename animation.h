@@ -7,6 +7,7 @@ class Animation
 {
 public:
     Animation(const QPoint &position);
+    virtual ~Animation();
 
     virtual QPixmap nextFrame();
     virtual bool animationDone() const;
