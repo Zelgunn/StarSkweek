@@ -15,9 +15,15 @@ Unit::Unit()
     m_invulnerable = false;
     m_invulnerabilityDuration = 3000;
 }
+
 int Unit::life() const
 {
     return m_life;
+}
+
+void Unit::setLife(int life)
+{
+    m_life = life;
 }
 
 int Unit::maxLife() const
@@ -25,9 +31,19 @@ int Unit::maxLife() const
     return m_maxLife;
 }
 
+void Unit::setMaxLife(int maxLife)
+{
+    m_maxLife = maxLife;
+}
+
 int Unit::lifeAnim() const
 {
     return m_lifeAnim;
+}
+
+void Unit::setLifeAnim(int lifeAnim)
+{
+    m_lifeAnim = lifeAnim;
 }
 
 void Unit::updateLifeAnim()
@@ -82,6 +98,26 @@ void Unit::removeInvulnerability()
 {
     m_invulnerable = false;
 }
+int Unit::invulnerabilityDuration() const
+{
+    return m_invulnerabilityDuration;
+}
+
+void Unit::setInvulnerabilityDuration(int invulnerabilityDuration)
+{
+    m_invulnerabilityDuration = invulnerabilityDuration;
+}
+
+int Unit::deathDuration() const
+{
+    return m_deathDuration;
+}
+
+void Unit::setDeathDuration(int deathDuration)
+{
+    m_deathDuration = deathDuration;
+}
+
 bool Unit::invulnerable() const
 {
     return m_invulnerable;

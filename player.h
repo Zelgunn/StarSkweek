@@ -12,6 +12,7 @@ public:
     Player();
     Player(const QDomElement &element);
     virtual ~Player();
+    Player *clone() const;
 
     Tile::TileType tileType() const;
     void setTileType(Tile::TileType tileType);
@@ -20,7 +21,9 @@ public:
     void setWeapon(const Weapon &weapon);
 
     QPixmap portrait() const;
+    void setPortrait(const QPixmap &portrait);
     QPixmap thumbnail() const;
+    void setThumbnail(const QPixmap &thumbnail);
 
     Directions previousDirection() const;
     void setPreviousDirection(const Directions &previousDirection);

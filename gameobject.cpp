@@ -1,6 +1,7 @@
 #include "gameobject.h"
 
 GameObject::GameObject()
+    : m_upstairs(false)
 {
     m_position.x = 0;
     m_position.y = 0;
@@ -40,6 +41,11 @@ void GameObject::setSpeed(double speed)
     else m_speed.replace(0, speed);
 }
 
+void GameObject::setSpeed(const QList<double> &speed)
+{
+    m_speed = speed;
+}
+
 double GameObject::speed() const
 {
     return m_speed.first();
@@ -63,6 +69,16 @@ int GameObject::faction() const
 void GameObject::setFaction(int faction)
 {
     m_faction = faction;
+}
+
+bool GameObject::isUpstairs() const
+{
+    return m_upstairs;
+}
+
+void GameObject::setUpstairs(bool upstairs)
+{
+    m_upstairs = upstairs;
 }
 
 bool GameObject::isUnit() const
@@ -117,3 +133,13 @@ double GameObject::euclidianDistance(const Point &p1, const Point &p2)
 {
     return qSqrt(qPow((p1.x - p2.x) ,2) + qPow(p1.y - p2.y ,2));
 }
+Grid *GameObject::grid() const
+{
+    return m_grid;
+}
+
+void GameObject::setGrid(Grid *grid)
+{
+    m_grid = grid;
+}
+

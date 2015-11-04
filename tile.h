@@ -18,6 +18,7 @@ public:
                   ArrowTileUp,
                   ArrowTileLeft,
                   ArrowTileDown,
+                  UpstairsTile,
                   TypeCount
                  };
 

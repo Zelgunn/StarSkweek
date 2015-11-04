@@ -50,6 +50,7 @@ void GameWidget::paintGame(QPainter *painter)
     paintMap(painter);
     paintPlayer(painter);
     paintProjectiles(painter);
+    paintAnimations(painter);
     paintHUD(painter);
 }
 
@@ -91,24 +92,36 @@ void GameWidget::paintMap(QPainter *painter)
 
 void GameWidget::paintPlayer(QPainter *painter)
 {
+    const Level *level = m_game->level();
     QSize tileSize = m_game->level()->tileSize();
 
     QPixmap pImage;
-    QPoint playerOnScreen(0.5 * width(), 0.5 * height());
+    QPoint playerOnScreen(0.5 * width(), 0.5 * height()), position;
     const Player *player;
-    for(int i=0; i<m_game->players()->size(); i++)
+    for(int i=0; i<level->players().size(); i++)
     {
-        player = m_game->players()->at(i);
-        pImage = player->model()->scaled(tileSize.height(), tileSize.height());     // TMP
+        player = level->players().at(i);
+        if(player->isUpstairs())
+        {
+            pImage = player->model()->scaled(tileSize.height() * 7/4, tileSize.height() * 7/4);     // TMP
+        }
+
+        else
+        {
+            pImage = player->model()->scaled(tileSize.height() * 3/2, tileSize.height() * 3/2);     // TMP
+        }
         playerOnScreen -= QPoint(pImage.width() / 2, pImage.height() /2);
         if(i==0)    // Cas du joueur sur cet ordinateur. (Ce trouve aussi être le cas du jeu solo).
         {
-            painter->drawPixmap(playerOnScreen, pImage);
+            position = playerOnScreen;
         }
         else
         {
-            painter->drawPixmap(relativePosition(player->position(), pImage.size()), pImage);
+            position = relativePosition(player->position(), pImage.size());
         }
+        if(player->isUpstairs())
+            position -= QPoint(0, tileSize.height()/4);
+        painter->drawPixmap(position, pImage);
     }
 }
 
@@ -153,17 +166,37 @@ void GameWidget::paintProjectiles(QPainter *painter)
     }
 }
 
+void GameWidget::paintAnimations(QPainter *painter)
+{
+    QList <Animation *> animationsToDelete;
+
+    foreach(Animation *animation, m_pendingAnimations)
+    {
+        if(animation->animationDone())
+        {
+            animationsToDelete.append(animation);
+        }
+
+        painter->drawPixmap(animation->position(),animation->nextFrame());
+    }
+
+    foreach(Animation *animation, animationsToDelete)
+        delete animation;
+}
+
 void GameWidget::paintHUD(QPainter *painter)
 {
+    const Level *level = m_game->level();
     int w;
     const Player *player;
-    for(int i=0; i<m_game->players()->size(); i++)
+    for(int i=0; i<level->players().size(); i++)
     {
-        player = m_game->players()->at(i);
-        QSize tileSize = m_game->level()->tileSize();
+        player = level->players().at(i);
+        QSize tileSize = level->tileSize();
 
         Point position = player->position();
-        position.y -= tileSize.height()/2 + 20;
+        if(player->isUpstairs()) position.y -= tileSize.height()*3/2;
+        else position.y -= tileSize.height()*5/4;
         position.x -= tileSize.width()/2;
 
         w = tileSize.width();

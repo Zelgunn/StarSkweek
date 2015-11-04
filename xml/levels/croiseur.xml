@@ -3,7 +3,7 @@
 	<TileSize width="64" height="40"/>
 	<Grid>
 		<Size width="32" height="16"/>
-		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbbbbbbbbbbbbbbbbccdaaaaaaaafccccccccccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbhhbbbbbbbbbbbbbccdaaaaaaaafccccchhcccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
 	</Grid>
 	<Tile type="a" filename="/images/void.png"/>
 	<Tile type="b" filename="/images/Cruiser_Tile_Rebels.png"/>
@@ -12,4 +12,5 @@
 	<Tile type="e" filename="/images/Cruiser_ArrowTile_Up.png"/>
 	<Tile type="f" filename="/images/Cruiser_ArrowTile_Left.png"/>
 	<Tile type="g" filename="/images/Cruiser_ArrowTile_Down.png"/>
+	<Tile type="h" filename="/images/void.png"/>
 </Level>

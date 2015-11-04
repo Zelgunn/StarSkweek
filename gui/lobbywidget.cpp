@@ -4,8 +4,8 @@ LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
     : QWidget(parent), m_leftPortraitIndex(0), m_rightPortraitIndex(0), m_selectedPortrait(0), m_game(game), m_mapChoosen(-1)
 {
     // Chargement des portraits et miniatures.
-    const QList<Player *> *players = m_game->players();
-    Player *player;
+    const QList<const Player *> *players = m_game->players();
+    const Player *player;
     QString dir = QApplication::applicationDirPath();
     for(int i=0; i<players->size(); i++)
     {
@@ -61,9 +61,7 @@ void LobbyWidget::onEnter()
     }
     else
     {
-        m_game->setLevelPath(choosenMapPath());
-        m_game->loadLevel(m_game->levelPath());
-        m_game->startGame();
+        m_game->setPlayerReady(!m_game->isPlayerReady());
     }
 }
 
@@ -407,7 +405,6 @@ void LobbyWidget::checkGameUntreatedCommands()
     for(int i=0; i<untreatedCommands.size(); i++)
     {
         command = untreatedCommands.at(i);
-        qDebug() << command << (command.toInt() == Qt::Key_Left) << (command.toInt() == Qt::Key_Right);
         key = (Qt::Key)command.toInt();
         if(key == Qt::Key_Left)
         {

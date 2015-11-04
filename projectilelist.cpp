@@ -54,10 +54,13 @@ void ProjectileList::moveProjectiles()
                 gameObject = m_gameObjects.at(j);
                 if(gameObject->faction() != projectile->faction())
                 {
-                    if(GameObject::euclidianDistance(gameObject->position(), projectile->position()) < 20)
+                    if((GameObject::euclidianDistance(gameObject->position(), projectile->position()) < 20)
+                            && (gameObject->isUpstairs() == projectile->isUpstairs()))
                     {
                         if(gameObject->isPlayer())
+                        {
                             emit hitPlayer(gameObject, projectile->type());
+                        }
                         m_projectiles.removeAt(i);
                         delete projectile;
                         i--;
@@ -65,6 +68,7 @@ void ProjectileList::moveProjectiles()
                 }
             }
 
+            // Effacement des projectiles qui se sont rencontrés.
             for(int j=0; j<m_projectiles.size(); j++)
             {
                 projectile2 = m_projectiles.at(j);

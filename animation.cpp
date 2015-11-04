@@ -6,6 +6,11 @@ Animation::Animation(const QPoint &position) :
 
 }
 
+Animation::~Animation()
+{
+
+}
+
 QPixmap Animation::nextFrame()
 {
     if(m_frame < m_frames.size() - 1)

@@ -18,7 +18,7 @@ Game::Game() :
 
         if(elem.tagName() == "Character")
         {
-            m_players.append(new Player(elem));
+            m_playersPrototypes.append(new Player(elem));
         }
 
         if(elem.tagName() == "Projectiles")
@@ -44,9 +44,9 @@ const Level *Game::level() const
     return m_level;
 }
 
-const QList<Player *> *Game::players() const
+const QList<const Player *> *Game::players() const
 {
-    return &m_players;
+    return &m_playersPrototypes;
 }
 
 void Game::movePlayer(GameObject::Directions direction)
@@ -54,7 +54,6 @@ void Game::movePlayer(GameObject::Directions direction)
     if(!m_timer->isActive()) return;
 
     m_level->movePlayer(0, direction);
-    //m_level->setPlayerDirection(0, direction);
 }
 
 void Game::processCommands()
@@ -92,6 +91,9 @@ void Game::playerCommand(int player, QString command)
     case 's':
         playerFires(player);
         break;
+    case 'r':
+        setPlayerReady(!isPlayerReady(1), 1);
+        break;
     }
 }
 
@@ -120,6 +122,18 @@ void Game::playerFires(int playerID)
 
 void Game::startGame()
 {
+    setLevelPath(m_multiplayerUpdater.mapPath());
+    loadLevel(m_levelPath);
+
+    if(m_multiplayerUpdater.isHost() || (m_multiplayerUpdater.playersInfos().size() == 1))
+    {
+        m_level->setMyPlayer(0);
+    }
+    else
+    {
+        m_level->setMyPlayer(1);
+    }
+
     m_timer->start(16);
     setState(PlayingState);
 }
@@ -132,7 +146,6 @@ bool Game::isStarted() const
 void Game::loadLevel(const QString &filename)
 {
     QFile file(filename);
-    qDebug() << filename;
     file.open(QIODevice::ReadOnly);
 
     QDomDocument dom;
@@ -143,7 +156,7 @@ void Game::loadLevel(const QString &filename)
     elem.appendChild(m_projectilesElement);
     elem.appendChild(m_weaponsElement);
 
-    m_level = new Level(elem, &m_players);
+    m_level = new Level(elem, &m_playersPrototypes, m_multiplayerUpdater.playersInfos());
 
     file.close();
 }
@@ -177,9 +190,45 @@ void Game::setLevelPath(const QString &levelPath)
     }
 }
 
+void Game::setPlayerNickname(const QString &nickname)
+{
+    QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
+    PlayerInfo *playerInfo = playersInfos.first();
+    if(nickname != playerInfo->nickname())
+        playerInfo->setNickname(nickname);
+}
+
+bool Game::isPlayerReady(int player) const
+{
+    QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
+    PlayerInfo *playerInfo = playersInfos.at(player);
+    return playerInfo->ready();
+}
+
+void Game::setPlayerReady(bool ready, int player)
+{
+    QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
+    PlayerInfo *playerInfo = playersInfos.at(player);
+    playerInfo->setReady(ready);
+
+    if(player == 0)
+    {
+        m_multiplayerUpdater.appendUpdate("pr");
+        m_multiplayerUpdater.sendUpdates();
+    }
+
+    foreach(playerInfo, playersInfos)
+    {
+        if(!playerInfo->ready()) return;
+    }
+    startGame();
+}
+
 void Game::nextFrame()
 {
-    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x) + ',' + QString::number(m_level->player()->position().y));
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x)
+                                      + ',' + QString::number(m_level->player()->position().y)
+                                      + ',' + QString::number(m_level->player()->direction()));
     m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
 
@@ -187,6 +236,7 @@ void Game::nextFrame()
 
     level->nextFrame();
 }
+
 QStringList Game::untreatedCommands()
 {
     if(m_untreatedCommands.isEmpty())
@@ -288,17 +338,7 @@ void Game::onBackpace()
 
 void Game::onGameConnected()
 {
-    if(m_multiplayerUpdater.isHost())
-    {
-        loadLevel(m_levelPath);
-        m_level->setMyPlayer(0);
-    }
-    else
-    {
-        setLevelPath(m_multiplayerUpdater.mapPath());
-        loadLevel(m_levelPath);
-        m_level->setMyPlayer(1);
-    }
+    setLevelPath(m_multiplayerUpdater.mapPath());
 
     setState(LobbyState);
     //emit gameReady();

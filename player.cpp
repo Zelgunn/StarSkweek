@@ -23,10 +23,10 @@ Player::Player(const QDomElement &element) :
 
         if(elem.tagName() == "Model")
         {
-            m_models[Right] = QPixmap(dir + elem.attribute("right"));
-            m_models[Up] = QPixmap(dir + elem.attribute("up"));
-            m_models[Left] = QPixmap(dir + elem.attribute("left"));
-            m_models[Down] = QPixmap(dir + elem.attribute("down"));
+            m_models[Right] = QPixmap(dir + elem.attribute("right")).scaledToHeight(250, Qt::SmoothTransformation);
+            m_models[Up] = QPixmap(dir + elem.attribute("up")).scaledToHeight(250, Qt::SmoothTransformation);
+            m_models[Left] = QPixmap(dir + elem.attribute("left")).scaledToHeight(250, Qt::SmoothTransformation);
+            m_models[Down] = QPixmap(dir + elem.attribute("down")).scaledToHeight(250, Qt::SmoothTransformation);
         }
 
         if(elem.tagName() == "Tile")
@@ -54,6 +54,44 @@ Player::~Player()
 
 }
 
+Player *Player::clone() const
+{
+    static int i = 0;
+    Player *player = new Player;
+
+    // Player
+    player->setTileType(m_tileType);
+    player->setPreviousDirection(m_previousDirection);
+    player->setWeapon(m_weapon);
+    player->setPortrait(m_portrait);
+    player->setThumbnail(m_thumbnail);
+
+    // Unit
+    player->setLife(m_life);
+    player->setMaxLife(m_maxLife);
+    player->setLifeAnim(m_lifeAnim);
+    player->setDead(m_dead);
+    player->setDeathDuration(m_deathDuration);
+    player->setInvulnerable(m_invulnerable);
+    player->setInvulnerabilityDuration(m_invulnerabilityDuration);
+
+    // GameObject
+    player->setGrid(m_grid);
+    player->setPosition(m_position);
+    player->setSpeed(m_speed);
+    player->setDirection(m_direction);
+    qDebug() << m_direction;
+    player->setFaction(m_faction);
+    player->setUpstairs(m_upstairs);
+    qDebug() << "Cloning" << i++;
+    player->setModel(m_models[Right], Right);
+    player->setModel(m_models[Up], Up);
+    player->setModel(m_models[Left], Left);
+    player->setModel(m_models[Down], Down);
+
+    return player;
+}
+
 Tile::TileType Player::tileType() const
 {
     return m_tileType;
@@ -78,9 +116,20 @@ QPixmap Player::portrait() const
 {
     return m_portrait;
 }
+
+void Player::setPortrait(const QPixmap &portrait)
+{
+    m_portrait = portrait;
+}
+
 QPixmap Player::thumbnail() const
 {
     return m_thumbnail;
+}
+
+void Player::setThumbnail(const QPixmap &thumbnail)
+{
+    m_thumbnail = thumbnail;
 }
 
 GameObject::Directions Player::previousDirection() const

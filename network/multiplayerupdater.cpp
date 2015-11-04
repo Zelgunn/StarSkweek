@@ -16,6 +16,10 @@ MultiplayerUpdater::MultiplayerUpdater() :
         }
     }
 
+    PlayerInfo *playerInfo = new PlayerInfo;
+    playerInfo->setAddress(m_localAddress);
+    m_playersInfos.append(playerInfo);
+
     m_timer = new QTimer(this);
 
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(broadcastAddress()));
@@ -79,13 +83,25 @@ void MultiplayerUpdater::startHost(bool enable)
 
 void MultiplayerUpdater::lookForLocalHost()
 {
-    qDebug() << "Looking for local host...";
+    qDebug() << "A la recherche de l'hôte local.";
     QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
 }
 
 void MultiplayerUpdater::connectToIP(const QString &ip)
 {
-    m_player2Address = QHostAddress(ip);
+    PlayerInfo *playerInfo;
+    if(m_playersInfos.size() > 1)
+    {
+        playerInfo = m_playersInfos.at(1);
+        playerInfo->setAddress(QHostAddress(ip));
+    }
+    else
+    {
+        playerInfo = new PlayerInfo;
+        playerInfo->setAddress(QHostAddress(ip));
+        m_playersInfos.append(playerInfo);
+    }
+
     connectToPlayer2();
 }
 
@@ -103,6 +119,10 @@ void MultiplayerUpdater::incomingConnection(int socketfd)
 
     qDebug() << "Nouvelle connexion :" << m_client->peerAddress().toString();
 
+    PlayerInfo *playerInfo = new PlayerInfo;
+    playerInfo->setAddress(m_client->peerAddress());
+    m_playersInfos.append(playerInfo);
+
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
@@ -115,7 +135,7 @@ void MultiplayerUpdater::connectToPlayer2()
 
     m_client = new QTcpSocket(this);
     qDebug() << "Connexion au serveur en cours...";
-    m_client->connectToHost(m_player2Address, PORT_COM);
+    m_client->connectToHost(m_playersInfos.at(1)->address(), PORT_COM);
     if(m_client->isOpen())
         qDebug() << "Connecté.";
     else
@@ -126,6 +146,10 @@ void MultiplayerUpdater::connectToPlayer2()
         return;
     }
 
+//    PlayerInfo *playerInfo = new PlayerInfo;
+//    playerInfo->setAddress(m_client->peerAddress());
+//    m_playersInfos.append(playerInfo);
+
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
     emit gameConnected();
@@ -133,14 +157,17 @@ void MultiplayerUpdater::connectToPlayer2()
 
 void MultiplayerUpdater::broadcastAddress()
 {
-    qDebug() << "Broadcasting...";
     if(!isListening())
         listen(m_localAddress, PORT_COM);
 
     if(!isConnected())
     {
-        QByteArray adressDatagram = QString(m_localAddress.toString() + ',' + m_mapPath).toUtf8();
-        m_udpSocket->writeDatagram(adressDatagram.data(), adressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
+        QByteArray addressDatagram = QString(m_localAddress.toString()
+                                            + ',' + m_playersInfos.first()->nickname()
+                                            + ',' + m_mapPath).toUtf8();
+
+        qDebug() << QString(addressDatagram);
+        m_udpSocket->writeDatagram(addressDatagram.data(), addressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
 
         if(!m_timer->isActive())
             m_timer->start(1000);
@@ -156,6 +183,7 @@ void MultiplayerUpdater::readUdp()
 {
     QByteArray datagram;
     QString message;
+    PlayerInfo *playerInfo;
 
     while(m_udpSocket->hasPendingDatagrams())
     {
@@ -163,12 +191,13 @@ void MultiplayerUpdater::readUdp()
         m_udpSocket->readDatagram(datagram.data(), datagram.size());
         message = datagram.data();
 
-        qDebug() << message;
-
         if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
         {
-            m_player2Address = QHostAddress(message.section(',', 0, 0));
-            m_mapPath = message.section(',', 1, 1);
+            playerInfo = new PlayerInfo;
+            playerInfo->setAddress(QHostAddress(message.section(',', 0, 0)));
+            playerInfo->setNickname(message.section(',', 1, 1));
+            m_playersInfos.append(playerInfo);
+            m_mapPath = message.section(',', 2, 2);
             connectToPlayer2();
         }
     }
@@ -189,6 +218,12 @@ void MultiplayerUpdater::disconnected()
     delete m_client;
     m_client = Q_NULLPTR;
 }
+
+QList<PlayerInfo *> MultiplayerUpdater::playersInfos() const
+{
+    return m_playersInfos;
+}
+
 QString MultiplayerUpdater::mapPath() const
 {
     return m_mapPath;
