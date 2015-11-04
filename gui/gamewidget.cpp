@@ -34,6 +34,10 @@ void GameWidget::onEnter()
 void GameWidget::onBackpace()
 {
     m_game->onBackpace();
+    if(m_game->state() == Game::PlayingState)
+    {
+        m_pendingAnimations.append(new DeathStarBeam(m_game->level()->grid(), m_game->level()->tileSize(), 0));
+    }
 }
 
 void GameWidget::paintEvent(QPaintEvent *)
@@ -176,12 +180,19 @@ void GameWidget::paintAnimations(QPainter *painter)
         {
             animationsToDelete.append(animation);
         }
+        QPixmap pixmap = animation->nextFrame();
+        Point pos;
+        pos.x = animation->position().x();
+        pos.y = animation->position().y();
 
-        painter->drawPixmap(animation->position(),animation->nextFrame());
+        painter->drawPixmap(relativePosition(pos, pixmap.size()), pixmap);
     }
 
     foreach(Animation *animation, animationsToDelete)
+    {
+        m_pendingAnimations.removeOne(animation);
         delete animation;
+    }
 }
 
 void GameWidget::paintHUD(QPainter *painter)

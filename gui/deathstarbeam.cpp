@@ -1,13 +1,15 @@
 #include "deathstarbeam.h"
 
 
-DeathStarBeam::DeathStarBeam(Grid *grid, QSize tileSize, int player)
-    : m_grid(grid), m_tileSize(tileSize), m_player(player)
+DeathStarBeam::DeathStarBeam(const Grid *grid, QSize tileSize, int player)
+    :  m_tileSize(tileSize), m_grid(grid), m_player(player), m_targetLocked(false)
 {
+    m_targetPixmap = QPixmap(QApplication::applicationDirPath() + "/images/Portrait_Random.png").scaled(128,128);
     m_position.setX(qrand()%(m_grid->width() * m_tileSize.width()));
     m_position.setY(qrand()%(m_grid->height() * m_tileSize.height()));
 
     m_target = m_position;
+    m_frame = 0;
     //m_grid->tileAt(m_position.x()/m_tileSize.width(), m_position.y()/m_tileSize.height());
 }
 
@@ -34,21 +36,23 @@ QPixmap DeathStarBeam::nextFrame()
             m_target.setY(qrand()%(m_grid->height() * m_tileSize.height()));
 
             vector = m_target - m_position;
-        }
-        while(vector.manhattanLength() > 5);
+            vector.rx() /= m_tileSize.width();
+            vector.ry() /= m_tileSize.height();
+        } while(vector.manhattanLength() > 5);
 
         return m_targetPixmap;
     }
     else
     {
-        QPixmap pixmap;
-        QPainter painter(&pixmap);
-        QPen pen(QColor(0,255,0));
-        pen.setWidth(m_frame/2);
+        m_targetLocked = true;
+        m_position.setY(0);
 
-        painter.drawLine(QPoint(m_target.x(), 0), m_target);
+        QPixmap pixmap(m_frame/2, m_target.y());
+        pixmap.fill(QColor(0,255,0,255));
 
         m_frame++;
+
+        return pixmap;
     }
 }
 
@@ -63,16 +67,15 @@ bool DeathStarBeam::animationDone() const
         return false;
     }
 
-    return (m_frame >= 60);
+    return m_frame > 60;
 }
 
 bool DeathStarBeam::targetReached() const
 {
-    return (m_target == m_position);
-
+    return ((m_target == m_position) || m_targetLocked);
 }
 
 bool DeathStarBeam::targetValid() const
 {
-    return false;
+    return ((m_grid->tileAt(m_target.x() / m_tileSize.width(), m_target.y() / m_tileSize.height()) == Tile::Player2Tile) || m_targetLocked);
 }

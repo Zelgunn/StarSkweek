@@ -6,6 +6,7 @@
 class Animation
 {
 public:
+    Animation();
     Animation(const QPoint &position);
     virtual ~Animation();
 

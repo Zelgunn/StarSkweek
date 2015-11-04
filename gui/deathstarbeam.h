@@ -14,7 +14,7 @@ public:
 	* Le rayon sera ajouté à la pile des animations du GameWidget.
 	* L'entier player identifie le créateur du rayon et par conséquent, les cases qui lui appartiennent (ou non).
 	*/
-    DeathStarBeam(Grid* grid, QSize tileSize, int player);
+    DeathStarBeam(const Grid* grid, QSize tileSize, int player);
 	
 	/* Calcul le déplacement du rayon et renvoie l'image qui en découle.
 	* Si la cible n'est pas atteinte, renvoie m_targetPixmap.
@@ -48,12 +48,13 @@ private:
     QPoint m_target;
     QSize m_tileSize;
 	// Grille permettant de vérifier si oui ou non on est arrivé sur une cible valide.
-	Grid *m_grid;
+    const Grid *m_grid;
 	// Image à charger dans le constructeur qui donnera le viseur.
 	// A redimensionner : Hauteur = Largeur = min(Hauteur de case, Largeur de case) * 3 !
 	QPixmap m_targetPixmap;
 	// Numéro du joueur qui a activé ce pouvoir.
 	int m_player;
+    bool m_targetLocked;
 };
 
 #endif

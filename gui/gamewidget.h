@@ -5,6 +5,7 @@
 
 #include "game.h"
 #include "animation.h"
+#include "deathstarbeam.h"
 
 class GameWidget : public QWidget
 {

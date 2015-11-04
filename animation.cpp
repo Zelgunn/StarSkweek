@@ -1,5 +1,11 @@
 #include "animation.h"
 
+Animation::Animation() :
+    m_frame(0)
+{
+
+}
+
 Animation::Animation(const QPoint &position) :
     m_frame(0), m_position(position)
 {

@@ -305,6 +305,7 @@ void MainWindow::onBackpace()
 
         break;
     case Game::PlayingState:
+        m_gameWidget->onBackpace();
         break;
     }
 }
