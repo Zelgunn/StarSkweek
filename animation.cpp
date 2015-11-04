@@ -20,3 +20,13 @@ bool Animation::animationDone() const
     return (m_frame == m_frames.size());
 }
 
+QPoint Animation::position() const
+{
+    return m_position;
+}
+
+void Animation::setPosition(const QPoint &position)
+{
+    m_position = position;
+}
+
