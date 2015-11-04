@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     gui/messagebox.cpp \
     gui/lobbywidget.cpp \
     gui/gamewidget.cpp \
-    playerinfo.cpp
+    playerinfo.cpp \
+    gui/deathstarbeam.cpp
 
 HEADERS  += gui/mainwindow.h \
     game.h \
@@ -64,7 +65,8 @@ HEADERS  += gui/mainwindow.h \
     gui/messagebox.h \
     gui/lobbywidget.h \
     gui/gamewidget.h \
-    playerinfo.h
+    playerinfo.h \
+    gui/deathstarbeam.h
 
 FORMS    +=
 

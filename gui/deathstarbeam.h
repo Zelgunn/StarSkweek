@@ -1,7 +1,10 @@
 #ifndef DEATHSTARBEAM_H
 #define DEATHSTARBEAM_H
 
+#include <QTime>
+#include <QPainter>
 #include "animation.h"
+#include "grid.h"
 
 class DeathStarBeam : public Animation
 {
@@ -16,7 +19,6 @@ public:
 	/* Calcul le déplacement du rayon et renvoie l'image qui en découle.
 	* Si la cible n'est pas atteinte, renvoie m_targetPixmap.
 	* Sinon, calcul brièvement un rayon qui explose (évaluer de façon empirique la vitesse).
-	* De la même façon, il faudra déterminer la vitesse à laquelle bouge le viseur de façon empirique.
 	* Le mieux restant de déplacer le viseur par "accoups" (avec une accélération et deccélération brusque).
 	* Les "accoups" devraient de préférence chercher une zone plutôt proche afin de donner un aspect errant au viseur.
 	* QPainter pour dessiner le rayon (QPainter painter(&pixmap) pour démarrer le painter sur une pixmap).
@@ -32,6 +34,7 @@ public:
 protected:
 	// Renvoie vrai si le rayon a atteint sa cible.
 	bool targetReached() const;
+    bool targetValid() const;
 	
 /*	Attributs hérités de Animation
 protected:
@@ -42,7 +45,8 @@ protected:
 
 private:
 	// Cible actuelle du viseur/de l'explosion.
-	QPoint m_target;
+    QPoint m_target;
+    QSize m_tileSize;
 	// Grille permettant de vérifier si oui ou non on est arrivé sur une cible valide.
 	Grid *m_grid;
 	// Image à charger dans le constructeur qui donnera le viseur.
