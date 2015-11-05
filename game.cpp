@@ -85,17 +85,20 @@ void Game::playerCommand(int player, QString command)
     char firstChar = command.at(0).toLatin1();
 
     switch (firstChar) {
-    case 'm':
+    case 'm':   // Déplacement
         movePlayer(player, command);
         break;
-    case 's':
+    case 's':   // Tir
         playerFires(player);
         break;
-    case 'r':
+    case 'r':   // Joueur prêt
         setPlayerReady(!isPlayerReady(player), player);
         break;
-    case 'n':
+    case 'n':   // Pseudo
         setPlayerNickname(command.remove(0,1), player);
+        break;
+    case 'c':   // Sélection de personnage
+        setPlayerChar(command.remove(0,1).toInt(), player);
         break;
     }
 }
@@ -226,9 +229,13 @@ int Game::playerChar(int player) const
 void Game::setPlayerChar(int characterIndex, int player)
 {
     PlayerInfo *pInfo = playerInfo(player);
-    if(characterIndex != pInfo->characterSelected())
-        pInfo->setCharacterSelected(characterIndex);
-    qDebug() << player << "a selectionné" << characterIndex;
+    pInfo->setCharacterSelected(characterIndex);
+
+    if(player == 0)
+    {
+        m_multiplayerUpdater.appendUpdate("pc" + QString::number(playerChar()));
+        m_multiplayerUpdater.sendUpdates();
+    }
 }
 
 bool Game::isPlayerReady(int player) const
@@ -244,26 +251,9 @@ void Game::setPlayerReady(bool ready, int player)
     PlayerInfo *pInfo = playersInfos.at(player);
 
     // Personnage aléatoire
-    bool characterFree;
-    int randomIndex;
-    while(playerChar(player) == m_playersPrototypes.size())
+    if((player == 0) && ready && (playerChar() == m_playersPrototypes.size()))
     {
-        characterFree = true;
-        randomIndex = qrand()%m_playersPrototypes.size();
-        for(int i=0; i<playersInfos.size(); i++)
-        {
-            if(i != player)
-            {
-                if((isPlayerReady(i)) && (playerChar(i) == randomIndex))
-                {
-                    characterFree = false;
-                }
-            }
-        }
-        if(characterFree)
-        {
-            setPlayerChar(randomIndex, player);
-        }
+        selectRandomPlayer();
     }
 
     // Vérification que le personnage n'est pas déjà pris.
@@ -295,6 +285,33 @@ void Game::setPlayerReady(bool ready, int player)
         if(!pInfo->ready()) return;
     }
     startGame();
+}
+
+void Game::selectRandomPlayer()
+{
+    QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
+    PlayerInfo *pInfo = playersInfos.first();
+
+    bool characterFree;
+    int randomIndex = -1;
+    while(playerChar() == m_playersPrototypes.size())
+    {
+        characterFree = true;
+        randomIndex = qrand()%m_playersPrototypes.size();
+        for(int i=1; i<playersInfos.size(); i++)
+        {
+            if((isPlayerReady(i)) && (playerChar(i) == randomIndex))
+            {
+                characterFree = false;
+            }
+        }
+        if(characterFree)
+        {
+            setPlayerChar(randomIndex);
+        }
+    }
+
+    qDebug() << "Random :" << randomIndex << "sélectionné " << (randomIndex == pInfo->characterSelected());
 }
 
 void Game::nextFrame()
@@ -341,53 +358,33 @@ void Game::connectToIP(const QString &ip)
 
 void Game::onRight()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Right));
     if(m_state == PlayingState)
     {
         movePlayer(GameObject::Right);
-    }
-    else
-    {
-        m_multiplayerUpdater.sendUpdates();
     }
 }
 
 void Game::onUp()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Up));
     if(m_state == PlayingState)
     {
         movePlayer(GameObject::Up);
-    }
-    else
-    {
-        m_multiplayerUpdater.sendUpdates();
     }
 }
 
 void Game::onLeft()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Left));
     if(m_state == PlayingState)
     {
         movePlayer(GameObject::Left);
-    }
-    else
-    {
-        m_multiplayerUpdater.sendUpdates();
     }
 }
 
 void Game::onDown()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Down));
     if(m_state == PlayingState)
     {
         movePlayer(GameObject::Down);
-    }
-    else
-    {
-        m_multiplayerUpdater.sendUpdates();
     }
 }
 

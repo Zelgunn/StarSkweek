@@ -455,20 +455,10 @@ void LobbyWidget::checkGameUntreatedCommands()
 {
     QStringList untreatedCommands = m_game->untreatedCommands();
     QString command;
-    Qt::Key key;
     for(int i=0; i<untreatedCommands.size(); i++)
     {
         command = untreatedCommands.at(i);
-        key = (Qt::Key)command.toInt();
-        if(key == Qt::Key_Left)
-        {
-            selectPreviousChar(1);
-        }
-
-        if(key == Qt::Key_Right)
-        {
-            selectNextChar(1);
-        }
+        qDebug() << "Commande non traitée :" << command;
     }
 }
 

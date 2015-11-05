@@ -50,6 +50,7 @@ public:
     void setPlayerChar(int characterIndex, int player = 0);
     bool isPlayerReady(int player = 0) const;
     void setPlayerReady(bool ready, int player = 0);
+    void selectRandomPlayer();
 
     void startHost(bool enable = true);
     void lookForLocalHost();
