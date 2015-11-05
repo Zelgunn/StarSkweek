@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <Level name="Mustafar">
-	<TileSize width="64" height="38"/>
+	<TileSize width="96" height="57"/>
 	<Grid>
 		<Size width="23" height="23"/>
 		<Tiles values="fbbbbbbbbbbbbbbaaaaaccdfbbbbbbbbbbbbbbaaaaaccdfbbbdaaabbbbbbbaaaaaccdfbbgaaaaabbbbbaaaaaaccdfbbaaaaaafbbbdaaaaaaccdfbbaaaaaabbbbbaaaaaaccdfbbaaaabbbaaabbbaaaaccdfbbaaaabbbaaabbbaaaaccdfbbaaabbaaaaaaabbaaaccdfbbaabbbaaaaaaabbbaaccdfbbbbbbbbebbbebbbbbaccdfbbbbbbbbbbaccccccccccdfbbacccccgcccgccccccccdfbbaacccaaaaaaacccaaccdfbbaaaccaaaaaaaccaaaccdfbbaaaacccaaacccaaaaccdfbbaaaacccaaacccaaaaccdfbbaaaaaacccccaaaaaaccdfbbaaaaaafcccdaaaaaaccdfbbaaaaaacccccaaaaaeccdfbbaaaaacccccccaaafcccdfbbaaaaaccccccccccccccdfbbaaaaaccccccccccccccd"/>
