@@ -7,7 +7,17 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
     for(int i=0; i<playersInfos.size(); i++)
     {
         playerInfo = playersInfos.at(i);
-        m_players.append(m_prototypes->at(playerInfo->characterSelected())->clone());
+        m_players.append(prototypes->at(playerInfo->characterSelected())->clone());
+        if(i==0)
+        {
+            qDebug() << prototypes->at(playerInfo->characterSelected());
+            qDebug() << "Joueur local : " << playerInfo->characterSelected();
+        }
+        else
+        {
+            qDebug() << prototypes->at(playerInfo->characterSelected());
+            qDebug() << "Joueur distant : " << playerInfo->characterSelected();
+        }
     }
 
     m_name = element.attribute("name");
@@ -54,7 +64,6 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
 
     Player *player;
     player = m_players.at(0);
-    player->setPosition(width()/2, height()/4);
     player->setFaction(0);
     player->setWeapon(m_weapons.at(0));
     m_projectiles->appendCollision(player);
@@ -63,7 +72,6 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
     {
         player = m_players.at(i);
 
-        player->setPosition(width()/2, height()*3/4 - 5);   // TMP
         player->setFaction(i);
         player->setWeapon(m_weapons.at(0));
         m_projectiles->appendCollision(player);
@@ -74,13 +82,15 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
 
 void Level::setMyPlayer(int playerNumber)
 {
-    if(playerNumber != 0)
+    Player *player = m_players.at(playerNumber);
+    switch(playerNumber)
     {
-        Player *tmp = m_players.at(0);
-        m_players.replace(0, m_players.at(playerNumber));
-        m_players.replace(playerNumber, tmp);
-
-        m_myPlayer = playerNumber;
+    case 0:
+        player->setPosition(width()/2, height()/4);
+        break;
+    default:
+        player->setPosition(width()/2, height()*3/4 - 5);
+        break;
     }
 }
 

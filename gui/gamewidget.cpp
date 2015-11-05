@@ -115,6 +115,7 @@ void GameWidget::paintPlayer(QPainter *painter)
         {
             pImage = player->model()->scaledToHeight(tileSize.height() * 3/2, Qt::SmoothTransformation);     // TMP
         }
+        pImage.save(QString::number(i) + ".png");
         playerOnScreen -= QPoint(pImage.width() / 2, pImage.height() - 10);
         if(i==0)    // Cas du joueur sur cet ordinateur. (Ce trouve aussi être le cas du jeu solo).
         {

@@ -10,6 +10,7 @@ LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
     for(int i=0; i<players->size(); i++)
     {
         player = players->at(i);
+        qDebug() << player;
         m_portraits.append(player->portrait());
         m_thumbnails.append(player->thumbnail());
     }
