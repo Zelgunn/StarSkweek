@@ -237,6 +237,36 @@ void GameWidget::paintHUD(QPainter *painter)
 
 void GameWidget::paintUI(QPainter *painter)
 {
+    QRect scoreRect(width()/4, 0, width()/2, height()/10/2);
+    QPen pen(QColor(50,50,50));
+    pen.setWidth(3);
+    painter->setPen(pen);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(scoreRect);
+
+    QRectF rectanglePower(-120.0, height()/9*8, 240.0, 240.0);
+    int startAngle = 0 * 16;
+    int spanAngle = 90 * 16;
+    QPen pen2(QColor(33,99,131));
+    pen2.setWidth(2);
+    painter->setPen(pen2);
+    painter->setBrush(Qt::NoBrush);
+    painter->drawPie(rectanglePower, startAngle, spanAngle);
+
+    for(int i=0; i<5 ; i++)
+    {
+        startAngle = i*18 * 16;
+        spanAngle = (i+1)*18 * 16;
+        QPen pen3(QColor(73,212,253));
+        pen3.setWidth(3);
+        painter->setPen(pen3);
+        painter->setBrush(QColor(51,148,193));
+        painter->drawPie(rectanglePower,startAngle,spanAngle);
+    }
+
+    QRectF rectangleBlack(-50, height()/9*8.5, 100, 100);
+    painter->setBrush(QColor(73,212,253,255));
+    painter->drawEllipse(rectangleBlack);
 
 }
 
