@@ -90,6 +90,7 @@ void LobbyWidget::onBackspace()
 
 void LobbyWidget::selectNextChar(int player)
 {
+    if(m_game->isPlayerReady()) return;
     int index = selectedChar(player);
     index = (index + 1)%m_portraits.size();
     m_game->setPlayerChar(index, player);
@@ -97,6 +98,7 @@ void LobbyWidget::selectNextChar(int player)
 
 void LobbyWidget::selectPreviousChar(int player)
 {
+    if(m_game->isPlayerReady()) return;
     int index = selectedChar(player);
     index--;
     if(index < 0)
@@ -275,47 +277,47 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
 
     QPixmap thumbnail;
     QRect tmpRect;
+    QPen pen;
     for(int i=0; i<m_thumbnails.size(); i++)
     {
         thumbnail = m_thumbnails.at(i);
+        painter->setBrush(Qt::NoBrush);
 
         if(i == selectedChar())
         {
             tmpRect = centralthumbnailRect;
-            painter->setPen(QPen(QColor(255,255,255)));
+            pen.setColor(QColor(255,255,255));
+
             if(m_game->isPlayerReady())
             {
-                painter->setPen(QPen(QBrush(QColor(255,255,255)), 3));
+                pen.setWidth(3);
             }
         }
         else
         {
             tmpRect = thumbnailRect;
             tmpRect.moveCenter(tmpRect.center() + QPoint(height()/6 * (i - selectedChar()), 0));
-            painter->setPen(QPen(QColor(100,255,100)));
+            pen.setColor(QColor(100, 255, 100));
         }
 
         painter->drawPixmap(tmpRect, thumbnail);
 
-        if(i==selectedChar(1))
+        // Si le personnage est sélectionné par l'autre joueur
+        if(i == selectedChar(1))
         {
-            if(m_game->isPlayerReady(i))
+            if(m_game->isPlayerReady(1))
             {
                 painter->setBrush(QBrush(QColor(255,0,0,25)));
-                painter->setPen(QPen(QColor(255,0,0)));
-
-                painter->drawText(tmpRect, "P2");
+                pen.setColor(QColor(255, 0, 0));
             }
             else
             {
                 painter->setBrush(Qt::NoBrush);
-                painter->setPen(QPen(QColor(0,0,255)));
             }
-
         }
 
+        painter->setPen(pen);
         painter->drawRect(tmpRect);
-        painter->setBrush(Qt::NoBrush);
     }
 }
 

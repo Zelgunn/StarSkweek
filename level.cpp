@@ -6,6 +6,7 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
     foreach(PlayerInfo *playerInfo, playersInfos)
     {
         m_players.append(m_prototypes->at(playerInfo->characterSelected())->clone());
+        qDebug() << "Création du personnage" << m_players.size() << "à partir du personnage" << playerInfo->characterSelected();
     }
 
     m_name = element.attribute("name");

@@ -274,10 +274,7 @@ void Game::setPlayerReady(bool ready, int player)
     {
         m_multiplayerUpdater.appendUpdate("pr");
         m_multiplayerUpdater.sendUpdates();
-        qDebug() << "Joueur local prêt, personnage sélectionné :" << playerChar();
     }
-    else
-        qDebug() << "Joueur distant prêt, personnage sélectionné :" << playerChar(player);
 
     // Si tous les joueurs sont prêts, on lance le jeu.
     foreach(pInfo, playersInfos)
@@ -290,7 +287,6 @@ void Game::setPlayerReady(bool ready, int player)
 void Game::selectRandomPlayer()
 {
     QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
-    PlayerInfo *pInfo = playersInfos.first();
 
     bool characterFree;
     int randomIndex = -1;
@@ -310,8 +306,6 @@ void Game::selectRandomPlayer()
             setPlayerChar(randomIndex);
         }
     }
-
-    qDebug() << "Random :" << randomIndex << "sélectionné " << (randomIndex == pInfo->characterSelected());
 }
 
 void Game::nextFrame()
