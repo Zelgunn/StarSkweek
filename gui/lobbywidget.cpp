@@ -283,6 +283,10 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
         {
             tmpRect = centralthumbnailRect;
             painter->setPen(QPen(QColor(255,255,255)));
+            if(m_game->isPlayerReady())
+            {
+                painter->setPen(QPen(QBrush(QColor(255,255,255)), 3));
+            }
         }
         else
         {
@@ -293,7 +297,7 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
 
         painter->drawPixmap(tmpRect, thumbnail);
 
-        if(i==1)//(i==selectedChar(1))&&(m_game->isPlayerReady(i)))
+        if(i==selectedChar(1))
         {
             if(m_game->isPlayerReady(i))
             {

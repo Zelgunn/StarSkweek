@@ -228,6 +228,7 @@ void Game::setPlayerChar(int characterIndex, int player)
     PlayerInfo *pInfo = playerInfo(player);
     if(characterIndex != pInfo->characterSelected())
         pInfo->setCharacterSelected(characterIndex);
+    qDebug() << player << "a selectionné" << characterIndex;
 }
 
 bool Game::isPlayerReady(int player) const
@@ -283,7 +284,10 @@ void Game::setPlayerReady(bool ready, int player)
     {
         m_multiplayerUpdater.appendUpdate("pr");
         m_multiplayerUpdater.sendUpdates();
+        qDebug() << "Joueur local prêt, personnage sélectionné :" << playerChar();
     }
+    else
+        qDebug() << "Joueur distant prêt, personnage sélectionné :" << playerChar(player);
 
     // Si tous les joueurs sont prêts, on lance le jeu.
     foreach(pInfo, playersInfos)
