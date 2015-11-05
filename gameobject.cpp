@@ -1,10 +1,9 @@
 #include "gameobject.h"
 
 GameObject::GameObject()
-    : m_upstairs(false)
+    :  m_position(QPoint(0,0)), m_upstairs(false)
 {
-    m_position.x = 0;
-    m_position.y = 0;
+
 }
 
 const QPixmap *GameObject::model() const
@@ -19,20 +18,19 @@ void GameObject::setModel(const QPixmap &model, Directions direction)
     m_models[direction] = model;
 }
 
-Point GameObject::position() const
+QPoint GameObject::position() const
 {
     return m_position;
 }
 
-void GameObject::setPosition(const Point &position)
+void GameObject::setPosition(const QPoint &position)
 {
     m_position = position;
 }
 
 void GameObject::setPosition(int x, int y)
 {
-    m_position.x = x;
-    m_position.y = y;
+    m_position = QPoint(x, y);
 }
 
 void GameObject::setSpeed(qreal speed)
@@ -101,37 +99,32 @@ bool GameObject::isProjectile() const
     return false;
 }
 
-Point GameObject::displacement(GameObject::Directions direction, qreal speed)
+QPoint GameObject::displacement(GameObject::Directions direction, qreal speed)
 {
-    Point res;
+    QPoint res(0,0);
     switch (direction) {
     case Right:
-        res.x = (int)speed;
-        res.y = 0;
+        res.rx() = (int)speed;
         break;
     case Up:
-        res.x = 0;
-        res.y = - (int)speed;
+        res.ry() = - (int)speed;
         break;
     case Left:
-        res.x = - (int)speed;
-        res.y = 0;
+        res.rx() = - (int)speed;
         break;
     case Down:
-        res.x = 0;
-        res.y = (int)speed;
+        res.ry() = (int)speed;
         break;
-    default:
-        res.x = 0;
-        res.y = 0;
+    case InvalidDirection:
+        break;
     }
 
     return res;
 }
 
-double GameObject::euclidianDistance(const Point &p1, const Point &p2)
+double GameObject::euclidianDistance(const QPoint &p1, const QPoint &p2)
 {
-    return qSqrt(qPow((p1.x - p2.x) ,2) + qPow(p1.y - p2.y ,2));
+    return qSqrt(qPow((p1.x() - p2.x()) ,2) + qPow(p1.y() - p2.y() ,2));
 }
 Grid *GameObject::grid() const
 {

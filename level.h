@@ -28,12 +28,13 @@ public:
     int height() const;
 
     bool movePlayer(int playerId, GameObject::Directions direction);
+    void arrowTileMove(int playerNumber);
 
     bool setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction);
 
     bool playerFires(int playerId);
 
-    double playerTileRatio() const;
+    double playerTileRatio(int player = 0) const;
 
     void nextFrame();
 

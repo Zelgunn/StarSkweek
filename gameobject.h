@@ -8,10 +8,6 @@
 
 #include "grid.h"
 
-struct Point{
-    int x,y;
-};
-
 class GameObject
 {
 public:
@@ -28,8 +24,8 @@ public:
     // Accesseurs et mutateurs
     const QPixmap *model() const;
     void setModel(const QPixmap &model, Directions direction);
-    Point position() const;
-    void setPosition(const Point &position);
+    QPoint position() const;
+    void setPosition(const QPoint &position);
     void setPosition(int x, int y);
     void setSpeed(qreal speed);
     void setSpeed(const QList<qreal> &speed);
@@ -48,14 +44,14 @@ public:
     virtual bool isProjectile() const;
 
     // Fonctions statiques
-    static Point displacement(Directions direction, qreal speed);
-    static double euclidianDistance(const Point &p1, const Point &p2);
+    static QPoint displacement(Directions direction, qreal speed);
+    static double euclidianDistance(const QPoint &p1, const QPoint &p2);
 
     Grid *grid() const;
     void setGrid(Grid *grid);
 
 protected:
-    Point m_position;
+    QPoint m_position;
     Grid *m_grid;
     QPixmap m_models[4];
     QList<qreal> m_speed;

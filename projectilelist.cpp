@@ -19,7 +19,7 @@ ProjectileList::ProjectileList(QDomElement element, QObject *parent)
     }
 }
 
-void ProjectileList::append(int type, int faction, GameObject::Directions direction, Point position)
+void ProjectileList::append(int type, int faction, GameObject::Directions direction, QPoint position)
 {
    if((type < 0)||(type >= m_prototypes.size()))
        return;

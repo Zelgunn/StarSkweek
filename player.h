@@ -29,6 +29,8 @@ public:
     void setPreviousDirection(const Directions &previousDirection);
     void setDirection(const Directions &direction);
 
+
+
     int fire();
 
     bool isPlayer() const;

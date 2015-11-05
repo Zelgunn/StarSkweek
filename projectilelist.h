@@ -11,7 +11,7 @@ public:
     ProjectileList(QObject *parent = Q_NULLPTR);
     ProjectileList(QDomElement element, QObject *parent = Q_NULLPTR);
 
-    void append(int type, int faction, GameObject::Directions direction, Point position);
+    void append(int type, int faction, GameObject::Directions direction, QPoint position);
     void moveProjectiles();
 
     void appendCollision(GameObject* gameObject);

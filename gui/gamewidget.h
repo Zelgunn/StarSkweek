@@ -30,9 +30,10 @@ protected:
     void paintAnimations(QPainter *painter);
     void paintHUD(QPainter *painter);
     void paintUI(QPainter *painter);
+    void paintEndGamePanel(QPainter *painter);
 
-    QPoint toMap(Point p);
-    QPoint relativePosition(Point p, QSize size = QSize(0,0));
+    QPoint toMap(QPoint p);
+    QPoint relativePosition(QPoint p, QSize size = QSize(0,0));
     void movePlayer(GameObject::Directions direction);
 
 private:

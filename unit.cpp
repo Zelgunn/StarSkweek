@@ -2,8 +2,7 @@
 
 Unit::Unit()
 {
-    m_position.x = 0;
-    m_position.y = 0;
+    m_position = QPoint(0,0);
 
     m_maxLife = 100;
     m_life = m_maxLife;
@@ -89,8 +88,9 @@ bool Unit::isUnit() const
 void Unit::resurrect()
 {
     m_life = m_maxLife;
-    m_deathDuration += 1000;
+    m_deathDuration += 200;
     m_isResurecting = false;
+    m_position = m_lastValidPosition;
     QTimer::singleShot(m_invulnerabilityDuration, this, SLOT(removeInvulnerability()));
 }
 
@@ -128,6 +128,28 @@ void Unit::setInvulnerable(bool invulnerable)
     m_invulnerable = invulnerable;
 }
 
+
+void Unit::setPosition(const QPoint &position, bool isValid)
+{
+    if(isValid)
+        m_lastValidPosition = position;
+    m_position = position;
+}
+
+void Unit::setPosition(int x, int y, bool isValid)
+{
+    setPosition(QPoint(x,y), isValid);
+}
+
+QPoint Unit::lastValidPosition() const
+{
+    return m_lastValidPosition;
+}
+
+void Unit::setlastValidPosition(const QPoint &lastValidPosition)
+{
+    m_lastValidPosition = lastValidPosition;
+}
 
 
 

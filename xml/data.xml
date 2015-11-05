@@ -12,19 +12,19 @@
 	</Character>
 	<Projectiles>
 		<Projectile name="Laser Bolt" type="a">
-                        <Spec ttl="150" damage="25" acc="-0.1" acc2="0.01"/>
+                        <Spec ttl="200" damage="25"/>
 			<ModelSize width="30" height="15"/>
 			<Model right="/images/laser_right.png" up="/images/laser_up.png" left="/images/laser_left.png" down="/images/laser_down.png"/>
                         <Speed value="5"/>
-                        <Speed value="0.2"/>
-                        <Speed value="0"/>
+                        <Speed value="0.1"/>
+                        <Speed value="0.01"/>
                         <Angle value="0"/>
 		</Projectile>
                 <Projectile name="Bullet" type="b">
                         <Spec ttl="200" damage="2"/>
                         <ModelSize width="10" height="4"/>
                         <Model right="/images/laser_right.png" up="/images/laser_up.png" left="/images/laser_left.png" down="/images/laser_down.png"/>
-                        <Speed value="10"/>
+                        <Speed value="20"/>
                         <Speed value="0.03"/>
                         <Speed value="-0.001"/>
                         <Angle value="0"/>

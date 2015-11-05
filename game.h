@@ -35,6 +35,9 @@ public:
 
     void startGame();
     bool isStarted() const;
+    void stopGame();
+    bool isPlayerVictorious() const;
+    bool isPlayerDefeated() const;
 
     void loadLevel(const QString &filename);
 

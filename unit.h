@@ -37,6 +37,11 @@ public:
     int invulnerabilityDuration() const;
     void setInvulnerabilityDuration(int invulnerabilityDuration);
 
+    void setPosition(const QPoint &position, bool isValid = true);
+    void setPosition(int x, int y, bool isValid = true);
+    QPoint lastValidPosition() const;
+    void setlastValidPosition(const QPoint &lastValidPosition);
+
 public slots:
     void resurrect();
     void removeInvulnerability();
@@ -51,6 +56,7 @@ protected:
 
     bool m_invulnerable;
     int m_invulnerabilityDuration;
+    QPoint m_lastValidPosition;
 };
 
 #endif // UNIT_H

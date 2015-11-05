@@ -24,7 +24,7 @@ public:
     void setDamage(int damage);
 
     // Fonctions statiques
-    static Point displacement(Directions direction, qreal speed, qreal angle);
+    static QPoint displacement(Directions direction, qreal speed, qreal angle);
 
 private:
     int m_ttl;

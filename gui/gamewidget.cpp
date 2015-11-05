@@ -57,6 +57,10 @@ void GameWidget::paintGame(QPainter *painter)
     paintAnimations(painter);
     paintHUD(painter);
     paintUI(painter);
+    if(m_game->isPlayerDefeated() || m_game->isPlayerVictorious())
+    {
+        paintEndGamePanel(painter);
+    }
 }
 
 void GameWidget::paintMap(QPainter *painter)
@@ -185,9 +189,7 @@ void GameWidget::paintAnimations(QPainter *painter)
         else
         {
             QPixmap pixmap = animation->nextFrame();
-            Point pos;
-            pos.x = animation->position().x();
-            pos.y = animation->position().y();
+            QPoint pos(animation->position());
 
             painter->drawPixmap(relativePosition(pos, pixmap.size()), pixmap);
         }
@@ -212,10 +214,10 @@ void GameWidget::paintHUD(QPainter *painter)
         player = level->players().at(i);
         QSize tileSize = level->tileSize();
 
-        Point position = player->position();
-        if(player->isUpstairs()) position.y -= tileSize.height()*3/2;
-        else position.y -= tileSize.height()*5/4;
-        position.x -= tileSize.width()/2;
+        QPoint position = player->position();
+        if(player->isUpstairs()) position.ry() -= tileSize.height()*3/2;
+        else position.ry() -= tileSize.height()*5/4;
+        position.rx() -= tileSize.width()/2;
 
         w = tileSize.width();
         QRect lifeBarRect(relativePosition(position), QSize(w, 5));
@@ -251,7 +253,7 @@ void GameWidget::paintUI(QPainter *painter)
     painter->drawRect(scoreRect);
 
     //QRect scoreRed(width()/4, 0, width()/4, height()/10/2);
-
+    //qreal playerRatio = m_game->level()->playerTileRatio(); // Ratio entre 0 et 1
 
     QRectF rectanglePower(-120.0, height()/9*8, 240.0, 240.0);
     int startAngle = 0 * 16;
@@ -279,19 +281,44 @@ void GameWidget::paintUI(QPainter *painter)
     painter->drawEllipse(rectangleBlack);
 }
 
-QPoint GameWidget::toMap(Point p)
+void GameWidget::paintEndGamePanel(QPainter *painter)
+{
+    QString message;
+    if(m_game->isPlayerDefeated())
+        message = "Défaite";
+    else
+        message = "Victoire !";
+
+
+    int w = width() * 3/5;
+    int h = height() / 10;
+    QRect rect;
+    rect.setX((width() - w)/2);
+    rect.setY((height() - h)/2);
+    rect.setWidth(w);
+    rect.setHeight(h);
+
+    painter->setFont(QFont("Times", 30, QFont::Bold));
+    painter->setBrush(QBrush(QColor(0,0,0,200)));
+    painter->setPen(QPen(QColor(255,255,255)));
+
+    painter->drawRect(rect);
+    painter->drawText(rect, Qt::AlignCenter, message);
+}
+
+QPoint GameWidget::toMap(QPoint p)
 {
     QPoint res;
 
-    res.setX(width()/2 - p.x);
-    res.setY(height()/2 - p.y);
+    res.setX(width()/2 - p.x());
+    res.setY(height()/2 - p.y());
 
     return res;
 }
 
-QPoint GameWidget::relativePosition(Point p, QSize size)
+QPoint GameWidget::relativePosition(QPoint p, QSize size)
 {
-    Point playerPosition = m_game->level()->player()->position();
+    QPoint playerPosition = m_game->level()->player()->position();
     QPoint playerOnScreen(0.5 * width(), 0.5 * height());
     QSize tileSize = m_game->level()->tileSize();
 
@@ -305,8 +332,8 @@ QPoint GameWidget::relativePosition(Point p, QSize size)
         playerOnScreen -= QPoint(0, tileSize.height() * 3/4 - 5);
     }
 
-    QPoint deltaPos((playerPosition.x - p.x) + size.width()/2 + 1,
-                    (playerPosition.y - p.y) + size.height()/2 + 1);
+    QPoint deltaPos((playerPosition.x() - p.x()) + size.width()/2 + 1,
+                    (playerPosition.y() - p.y()) + size.height()/2 + 1);
 
     return playerOnScreen - deltaPos;
 }

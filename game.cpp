@@ -149,6 +149,23 @@ bool Game::isStarted() const
     return m_timer->isActive();
 }
 
+void Game::stopGame()
+{
+    m_timer->stop();
+}
+
+bool Game::isPlayerVictorious() const
+{
+    qreal playerRatio = level()->playerTileRatio();
+    return (playerRatio > 0.8);
+}
+
+bool Game::isPlayerDefeated() const
+{
+    qreal playerRatio = level()->playerTileRatio();
+    return (playerRatio < 0.2);
+}
+
 void Game::loadLevel(const QString &filename)
 {
     QFile file(filename);
@@ -310,8 +327,8 @@ void Game::selectRandomPlayer()
 
 void Game::nextFrame()
 {
-    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x)
-                                      + ',' + QString::number(m_level->player()->position().y)
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
+                                      + ',' + QString::number(m_level->player()->position().y())
                                       + ',' + QString::number(m_level->player()->direction()));
     m_multiplayerUpdater.sendUpdates();
     Level *level = m_level;
@@ -319,6 +336,8 @@ void Game::nextFrame()
     processCommands();
 
     level->nextFrame();
+
+    if((isPlayerDefeated()) || (isPlayerVictorious())) stopGame();
 }
 
 QStringList Game::untreatedCommands()

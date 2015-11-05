@@ -54,6 +54,7 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
 
     Player *player;
     player = m_players.at(0);
+    player->setSpeed(qPow(m_tileSize.width() * m_tileSize.height(), 0.375));
     player->setFaction(0);
     player->setWeapon(m_weapons.at(0));
     m_projectiles->appendCollision(player);
@@ -131,43 +132,64 @@ bool Level::movePlayer(int playerId, GameObject::Directions direction)
     if(player->dead())
         return false;
 
-    Point displacement = GameObject::displacement(direction, player->speed());
-    displacement.x += player->position().x;
-    displacement.y += player->position().y;
+    QPoint displacement = GameObject::displacement(direction, player->speed());
+    displacement += player->position();
 
+    if((displacement.x() < 0)         ||
+       (displacement.y() < 0)         ||
+       (displacement.x() >= width())  ||
+       (displacement.y() >= height())) return false;
+
+    return setPlayerPosition(playerId, displacement.x(), displacement.y(), direction);
+}
+
+void Level::arrowTileMove(int playerNumber)
+{
+    Player *player = m_players.at(playerNumber);
+    if(player->dead() || player->invulnerable()) return;
+
+    bool isMoveValid = true;
     int w = m_tileSize.width(), h = m_tileSize.height();
+    QPoint nextPosition = player->position();
+    uint x = nextPosition.x() / w;
+    uint y = nextPosition.y() / h;
+    Tile::TileType tileType = m_grid->tileAt(x,y);
+    qreal playerSpeed = player->speed()/20 + 2;
 
-    if((displacement.x < 0)         ||
-       (displacement.y < 0)         ||
-       (displacement.x >= width())  ||
-       (displacement.y >= height())) return false;
+    if(tileType == Tile::ArrowTileDown)
+        nextPosition.ry() += (int)playerSpeed;
+    if(tileType == Tile::ArrowTileLeft)
+        nextPosition.rx() -= (int)playerSpeed;
+    if(tileType == Tile::ArrowTileRight)
+        nextPosition.rx() += (int)playerSpeed;
+    if(tileType == Tile::ArrowTileUp)
+        nextPosition.ry() -= (int)playerSpeed;
 
-    uint x = displacement.x / w;
-    uint y = displacement.y / h;
+    if(nextPosition != player->position())
+        isMoveValid = false;
 
-    Point displacementWithArrow = displacement;
-
-    if(m_grid->tileAt(x,y) == Tile::ArrowTileDown)
-        displacementWithArrow.y += 2;
-    if(m_grid->tileAt(x,y) == Tile::ArrowTileLeft)
-        displacementWithArrow.x -= 2;
-    if(m_grid->tileAt(x,y) == Tile::ArrowTileRight)
-        displacementWithArrow.x += 2;
-    if(m_grid->tileAt(x,y) == Tile::ArrowTileUp)
-        displacementWithArrow.y -= 2;
-
-    if(m_grid->tileAt(x, y) != Tile::Void)
+    if(tileType == Tile::Void)
     {
-        displacement = displacementWithArrow;
+        return;
     }
 
-    return setPlayerPosition(playerId, displacement.x, displacement.y, direction);
+    x = nextPosition.x() / w;
+    y = nextPosition.y() / h;
+    if(m_grid->tileAt(x,y) == Tile::Void)
+    {
+        player->takeDamage(99999);
+        isMoveValid = false;
+    }
+
+    player->setPosition(nextPosition, isMoveValid);
 }
 
 bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction)
 {
     Player *player = m_players.at(playerId);
     QList<Player *> otherPlayers;
+    bool isMoveValid = true;
+
     for(int i=0; i<m_players.size(); i++)
     {
         if(i != playerId)
@@ -180,11 +202,13 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
 
     uint tx = x / w;
     uint ty = y / h;
+    Tile::TileType nextTileType = m_grid->tileAt(tx, ty);
 
     // Case de type vide : La mort !
-    if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
+    if(m_grid->tileAt(player->position().x() / w, player->position().y() / h) == Tile::Void)
     {
-        if(m_grid->tileAt(tx, ty) == Tile::Void)
+        isMoveValid = false;
+        if(nextTileType == Tile::Void)
         {
             player->takeDamage(99999);
             return false;
@@ -192,9 +216,23 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
     }
 
     // L'étage
-    player->setUpstairs(m_grid->tileAt(tx, ty) == Tile::UpstairsTile);
+    player->setUpstairs(nextTileType == Tile::UpstairsTile);
 
-    player->setPosition(x, y);
+    // Case non valide pour la résurrection
+    switch(nextTileType)
+    {
+    case Tile::ArrowTileDown:
+    case Tile::ArrowTileLeft:
+    case Tile::ArrowTileRight:
+    case Tile::ArrowTileUp:
+    case Tile::Void:
+        isMoveValid = false;
+        break;
+    default:
+        break;
+    }
+
+    player->setPosition(x, y, isMoveValid);
     player->setDirection(direction);
 
     // Changement de la couleur de la case.
@@ -235,26 +273,35 @@ bool Level::playerFires(int playerId)
     return false;
 }
 
-double Level::playerTileRatio() const
+double Level::playerTileRatio(int player) const
 {
     double res = 0, count = 0;
-    int tmp;
+    QList<Tile::TileType> playersTiles;
+    // Pour plus que 2 joueurs
+//    for(int i=0; i<m_players.size(); i++)
+//    {
+//        playersTiles.append(m_players.at(i)->tileType());
+//    }
+    // Sinon pour 1-2 joueurs
+    playersTiles.append(Tile::Player1Tile);
+    playersTiles.append(Tile::Player2Tile);
+
+    Tile::TileType tmpTile, playerTile = m_players.at(player)->tileType();
 
     for(uint i=0; i<m_grid->width(); i++)
     {
         for(uint j=0; j<m_grid->height(); j++)
         {
-            tmp = m_grid->tileAt(i,j);
-            if(tmp == m_players.at(0)->tileType())
-            {
+            tmpTile = m_grid->tileAt(i,j);
+            if(playersTiles.contains(tmpTile))
                 count ++;
-                res ++;
-            }
-            else if(tmp == m_players.at(1)->tileType())
-                count ++;
+
+            if(tmpTile == playerTile)
+                res++;
         }
     }
 
+    if(count == 0) return 0;
     return res/count;
 }
 
@@ -266,7 +313,7 @@ void Level::nextFrame()
     for(int i=0; i<m_players.size(); i++)
     {
         player = m_players.at(i);
-        //movePlayer(i, player->direction());
+        arrowTileMove(i);
         player->updateLifeAnim();
     }
 }

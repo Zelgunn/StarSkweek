@@ -2,8 +2,7 @@
 
 Player::Player()
 {
-    m_position.x = 0;
-    m_position.y = 0;
+    m_position = QPoint(0,0);
     m_speed.append(4);
     m_tileType = Tile::Player1Tile;
     m_direction = InvalidDirection;
@@ -43,8 +42,7 @@ Player::Player(const QDomElement &element) :
         node = node.nextSibling();
     }
 
-    m_position.x = 0;
-    m_position.y = 0;
+    m_position = QPoint(0,0);
     m_speed.append(4);
     m_direction = InvalidDirection;
 }
@@ -64,6 +62,7 @@ Player *Player::clone() const
     player->setWeapon(m_weapon);
     player->setPortrait(m_portrait);
     player->setThumbnail(m_thumbnail);
+    player->setlastValidPosition(m_lastValidPosition);
 
     // Unit
     player->setLife(m_life);

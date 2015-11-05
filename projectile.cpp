@@ -66,7 +66,7 @@ Projectile::~Projectile()
 
 void Projectile::move()
 {
-    Point delta;
+    QPoint delta;
     if(m_angle.size()>0)
     {
         delta = displacement(m_direction, m_speed.first(), m_angle.first());
@@ -76,8 +76,7 @@ void Projectile::move()
         delta = displacement(m_direction, m_speed.first(), 0);
     }
 
-    m_position.x += delta.x;
-    m_position.y += delta.y;
+    m_position += delta;
     m_ttl --;
     for(int i=1; i<m_speed.size(); i++)
     {
@@ -124,32 +123,31 @@ void Projectile::setDamage(int damage)
     m_damage = damage;
 }
 
-Point Projectile::displacement(GameObject::Directions direction, qreal speed, qreal angle)
+QPoint Projectile::displacement(GameObject::Directions direction, qreal speed, qreal angle)
 {
-    Point res;
+    QPoint res(0,0);
     qreal angleX = qCos(angle);
     qreal angleY = qSin(angle);
 
     switch (direction) {
     case Right:
-        res.x = (int)speed * angleX;
-        res.y = (int)speed * angleY;
+        res.rx() = (int)speed * angleX;
+        res.ry() = (int)speed * angleY;
         break;
     case Up:
-        res.x = - (int)speed * angleY;
-        res.y = - (int)speed * angleX;
+        res.rx() = - (int)speed * angleY;
+        res.ry() = - (int)speed * angleX;
         break;
     case Left:
-        res.x = - (int)speed * angleX;
-        res.y = - (int)speed * angleY;
+        res.rx() = - (int)speed * angleX;
+        res.ry() = - (int)speed * angleY;
         break;
     case Down:
-        res.x = (int)speed * angleY;
-        res.y = (int)speed * angleX;
+        res.rx() = (int)speed * angleY;
+        res.ry() = (int)speed * angleX;
         break;
-    default:
-        res.x = 0;
-        res.y = 0;
+    case InvalidDirection:
+        break;
     }
 
     return res;
