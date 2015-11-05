@@ -8,16 +8,6 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
     {
         playerInfo = playersInfos.at(i);
         m_players.append(prototypes->at(playerInfo->characterSelected())->clone());
-        if(i==0)
-        {
-            qDebug() << prototypes->at(playerInfo->characterSelected());
-            qDebug() << "Joueur local : " << playerInfo->characterSelected();
-        }
-        else
-        {
-            qDebug() << prototypes->at(playerInfo->characterSelected());
-            qDebug() << "Joueur distant : " << playerInfo->characterSelected();
-        }
     }
 
     m_name = element.attribute("name");
@@ -82,7 +72,7 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
 
 void Level::setMyPlayer(int playerNumber)
 {
-    Player *player = m_players.at(playerNumber);
+    Player *player = m_players.at(0);
     switch(playerNumber)
     {
     case 0:

@@ -64,6 +64,7 @@ bool MultiplayerUpdater::isConnected() const
 
 void MultiplayerUpdater::startHost(bool enable)
 {
+    m_isHost = enable;
     if(enable)
     {
         broadcastAddress();
