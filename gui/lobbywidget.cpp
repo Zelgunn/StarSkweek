@@ -1,7 +1,7 @@
 #include "lobbywidget.h"
 
 LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
-    : QWidget(parent), m_leftPortraitIndex(0), m_rightPortraitIndex(0), m_selectedPortrait(0), m_game(game), m_mapChoosen(-1)
+    : QWidget(parent), m_selectedMap(0), m_game(game), m_mapChoosen(-1)
 {
     // Chargement des portraits et miniatures.
     const QList<const Player *> *players = m_game->players();
@@ -22,40 +22,55 @@ LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
 
 void LobbyWidget::onRight()
 {
-    if(m_mapChoosen < 0) return;
-    m_leftPortraitIndex = (m_leftPortraitIndex + 1)%m_portraits.size();
-    m_game->onRight();
+    if(hasChoosenMap())
+    {
+        selectNextChar();
+        m_game->onRight();
+    }
 }
 
 void LobbyWidget::onLeft()
 {
-    if(m_mapChoosen < 0) return;
-    m_leftPortraitIndex--;
-    if(m_leftPortraitIndex < 0)
-        m_leftPortraitIndex = m_portraits.size() - 1;
-    m_game->onLeft();
+    if(hasChoosenMap())
+    {
+        selectPreviousChar();
+        m_game->onLeft();
+    }
 }
 
 void LobbyWidget::onUp()
 {
-    if(m_mapChoosen > 0) return;
-    m_selectedPortrait = (m_selectedPortrait + 1)%m_maps.size();
+    if(hasChoosenMap())
+    {
+        selectPreviousChar();
+        m_game->onLeft();
+    }
+    else
+    {
+        m_selectedMap = (m_selectedMap + 1)%m_maps.size();
+    }
 }
 
 void LobbyWidget::onDown()
 {
-    if(m_mapChoosen > 0) return;
-    m_selectedPortrait--;
-    if(m_selectedPortrait < 0)
-        m_selectedPortrait = m_maps.size() - 1;
+    if(hasChoosenMap())
+    {
+        selectNextChar();
+        m_game->onRight();
+    }
+    else
+    {
+        m_selectedMap--;
+        if(m_selectedMap < 0)
+            m_selectedMap = m_maps.size() - 1;
+    }
 }
 
 void LobbyWidget::onEnter()
 {
     if(m_mapChoosen < 0)
     {
-        m_mapChoosen = m_selectedPortrait;
-        m_selectedPortrait = 0;
+        m_mapChoosen = m_selectedMap;
         m_game->setLevelPath(choosenMapPath());
         m_game->startHost(true);
     }
@@ -67,9 +82,31 @@ void LobbyWidget::onEnter()
 
 void LobbyWidget::onBackspace()
 {
-    if(m_mapChoosen < 0) return;
-    m_selectedPortrait = m_mapChoosen;
-    m_mapChoosen = -1;
+    if(hasChoosenMap())
+    {
+        m_mapChoosen = -1;
+    }
+}
+
+void LobbyWidget::selectNextChar(int player)
+{
+    int index = selectedChar(player);
+    index = (index + 1)%m_portraits.size();
+    m_game->setPlayerChar(index, player);
+}
+
+void LobbyWidget::selectPreviousChar(int player)
+{
+    int index = selectedChar(player);
+    index--;
+    if(index < 0)
+        index = m_portraits.size() - 1;
+    m_game->setPlayerChar(index, player);
+}
+
+int LobbyWidget::selectedChar(int player)
+{
+    return m_game->playerChar(player);
 }
 
 void LobbyWidget::paintEvent(QPaintEvent *)
@@ -120,7 +157,7 @@ void LobbyWidget::paintMapList(QPainter *painter)
     {
         thumbnail = thumbnails.at(i);
         painter->drawPixmap(LOBBY_PADDING, h, thumbnail);
-        if(i==m_selectedPortrait)
+        if(i==m_selectedMap)
         {
             painter->setPen(QPen(QColor(0,0,255)));
         }
@@ -179,9 +216,9 @@ void LobbyWidget::paintMapPreview(QPainter *painter)
     }
 
     QPoint corner = container.topLeft();
-    corner += QPoint((container.width() - previews.at(m_selectedPortrait).width())/2,
-                     (container.height() - previews.at(m_selectedPortrait).height())/2);
-    painter->drawPixmap(corner, previews.at(m_selectedPortrait));
+    corner += QPoint((container.width() - previews.at(m_selectedMap).width())/2,
+                     (container.height() - previews.at(m_selectedMap).height())/2);
+    painter->drawPixmap(corner, previews.at(m_selectedMap));
 
     painter->setPen(QPen(QColor(255,255,255)));
     painter->drawRect(container);
@@ -189,11 +226,7 @@ void LobbyWidget::paintMapPreview(QPainter *painter)
 
 void LobbyWidget::paintPortrait(QPainter *painter, int panel)
 {
-    int portraitIndex;
-    if(panel == 0)
-        portraitIndex = m_leftPortraitIndex;
-    else
-        portraitIndex = m_rightPortraitIndex;
+    int portraitIndex = selectedChar(panel);
 
     QPoint leftTopCorner(LOBBY_PADDING,LOBBY_PADDING);
     if(panel != 0)
@@ -212,6 +245,7 @@ void LobbyWidget::paintPortrait(QPainter *painter, int panel)
 
     leftTopCorner += QPoint((width()/2 - 50 - w)/2, 0);
     QRect panelRect(leftTopCorner, QSize(w, h));
+
     if((portraitIndex >= 0) && (portraitIndex < m_portraits.size()))
     {
         painter->drawPixmap(panelRect, m_portraits.at(portraitIndex));
@@ -228,6 +262,7 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
     QRect panelRect(LOBBY_PADDING, height() * 4/5, width() - 2*LOBBY_PADDING, height()/5 - LOBBY_PADDING);
 
     painter->setPen(QPen(QColor(255,255,255)));
+    painter->setBrush(Qt::NoBrush);
 
     QRect thumbnailRect(0,0,height()/8,height()/8);
     thumbnailRect.moveCenter(panelRect.center());
@@ -243,25 +278,40 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
     for(int i=0; i<m_thumbnails.size(); i++)
     {
         thumbnail = m_thumbnails.at(i);
-        if(i == m_leftPortraitIndex)
+
+        if(i == selectedChar())
         {
-            painter->drawPixmap(centralthumbnailRect, thumbnail);
-            painter->drawRect(centralthumbnailRect);
+            tmpRect = centralthumbnailRect;
+            painter->setPen(QPen(QColor(255,255,255)));
         }
         else
         {
             tmpRect = thumbnailRect;
-            tmpRect.moveCenter(tmpRect.center() + QPoint(height()/6 * (i - m_leftPortraitIndex), 0));
-
-            painter->drawPixmap(tmpRect, thumbnail);
-            if(i==m_rightPortraitIndex)
-            {
-                painter->setBrush(QBrush(QColor(10,0,0,150)));
-                painter->setPen(QPen(QColor(255,0,0)));
-                painter->drawRect(tmpRect);
-                painter->setPen(QPen(QColor(255,255,255)));
-            }
+            tmpRect.moveCenter(tmpRect.center() + QPoint(height()/6 * (i - selectedChar()), 0));
+            painter->setPen(QPen(QColor(100,255,100)));
         }
+
+        painter->drawPixmap(tmpRect, thumbnail);
+
+        if(i==1)//(i==selectedChar(1))&&(m_game->isPlayerReady(i)))
+        {
+            if(m_game->isPlayerReady(i))
+            {
+                painter->setBrush(QBrush(QColor(255,0,0,25)));
+                painter->setPen(QPen(QColor(255,0,0)));
+
+                painter->drawText(tmpRect, "P2");
+            }
+            else
+            {
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(QPen(QColor(0,0,255)));
+            }
+
+        }
+
+        painter->drawRect(tmpRect);
+        painter->setBrush(Qt::NoBrush);
     }
 }
 
@@ -408,13 +458,12 @@ void LobbyWidget::checkGameUntreatedCommands()
         key = (Qt::Key)command.toInt();
         if(key == Qt::Key_Left)
         {
-            m_rightPortraitIndex --;
-            if(m_rightPortraitIndex < 0) m_rightPortraitIndex = m_portraits.size() - 1;
+            selectPreviousChar(1);
         }
 
         if(key == Qt::Key_Right)
         {
-            m_rightPortraitIndex = (m_rightPortraitIndex + 1)%m_portraits.size();
+            selectNextChar(1);
         }
     }
 }
@@ -448,24 +497,4 @@ QString LobbyWidget::choosenMapPath() const
         return m_mapPaths.at(m_mapChoosen);
     else
         return QString();
-}
-
-int LobbyWidget::rightPortraitIndex() const
-{
-    return m_rightPortraitIndex;
-}
-
-void LobbyWidget::setRightPortraitIndex(int rightPortraitIndex)
-{
-    m_rightPortraitIndex = rightPortraitIndex;
-}
-
-int LobbyWidget::leftPortraitIndex() const
-{
-    return m_leftPortraitIndex;
-}
-
-void LobbyWidget::setLeftPortraitIndex(int leftPortraitIndex)
-{
-    m_leftPortraitIndex = leftPortraitIndex;
 }

@@ -146,10 +146,6 @@ void MultiplayerUpdater::connectToPlayer2()
         return;
     }
 
-//    PlayerInfo *playerInfo = new PlayerInfo;
-//    playerInfo->setAddress(m_client->peerAddress());
-//    m_playersInfos.append(playerInfo);
-
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
     emit gameConnected();
@@ -166,7 +162,6 @@ void MultiplayerUpdater::broadcastAddress()
                                             + ',' + m_playersInfos.first()->nickname()
                                             + ',' + m_mapPath).toUtf8();
 
-        qDebug() << QString(addressDatagram);
         m_udpSocket->writeDatagram(addressDatagram.data(), addressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
 
         if(!m_timer->isActive())

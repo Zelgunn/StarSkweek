@@ -31,9 +31,9 @@ public:
     Point position() const;
     void setPosition(const Point &position);
     void setPosition(int x, int y);
-    void setSpeed(double speed);
-    void setSpeed(const QList<double> &speed);
-    double speed() const;
+    void setSpeed(qreal speed);
+    void setSpeed(const QList<qreal> &speed);
+    qreal speed() const;
     Directions direction() const;
     void setDirection(const Directions &direction);
     int faction() const;
@@ -48,7 +48,7 @@ public:
     virtual bool isProjectile() const;
 
     // Fonctions statiques
-    static Point displacement(Directions direction, double speed);
+    static Point displacement(Directions direction, qreal speed);
     static double euclidianDistance(const Point &p1, const Point &p2);
 
     Grid *grid() const;
@@ -58,7 +58,7 @@ protected:
     Point m_position;
     Grid *m_grid;
     QPixmap m_models[4];
-    QList<double> m_speed;
+    QList<qreal> m_speed;
     Directions m_direction;
     int m_faction;
     bool m_upstairs;

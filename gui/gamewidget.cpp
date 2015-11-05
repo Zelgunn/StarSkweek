@@ -108,14 +108,14 @@ void GameWidget::paintPlayer(QPainter *painter)
         player = level->players().at(i);
         if(player->isUpstairs())
         {
-            pImage = player->model()->scaled(tileSize.height() * 7/4, tileSize.height() * 7/4);     // TMP
+            pImage = player->model()->scaledToHeight(tileSize.height() * 7/4, Qt::SmoothTransformation);     // TMP
         }
 
         else
         {
-            pImage = player->model()->scaled(tileSize.height() * 3/2, tileSize.height() * 3/2);     // TMP
+            pImage = player->model()->scaledToHeight(tileSize.height() * 3/2, Qt::SmoothTransformation);     // TMP
         }
-        playerOnScreen -= QPoint(pImage.width() / 2, pImage.height() /2);
+        playerOnScreen -= QPoint(pImage.width() / 2, pImage.height() - 10);
         if(i==0)    // Cas du joueur sur cet ordinateur. (Ce trouve aussi être le cas du jeu solo).
         {
             position = playerOnScreen;
@@ -201,6 +201,8 @@ void GameWidget::paintHUD(QPainter *painter)
     const Level *level = m_game->level();
     int w;
     const Player *player;
+
+    painter->setPen(QPen(QColor(0,0,0)));
     for(int i=0; i<level->players().size(); i++)
     {
         player = level->players().at(i);
@@ -267,7 +269,6 @@ void GameWidget::paintUI(QPainter *painter)
     QRectF rectangleBlack(-50, height()/9*8.5, 100, 100);
     painter->setBrush(QColor(73,212,253,255));
     painter->drawEllipse(rectangleBlack);
-
 }
 
 QPoint GameWidget::toMap(Point p)
@@ -284,6 +285,17 @@ QPoint GameWidget::relativePosition(Point p, QSize size)
 {
     Point playerPosition = m_game->level()->player()->position();
     QPoint playerOnScreen(0.5 * width(), 0.5 * height());
+    QSize tileSize = m_game->level()->tileSize();
+
+    if(m_game->level()->player()->isUpstairs())
+    {
+        playerOnScreen -= QPoint(0, tileSize.height() * 7/8 - 5);
+    }
+
+    else
+    {
+        playerOnScreen -= QPoint(0, tileSize.height() * 3/4 - 5);
+    }
 
     QPoint deltaPos((playerPosition.x - p.x) + size.width()/2 + 1,
                     (playerPosition.y - p.y) + size.height()/2 + 1);

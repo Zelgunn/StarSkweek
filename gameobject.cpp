@@ -35,18 +35,18 @@ void GameObject::setPosition(int x, int y)
     m_position.y = y;
 }
 
-void GameObject::setSpeed(double speed)
+void GameObject::setSpeed(qreal speed)
 {
     if(m_speed.size() < 1) m_speed.append(speed);
     else m_speed.replace(0, speed);
 }
 
-void GameObject::setSpeed(const QList<double> &speed)
+void GameObject::setSpeed(const QList<qreal> &speed)
 {
     m_speed = speed;
 }
 
-double GameObject::speed() const
+qreal GameObject::speed() const
 {
     return m_speed.first();
 }
@@ -101,7 +101,7 @@ bool GameObject::isProjectile() const
     return false;
 }
 
-Point GameObject::displacement(GameObject::Directions direction, double speed)
+Point GameObject::displacement(GameObject::Directions direction, qreal speed)
 {
     Point res;
     switch (direction) {
