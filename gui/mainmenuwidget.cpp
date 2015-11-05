@@ -417,11 +417,6 @@ void MainMenuWidget::selectMenu()
     }
 
     if(m_menu->isExitMenu()) emit onExit();
-
-
-
-//    if(m_menu->name() == "Local")
-    //        emit onLocalSelected;
 }
 
 void MainMenuWidget::aboveMenu()
@@ -439,12 +434,7 @@ void MainMenuWidget::showOptions(const QList<QDomElement> &options)
     if(m_currentWidget)
     {
         m_layout->removeWidget(m_currentWidget);
-        //m_layout->replaceWidget(m_currentWidget, m_optionsWidget);
     }
-//    else
-//    {
-
-//    }
     m_layout->addWidget(m_optionsWidget);
 
     m_optionsWidget->setOptions(options);
@@ -567,4 +557,3 @@ bool MainMenuWidget::openConfigFile()
 
     return true;
 }
-

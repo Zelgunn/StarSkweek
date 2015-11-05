@@ -182,12 +182,15 @@ void GameWidget::paintAnimations(QPainter *painter)
         {
             animationsToDelete.append(animation);
         }
-        QPixmap pixmap = animation->nextFrame();
-        Point pos;
-        pos.x = animation->position().x();
-        pos.y = animation->position().y();
+        else
+        {
+            QPixmap pixmap = animation->nextFrame();
+            Point pos;
+            pos.x = animation->position().x();
+            pos.y = animation->position().y();
 
-        painter->drawPixmap(relativePosition(pos, pixmap.size()), pixmap);
+            painter->drawPixmap(relativePosition(pos, pixmap.size()), pixmap);
+        }
     }
 
     foreach(Animation *animation, animationsToDelete)
