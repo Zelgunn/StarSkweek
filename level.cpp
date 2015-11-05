@@ -143,14 +143,21 @@ bool Level::movePlayer(int playerId, GameObject::Directions direction)
     uint x = displacement.x / w;
     uint y = displacement.y / h;
 
+    Point displacementWithArrow = displacement;
+
     if(m_grid->tileAt(x,y) == Tile::ArrowTileDown)
-        displacement.y += 2;
+        displacementWithArrow.y += 2;
     if(m_grid->tileAt(x,y) == Tile::ArrowTileLeft)
-        displacement.x -= 2;
+        displacementWithArrow.x -= 2;
     if(m_grid->tileAt(x,y) == Tile::ArrowTileRight)
-        displacement.x += 2;
+        displacementWithArrow.x += 2;
     if(m_grid->tileAt(x,y) == Tile::ArrowTileUp)
-        displacement.y -= 2;
+        displacementWithArrow.y -= 2;
+
+    if(m_grid->tileAt(x, y) != Tile::Void)
+    {
+        displacement = displacementWithArrow;
+    }
 
     return setPlayerPosition(playerId, displacement.x, displacement.y, direction);
 }
@@ -173,11 +180,13 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
     uint ty = y / h;
 
     // Case de type vide : La mort !
-    if(m_grid->tileAt(tx, ty) == Tile::Void)
+    if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
     {
-        if(m_grid->tileAt(player->position().x / w, player->position().y / h) == Tile::Void)
+        if(m_grid->tileAt(tx, ty) == Tile::Void)
+        {
+            player->takeDamage(99999);
             return false;
-        player->takeDamage(999);
+        }
     }
 
     // L'étage

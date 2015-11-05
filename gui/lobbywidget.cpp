@@ -262,6 +262,7 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
     QRect panelRect(LOBBY_PADDING, height() * 4/5, width() - 2*LOBBY_PADDING, height()/5 - LOBBY_PADDING);
 
     painter->setPen(QPen(QColor(255,255,255)));
+    painter->setBrush(Qt::NoBrush);
 
     QRect thumbnailRect(0,0,height()/8,height()/8);
     thumbnailRect.moveCenter(panelRect.center());
@@ -277,25 +278,40 @@ void LobbyWidget::paintThumbnails(QPainter *painter)
     for(int i=0; i<m_thumbnails.size(); i++)
     {
         thumbnail = m_thumbnails.at(i);
+
         if(i == selectedChar())
         {
-            painter->drawPixmap(centralthumbnailRect, thumbnail);
-            painter->drawRect(centralthumbnailRect);
+            tmpRect = centralthumbnailRect;
+            painter->setPen(QPen(QColor(255,255,255)));
         }
         else
         {
             tmpRect = thumbnailRect;
             tmpRect.moveCenter(tmpRect.center() + QPoint(height()/6 * (i - selectedChar()), 0));
-
-            painter->drawPixmap(tmpRect, thumbnail);
-            if(i==selectedChar(1))
-            {
-                painter->setBrush(QBrush(QColor(10,0,0,150)));
-                painter->setPen(QPen(QColor(255,0,0)));
-                painter->drawRect(tmpRect);
-                painter->setPen(QPen(QColor(255,255,255)));
-            }
+            painter->setPen(QPen(QColor(100,255,100)));
         }
+
+        painter->drawPixmap(tmpRect, thumbnail);
+
+        if(i==1)//(i==selectedChar(1))&&(m_game->isPlayerReady(i)))
+        {
+            if(m_game->isPlayerReady(i))
+            {
+                painter->setBrush(QBrush(QColor(255,0,0,25)));
+                painter->setPen(QPen(QColor(255,0,0)));
+
+                painter->drawText(tmpRect, "P2");
+            }
+            else
+            {
+                painter->setBrush(Qt::NoBrush);
+                painter->setPen(QPen(QColor(0,0,255)));
+            }
+
+        }
+
+        painter->drawRect(tmpRect);
+        painter->setBrush(Qt::NoBrush);
     }
 }
 

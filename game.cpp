@@ -232,6 +232,8 @@ void Game::setPlayerChar(int characterIndex, int player)
 
 bool Game::isPlayerReady(int player) const
 {
+    PlayerInfo *pInfo = playerInfo(player);
+    if(pInfo == Q_NULLPTR) return false;
     return playerInfo(player)->ready();
 }
 
@@ -239,6 +241,29 @@ void Game::setPlayerReady(bool ready, int player)
 {
     QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
     PlayerInfo *pInfo = playersInfos.at(player);
+
+    // Personnage aléatoire
+    bool characterFree;
+    int randomIndex;
+    while(playerChar(player) == m_playersPrototypes.size())
+    {
+        characterFree = true;
+        randomIndex = qrand()%m_playersPrototypes.size();
+        for(int i=0; i<playersInfos.size(); i++)
+        {
+            if(i != player)
+            {
+                if((isPlayerReady(i)) && (playerChar(i) == randomIndex))
+                {
+                    characterFree = false;
+                }
+            }
+        }
+        if(characterFree)
+        {
+            setPlayerChar(randomIndex, player);
+        }
+    }
 
     // Vérification que le personnage n'est pas déjà pris.
     for(int i=0; i<playersInfos.size(); i++)

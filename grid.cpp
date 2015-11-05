@@ -34,6 +34,8 @@ Grid::Grid(const QDomElement &element)
 
 Tile::TileType Grid::tileAt(uint x, uint y) const
 {
+    if((x >= m_width) || (y >= m_height))
+        return Tile::Void;
     return m_values[x][y];
 }
 
