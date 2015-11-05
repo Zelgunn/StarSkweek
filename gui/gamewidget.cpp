@@ -246,6 +246,9 @@ void GameWidget::paintUI(QPainter *painter)
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(scoreRect);
 
+    //QRect scoreRed(width()/4, 0, width()/4, height()/10/2);
+
+
     QRectF rectanglePower(-120.0, height()/9*8, 240.0, 240.0);
     int startAngle = 0 * 16;
     int spanAngle = 90 * 16;
@@ -255,6 +258,7 @@ void GameWidget::paintUI(QPainter *painter)
     painter->setBrush(Qt::NoBrush);
     painter->drawPie(rectanglePower, startAngle, spanAngle);
 
+    //Affichage des 5 étapes de PowerUp
     for(int i=0; i<5 ; i++)
     {
         startAngle = i*18 * 16;
