@@ -56,6 +56,7 @@ void GameWidget::paintGame(QPainter *painter)
     paintProjectiles(painter);
     paintAnimations(painter);
     paintHUD(painter);
+    paintUI(painter);
 }
 
 void GameWidget::paintMap(QPainter *painter)
@@ -234,6 +235,10 @@ void GameWidget::paintHUD(QPainter *painter)
     }
 }
 
+void GameWidget::paintUI(QPainter *painter)
+{
+
+}
 
 QPoint GameWidget::toMap(Point p)
 {

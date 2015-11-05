@@ -29,6 +29,7 @@ protected:
     void paintProjectiles(QPainter *painter);
     void paintAnimations(QPainter *painter);
     void paintHUD(QPainter *painter);
+    void paintUI(QPainter *painter);
 
     QPoint toMap(Point p);
     QPoint relativePosition(Point p, QSize size = QSize(0,0));

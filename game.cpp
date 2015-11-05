@@ -92,7 +92,10 @@ void Game::playerCommand(int player, QString command)
         playerFires(player);
         break;
     case 'r':
-        setPlayerReady(!isPlayerReady(1), 1);
+        setPlayerReady(!isPlayerReady(player), player);
+        break;
+    case 'n':
+        setPlayerNickname(command.remove(0,1), player);
         break;
     }
 }
@@ -190,10 +193,10 @@ void Game::setLevelPath(const QString &levelPath)
     }
 }
 
-void Game::setPlayerNickname(const QString &nickname)
+void Game::setPlayerNickname(const QString &nickname, int player)
 {
     QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
-    PlayerInfo *playerInfo = playersInfos.first();
+    PlayerInfo *playerInfo = playersInfos.at(player);
     if(nickname != playerInfo->nickname())
         playerInfo->setNickname(nickname);
 }

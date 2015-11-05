@@ -42,7 +42,7 @@ public:
     void setState(const GameStates &state);
     QString levelPath() const;
     void setLevelPath(const QString &levelPath);
-    void setPlayerNickname(const QString &nickname);
+    void setPlayerNickname(const QString &nickname, int player = 0);
     bool isPlayerReady(int player = 0) const;
     void setPlayerReady(bool ready, int player = 0);
 
