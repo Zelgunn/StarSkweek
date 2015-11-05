@@ -45,6 +45,11 @@ Projectile::Projectile(const QDomElement &element)
             m_speed.append(elem.attribute("value").toDouble());
         }
 
+        if(elem.tagName() == "Angle")
+        {
+            m_angle.append(qDegreesToRadians(elem.attribute("value").toDouble()));
+        }
+
         node = node.nextSibling();
     }
 
@@ -61,13 +66,27 @@ Projectile::~Projectile()
 
 void Projectile::move()
 {
-    Point delta = displacement(m_direction, m_speed.first());
+    Point delta;
+    if(m_angle.size()>0)
+    {
+        delta = displacement(m_direction, m_speed.first(), m_angle.first());
+    }
+    else
+    {
+        delta = displacement(m_direction, m_speed.first(), 0);
+    }
+
     m_position.x += delta.x;
     m_position.y += delta.y;
     m_ttl --;
     for(int i=1; i<m_speed.size(); i++)
     {
         m_speed.replace(i-1, m_speed.at(i) + m_speed.at(i - 1));
+    }
+
+    for(int i=1; i<m_angle.size(); i++)
+    {
+        m_angle.replace(i-1, m_angle.at(i) + m_angle.at(i - 1));
     }
 }
 
@@ -103,6 +122,37 @@ int Projectile::damage() const
 void Projectile::setDamage(int damage)
 {
     m_damage = damage;
+}
+
+Point Projectile::displacement(GameObject::Directions direction, qreal speed, qreal angle)
+{
+    Point res;
+    qreal angleX = qCos(angle);
+    qreal angleY = qSin(angle);
+
+    switch (direction) {
+    case Right:
+        res.x = (int)speed * angleX;
+        res.y = (int)speed * angleY;
+        break;
+    case Up:
+        res.x = - (int)speed * angleY;
+        res.y = - (int)speed * angleX;
+        break;
+    case Left:
+        res.x = - (int)speed * angleX;
+        res.y = - (int)speed * angleY;
+        break;
+    case Down:
+        res.x = (int)speed * angleY;
+        res.y = (int)speed * angleX;
+        break;
+    default:
+        res.x = 0;
+        res.y = 0;
+    }
+
+    return res;
 }
 
 

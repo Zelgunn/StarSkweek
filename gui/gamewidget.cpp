@@ -237,7 +237,7 @@ void GameWidget::paintHUD(QPainter *painter)
 
 void GameWidget::paintUI(QPainter *painter)
 {
-
+    Q_UNUSED(painter);
 }
 
 QPoint GameWidget::toMap(Point p)

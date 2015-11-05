@@ -3,10 +3,8 @@
 Level::Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos) :
     m_prototypes(prototypes), m_myPlayer(0)
 {
-    qDebug() << "Meow";
     foreach(PlayerInfo *playerInfo, playersInfos)
     {
-        qDebug() << playerInfo->nickname() << " : " << playerInfo->characterSelected();
         m_players.append(m_prototypes->at(playerInfo->characterSelected())->clone());
     }
 

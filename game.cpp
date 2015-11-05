@@ -193,36 +193,77 @@ void Game::setLevelPath(const QString &levelPath)
     }
 }
 
-void Game::setPlayerNickname(const QString &nickname, int player)
+PlayerInfo *Game::playerInfo(int player) const
 {
     QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
-    PlayerInfo *playerInfo = playersInfos.at(player);
-    if(nickname != playerInfo->nickname())
-        playerInfo->setNickname(nickname);
+    if((player < 0) || (player >= playersInfos.size()))
+        return Q_NULLPTR;
+
+    return playersInfos.at(player);
+}
+
+QString Game::playerNickname(int player) const
+{
+    PlayerInfo *pInfo = playerInfo(player);
+    if(pInfo == Q_NULLPTR) return QString("");
+    return pInfo->nickname();
+}
+
+void Game::setPlayerNickname(const QString &nickname, int player)
+{
+    PlayerInfo *pInfo = playerInfo(player);
+    if(nickname != pInfo->nickname())
+        pInfo->setNickname(nickname);
+}
+
+int Game::playerChar(int player) const
+{
+    PlayerInfo *pInfo = playerInfo(player);
+    if(pInfo == Q_NULLPTR) return -1;
+    return pInfo->characterSelected();
+}
+
+void Game::setPlayerChar(int characterIndex, int player)
+{
+    PlayerInfo *pInfo = playerInfo(player);
+    if(characterIndex != pInfo->characterSelected())
+        pInfo->setCharacterSelected(characterIndex);
 }
 
 bool Game::isPlayerReady(int player) const
 {
-    QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
-    PlayerInfo *playerInfo = playersInfos.at(player);
-    return playerInfo->ready();
+    return playerInfo(player)->ready();
 }
 
 void Game::setPlayerReady(bool ready, int player)
 {
     QList<PlayerInfo *> playersInfos = m_multiplayerUpdater.playersInfos();
-    PlayerInfo *playerInfo = playersInfos.at(player);
-    playerInfo->setReady(ready);
+    PlayerInfo *pInfo = playersInfos.at(player);
 
+    // Vérification que le personnage n'est pas déjà pris.
+    for(int i=0; i<playersInfos.size(); i++)
+    {
+        if(i != player)
+        {
+            if((isPlayerReady(i)) && (playerChar(i) == playerChar(player)))
+            {
+                return;
+            }
+        }
+    }
+    pInfo->setReady(ready);
+
+    // Si le joueur est le joueur courant, on envoie une notification.
     if(player == 0)
     {
         m_multiplayerUpdater.appendUpdate("pr");
         m_multiplayerUpdater.sendUpdates();
     }
 
-    foreach(playerInfo, playersInfos)
+    // Si tous les joueurs sont prêts, on lance le jeu.
+    foreach(pInfo, playersInfos)
     {
-        if(!playerInfo->ready()) return;
+        if(!pInfo->ready()) return;
     }
     startGame();
 }
@@ -341,8 +382,11 @@ void Game::onBackpace()
 
 void Game::onGameConnected()
 {
-    setLevelPath(m_multiplayerUpdater.mapPath());
-
-    setState(LobbyState);
-    //emit gameReady();
+    if(m_state != LobbyState)
+    {
+        setLevelPath(m_multiplayerUpdater.mapPath());
+        m_multiplayerUpdater.appendUpdate("pn" + playerNickname());
+        m_multiplayerUpdater.sendUpdates();
+        setState(LobbyState);
+    }
 }

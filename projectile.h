@@ -23,10 +23,14 @@ public:
     int damage() const;
     void setDamage(int damage);
 
+    // Fonctions statiques
+    static Point displacement(Directions direction, qreal speed, qreal angle);
+
 private:
     int m_ttl;
     int m_type;
     int m_damage;
+    QList<qreal> m_angle;
 };
 
 #endif // PROJECTILE_H

@@ -28,11 +28,9 @@ public:
     void onEnter();
     void onBackspace();
 
-    int leftPortraitIndex() const;
-    void setLeftPortraitIndex(int leftPortraitIndex);
-
-    int rightPortraitIndex() const;
-    void setRightPortraitIndex(int rightPortraitIndex);
+    void selectNextChar(int player = 0);
+    void selectPreviousChar(int player = 0);
+    int selectedChar(int player = 0);
 
     int mapChoosen() const;
     bool hasChoosenMap() const;
@@ -59,9 +57,7 @@ private:
     QList<QPixmap> m_portraits;
     QList<QPixmap> m_thumbnails;
 
-    int m_leftPortraitIndex;
-    int m_rightPortraitIndex;
-    int m_selectedPortrait;
+    int m_selectedMap;
 
     Game *m_game;
 

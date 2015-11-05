@@ -56,7 +56,6 @@ Player::~Player()
 
 Player *Player::clone() const
 {
-    static int i = 0;
     Player *player = new Player;
 
     // Player
@@ -80,10 +79,8 @@ Player *Player::clone() const
     player->setPosition(m_position);
     player->setSpeed(m_speed);
     player->setDirection(m_direction);
-    qDebug() << m_direction;
     player->setFaction(m_faction);
     player->setUpstairs(m_upstairs);
-    qDebug() << "Cloning" << i++;
     player->setModel(m_models[Right], Right);
     player->setModel(m_models[Up], Up);
     player->setModel(m_models[Left], Left);
@@ -158,4 +155,3 @@ bool Player::isPlayer() const
 {
     return true;
 }
-
