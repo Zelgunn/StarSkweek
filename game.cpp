@@ -369,6 +369,11 @@ void Game::connectToIP(const QString &ip)
     m_multiplayerUpdater.connectToIP(ip);
 }
 
+bool Game::isHost() const
+{
+    return m_multiplayerUpdater.isHost();
+}
+
 void Game::onRight()
 {
     if(m_state == PlayingState)

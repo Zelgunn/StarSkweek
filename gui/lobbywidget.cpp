@@ -115,11 +115,18 @@ void LobbyWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    checkGameUntreatedCommands();
-    if(m_mapChoosen < 0)
+    if(!hasChoosenMap())
     {
+//        if(m_game->isHost())
+//        {
+        if(m_maps.isEmpty()) loadMaps();
         paintMapList(&painter);
         paintMapPreview(&painter);
+//        }
+//        else
+//        {
+//        paintServersPreview(&painter);
+//        }
     }
     else
     {
@@ -135,43 +142,50 @@ void LobbyWidget::paintEvent(QPaintEvent *)
 void LobbyWidget::paintMapList(QPainter *painter)
 {
     static QList<QPixmap> thumbnails;
+    QPixmap thumbnail;
     static int storedWidth = width();
+    static int storedHeight = height();
 
-    if(storedWidth != width())
+    if((storedWidth != width()) || (storedHeight != height()))
     {
         storedWidth = width();
+        storedHeight = height();
         thumbnails.clear();
     }
 
+    int thumbnailWidth = qMin(storedHeight * 2/5, storedWidth/6 - LOBBY_PADDING/2);
+    int thumbnailHeight = thumbnailWidth/2;
     if(thumbnails.isEmpty())
     {
         for(int i=0; i<m_maps.size(); i++)
         {
-            thumbnails.append(m_maps.at(i).scaledToWidth((width()/3 - LOBBY_PADDING)/2, Qt::SmoothTransformation));
+            thumbnail = m_maps.at(i).scaledToWidth(thumbnailWidth, Qt::SmoothTransformation);
+            if(thumbnail.height() > thumbnailHeight) thumbnail = thumbnail.scaledToHeight(thumbnailHeight, Qt::SmoothTransformation);
+            thumbnails.append(thumbnail);
         }
     }
 
     QFont font("Times", 16);
     painter->setFont(font);
-    QPixmap thumbnail;
     int h = LOBBY_PADDING + 1;
     for(int i=0; i<thumbnails.size(); i++)
     {
         thumbnail = thumbnails.at(i);
-        painter->drawPixmap(LOBBY_PADDING, h, thumbnail);
+        painter->drawPixmap(LOBBY_PADDING + (thumbnailWidth - thumbnail.width())/2, h + (thumbnailHeight - thumbnail.height())/2, thumbnail);
         if(i==m_selectedMap)
         {
-            painter->setPen(QPen(QColor(0,0,255)));
+            painter->setPen(QPen(QColor(75,125,255)));
         }
         else
         {
             painter->setPen(QPen(QColor(255,255,255)));
         }
-        painter->drawRect(QRect(QPoint(LOBBY_PADDING + 1, h), thumbnail.size()));
-        painter->drawText(QRect(QPoint(LOBBY_PADDING + 2 + thumbnail.width(), h),
-                                thumbnail.size()), Qt::AlignCenter, m_mapNames.at(i));
-        h += thumbnail.height() + 1;
+        painter->drawRect(QRect(QPoint(LOBBY_PADDING + 1, h), QSize(thumbnailWidth, thumbnailHeight)));
+        painter->drawText(QRect(QPoint(LOBBY_PADDING + 1 + thumbnailWidth, h), QSize(thumbnailWidth, thumbnailHeight)),
+                          Qt::AlignCenter, m_mapNames.at(i));
+        h += thumbnailHeight + 1;
     }
+
 
     painter->setPen(QPen(QColor(255,255,255)));
     QRect container(LOBBY_PADDING, LOBBY_PADDING, width()/3 - LOBBY_PADDING, height() - 2*LOBBY_PADDING);
@@ -224,6 +238,48 @@ void LobbyWidget::paintMapPreview(QPainter *painter)
 
     painter->setPen(QPen(QColor(255,255,255)));
     painter->drawRect(container);
+}
+
+void LobbyWidget::paintServersPreview(QPainter *painter)
+{
+    static QList<QPixmap> thumbnails;
+    static int storedWidth = width();
+
+    if(storedWidth != width())
+    {
+        storedWidth = width();
+        thumbnails.clear();
+    }
+
+    if(thumbnails.isEmpty())
+    {
+        for(int i=0; i<m_maps.size(); i++)
+        {
+            thumbnails.append(m_maps.at(i).scaledToWidth((width()/3 - LOBBY_PADDING)/2, Qt::SmoothTransformation));
+        }
+    }
+
+    QFont font("Times", 16);
+    painter->setFont(font);
+    QPixmap thumbnail;
+    int h = LOBBY_PADDING + 1;
+    for(int i=0; i<thumbnails.size(); i++)
+    {
+        thumbnail = thumbnails.at(i);
+        painter->drawPixmap(LOBBY_PADDING, h, thumbnail);
+        if(i==m_selectedMap)
+        {
+            painter->setPen(QPen(QColor(100,100,255)));
+        }
+        else
+        {
+            painter->setPen(QPen(QColor(255,255,255)));
+        }
+        painter->drawRect(QRect(QPoint(LOBBY_PADDING + 1, h), QSize(width() - 2*LOBBY_PADDING,thumbnail.height())));
+        painter->drawText(QRect(QPoint(LOBBY_PADDING + 2 + thumbnail.width(), h),
+                                thumbnail.size()), Qt::AlignCenter, m_mapNames.at(i));
+        h += thumbnail.height() + 1;
+    }
 }
 
 void LobbyWidget::paintPortrait(QPainter *painter, int panel)
@@ -358,55 +414,59 @@ void LobbyWidget::loadMaps()
                 m_mapPaths.append(dirIt.filePath());
     }
 
-    QFile file;
+    foreach (QString level, m_mapPaths)
+    {
+        loadSingleMap(level);
+    }
+}
+
+void LobbyWidget::loadSingleMap(const QString &mapPath)
+{
+    QString dir = QApplication::applicationDirPath();
     QDomDocument dom;
     QDomElement elem, mapElem;
     QDomNode node;
     QSize size;
     QList<QPixmap> textures;
     QString texturesIndexes;
+    QFile file(mapPath);
 
-    foreach (QString level, m_mapPaths)
+    if(!file.open(QIODevice::ReadOnly))
+        return;
+
+    if(!dom.setContent(&file))
+        return;
+    elem = dom.documentElement();
+    m_mapNames.append(elem.attribute("name"));
+    node = elem.firstChild();
+
+    while(!node.isNull())
     {
-        file.setFileName(level);
-        if(!file.open(QIODevice::ReadOnly))
-            continue;
+        elem = node.toElement();
 
-        if(!dom.setContent(&file))
-            continue;
-
-        elem = dom.documentElement();
-        m_mapNames.append(elem.attribute("name"));
-        node = elem.firstChild();
-        while(!node.isNull())
+        if(elem.tagName() == "TileSize")
         {
-            elem = node.toElement();
-
-            if(elem.tagName() == "TileSize")
-            {
-                size.setHeight(elem.attribute("height").toInt());
-                size.setWidth(elem.attribute("width").toInt());
-            }
-
-            if(elem.tagName() == "Grid")
-            {
-                mapElem = elem;
-            }
-
-            if(elem.tagName() == "Tile")
-            {
-                textures.append(QPixmap(dir + elem.attribute("filename")));
-                texturesIndexes.append(elem.attribute("type").at(0));
-            }
-
-            node = node.nextSibling();
+            size.setHeight(elem.attribute("height").toInt());
+            size.setWidth(elem.attribute("width").toInt());
         }
 
-        loadMap(mapElem, size, textures, texturesIndexes);
-        file.close();
-        textures.clear();
-        texturesIndexes.clear();
+        if(elem.tagName() == "Grid")
+        {
+            mapElem = elem;
+        }
+
+        if(elem.tagName() == "Tile")
+        {
+            textures.append(QPixmap(dir + elem.attribute("filename")));
+            texturesIndexes.append(elem.attribute("type").at(0));
+        }
+
+        node = node.nextSibling();
     }
+
+    loadMap(mapElem, size, textures, texturesIndexes);
+
+    file.close();
 }
 
 void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes)
@@ -451,17 +511,6 @@ void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, con
     }
 
     m_maps.append(map);
-}
-
-void LobbyWidget::checkGameUntreatedCommands()
-{
-    QStringList untreatedCommands = m_game->untreatedCommands();
-    QString command;
-    for(int i=0; i<untreatedCommands.size(); i++)
-    {
-        command = untreatedCommands.at(i);
-        qDebug() << "Commande non traitée :" << command;
-    }
 }
 
 void LobbyWidget::setMapChoosen(int mapChoosen)

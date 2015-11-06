@@ -45,13 +45,15 @@ protected:
     void paintMapList(QPainter *painter);
     void paintMapPreview(QPainter *painter);
 
+    void paintServersPreview(QPainter *painter);
+
     void paintPortrait(QPainter *painter, int panel);
     void paintThumbnails(QPainter *painter);
     void paintVersus(QPainter *painter, const QSize &size);
 
     void loadMaps();
+    void loadSingleMap(const QString &mapPath);
     void loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes);
-    void checkGameUntreatedCommands();
 
 private:
     QList<QPixmap> m_portraits;

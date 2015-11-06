@@ -58,6 +58,7 @@ public:
     void startHost(bool enable = true);
     void lookForLocalHost();
     void connectToIP(const QString &ip);
+    bool isHost() const;
 
     void onRight();
     void onUp();
