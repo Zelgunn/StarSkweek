@@ -79,6 +79,26 @@ void GameObject::setUpstairs(bool upstairs)
     m_upstairs = upstairs;
 }
 
+Grid *GameObject::grid() const
+{
+    return m_grid;
+}
+
+void GameObject::setGrid(Grid *grid)
+{
+    m_grid = grid;
+}
+
+QString GameObject::name() const
+{
+    return m_name;
+}
+
+void GameObject::setName(const QString &name)
+{
+    m_name = name;
+}
+
 bool GameObject::isUnit() const
 {
     return false;
@@ -126,13 +146,3 @@ double GameObject::euclidianDistance(const QPoint &p1, const QPoint &p2)
 {
     return qSqrt(qPow((p1.x() - p2.x()) ,2) + qPow(p1.y() - p2.y() ,2));
 }
-Grid *GameObject::grid() const
-{
-    return m_grid;
-}
-
-void GameObject::setGrid(Grid *grid)
-{
-    m_grid = grid;
-}
-

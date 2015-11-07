@@ -36,7 +36,17 @@ void GameWidget::onBackpace()
     m_game->onBackpace();
     if(m_game->state() == Game::PlayingState)
     {
-        m_pendingAnimations.append(new DeathStarBeam(m_game->level()->grid(), m_game->level()->tileSize(), 0));
+        switch (m_game->level()->player()->power()) {
+        case Player::DarthVaderPower:
+            if(m_game->level()->player()->powerAvailable())
+                deathStarPower();
+            break;
+        case Player::ObiWanPower:
+            ghostFormPower();
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -45,6 +55,10 @@ void GameWidget::paintEvent(QPaintEvent *)
     QPainter painter(this);
 
     paintGame(&painter);
+    Player *player = m_game->level()->player();
+
+    // TMP
+    player->increasePowerRessource(qrand()%50);
 
     painter.end();
 }
@@ -53,22 +67,25 @@ void GameWidget::paintGame(QPainter *painter)
 {
     paintMap(painter);
     paintPlayer(painter);
-    paintProjectiles(painter);
-    paintAnimations(painter);
-    paintHUD(painter);
-    paintUI(painter);
     if(m_game->isPlayerDefeated() || m_game->isPlayerVictorious())
     {
         paintEndGamePanel(painter);
+    }
+    else
+    {
+        paintProjectiles(painter);
+        paintAnimations(painter);
+        paintHUD(painter);
+        paintUI(painter);
     }
 }
 
 void GameWidget::paintMap(QPainter *painter)
 {
     const Tile *tile;
-    const Level *level = m_game->level();
-    const Grid *grid = level->grid();
-    const Tile *tiles = level->tiles();
+    Level *level = m_game->level();
+    Grid *grid = level->grid();
+    Tile *tiles = level->tiles();
     QSize tileSize = level->tileSize();
 
     uint w = level->grid()->width();
@@ -131,6 +148,7 @@ void GameWidget::paintPlayer(QPainter *painter)
         }
         if(player->isUpstairs())
             position -= QPoint(0, tileSize.height()/4);
+
         painter->drawPixmap(position, pImage);
     }
 }
@@ -191,7 +209,7 @@ void GameWidget::paintAnimations(QPainter *painter)
             QPixmap pixmap = animation->nextFrame();
             QPoint pos(animation->position());
 
-            painter->drawPixmap(relativePosition(pos, pixmap.size()), pixmap);
+            painter->drawPixmap(relativePosition(pos, pixmap.size(), false), pixmap);
         }
     }
 
@@ -206,7 +224,7 @@ void GameWidget::paintHUD(QPainter *painter)
 {
     const Level *level = m_game->level();
     int w;
-    const Player *player;
+    Player *player;
 
     painter->setPen(QPen(QColor(0,0,0)));
     for(int i=0; i<level->players().size(); i++)
@@ -221,9 +239,23 @@ void GameWidget::paintHUD(QPainter *painter)
 
         w = tileSize.width();
         QRect lifeBarRect(relativePosition(position), QSize(w, 5));
+        // Mode Fantôme
+        if(player->ghostForm())
+        {
+            QRect ghostFormBar(0,0, lifeBarRect.width() + 11, lifeBarRect.height() + 11);
+            ghostFormBar.moveCenter(lifeBarRect.center());
+
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(QColor(50,50,150,255 * qMin(player->ghostFormTimeLeft(),1000)/1000));
+            painter->drawRect(ghostFormBar);
+            painter->setPen(QPen(QColor(0,0,0)));
+        }
+
+        // Vie (Totale)
         painter->setBrush(QColor(255,0,0));
         painter->drawRect(lifeBarRect);
 
+        // Vie (Animée)
         lifeBarRect.setWidth(w * player->lifeAnim()/player->maxLife());
         if(player->invulnerable())
             painter->setBrush(QColor(0,200,255));
@@ -231,6 +263,7 @@ void GameWidget::paintHUD(QPainter *painter)
             painter->setBrush(QColor(200,255,0));
         painter->drawRect(lifeBarRect);
 
+        // Vie (Actuelle)
         if(player->life() <= player->lifeAnim())
         {
             lifeBarRect.setWidth(w * player->life()/player->maxLife());
@@ -265,6 +298,7 @@ void GameWidget::paintUI(QPainter *painter)
     painter->drawPie(rectanglePower, startAngle, spanAngle);
 
     //Affichage des 5 étapes de PowerUp
+    qreal powerRatio = m_game->level()->player()->powerRessourceRatio() * 5;
     for(int i=0; i<5 ; i++)
     {
         startAngle = i*18 * 16;
@@ -272,12 +306,28 @@ void GameWidget::paintUI(QPainter *painter)
         QPen pen3(QColor(73,212,253));
         pen3.setWidth(3);
         painter->setPen(pen3);
-        painter->setBrush(QColor(51,148,193));
+
+        // Chargement de la barre en fonction du Power
+        if((i+1) < powerRatio)
+        {
+            painter->setBrush(QColor(51,148,193));
+        }
+        else if(i  < powerRatio)
+        {
+            painter->setBrush(QColor(73 - 22*((qreal)powerRatio - i),
+                                     212 - 64*((qreal)powerRatio - i),
+                                     253 - 60*((qreal)powerRatio - i)));
+        }
+        else
+        {
+            painter->setBrush(QColor(73,212,253));
+        }
+
         painter->drawPie(rectanglePower,startAngle,spanAngle);
     }
 
     QRectF rectangleBlack(-50, height()/9*8.5, 100, 100);
-    painter->setBrush(QColor(73,212,253,255));
+    painter->setBrush(QColor(51,148,193));
     painter->drawEllipse(rectangleBlack);
 }
 
@@ -316,20 +366,23 @@ QPoint GameWidget::toMap(QPoint p)
     return res;
 }
 
-QPoint GameWidget::relativePosition(QPoint p, QSize size)
+QPoint GameWidget::relativePosition(QPoint p, QSize size, bool usePlayerSize)
 {
     QPoint playerPosition = m_game->level()->player()->position();
     QPoint playerOnScreen(0.5 * width(), 0.5 * height());
     QSize tileSize = m_game->level()->tileSize();
 
-    if(m_game->level()->player()->isUpstairs())
+    if(usePlayerSize)
     {
-        playerOnScreen -= QPoint(0, tileSize.height() * 7/8 - 5);
-    }
+        if(m_game->level()->player()->isUpstairs())
+        {
+            playerOnScreen -= QPoint(0, tileSize.height() * 7/8 - 5);
+        }
 
-    else
-    {
-        playerOnScreen -= QPoint(0, tileSize.height() * 3/4 - 5);
+        else
+        {
+            playerOnScreen -= QPoint(0, tileSize.height() * 3/4 - 5);
+        }
     }
 
     QPoint deltaPos((playerPosition.x() - p.x()) + size.width()/2 + 1,
@@ -341,5 +394,27 @@ QPoint GameWidget::relativePosition(QPoint p, QSize size)
 void GameWidget::movePlayer(GameObject::Directions direction)
 {
     m_game->movePlayer(direction);
+}
+
+void GameWidget::deathStarPower(int player)
+{
+    Level *level = m_game->level();
+    m_pendingAnimations.append(new DeathStarBeam(level->grid(),
+                                                 level->tileSize(),
+                                                 level->player(player)->tileType()));
+
+    Player *tmp = level->player(player);
+    tmp->setPowerRessource(0);
+}
+
+void GameWidget::ghostFormPower(int player)
+{
+    Player *tmp = m_game->level()->player(player);
+
+    if(tmp->powerRessourceRatio() > (1.0/5.0))
+    {
+        tmp->setGhostForm(true);
+        tmp->increasePowerRessource(- Player::MaxPowerRessource/5.0);
+    }
 }
 

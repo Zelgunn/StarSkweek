@@ -18,6 +18,7 @@ LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
     m_thumbnails.append(QPixmap(dir + "/images/TN_random.png"));
 
     loadMaps();
+    QObject::connect(m_game, SIGNAL(newHostFound()), this, SLOT(loadNewHost()));
 }
 
 void LobbyWidget::onRight()
@@ -47,7 +48,11 @@ void LobbyWidget::onUp()
     }
     else
     {
-        m_selectedMap = (m_selectedMap + 1)%m_maps.size();
+        int count = mapCount();
+        if(count > 0)
+        {
+            m_selectedMap = (m_selectedMap + 1)%count;
+        }
     }
 }
 
@@ -60,9 +65,13 @@ void LobbyWidget::onDown()
     }
     else
     {
-        m_selectedMap--;
-        if(m_selectedMap < 0)
-            m_selectedMap = m_maps.size() - 1;
+        int count = mapCount();
+        if(count > 0)
+        {
+            m_selectedMap--;
+            if(m_selectedMap < 0)
+                m_selectedMap = count - 1;
+        }
     }
 }
 
@@ -70,9 +79,12 @@ void LobbyWidget::onEnter()
 {
     if(m_mapChoosen < 0)
     {
-        m_mapChoosen = m_selectedMap;
-        m_game->setLevelPath(choosenMapPath());
-        m_game->startHost(true);
+        if(mapCount() > 0)
+        {
+            m_mapChoosen = m_selectedMap;
+            m_game->setLevelPath(choosenMapPath());
+            m_game->startHost(m_game->hosting());
+        }
     }
     else
     {
@@ -84,6 +96,7 @@ void LobbyWidget::onBackspace()
 {
     if(hasChoosenMap())
     {
+        m_game->startHost(false);
         m_mapChoosen = -1;
     }
 }
@@ -111,22 +124,61 @@ int LobbyWidget::selectedChar(int player)
     return m_game->playerChar(player);
 }
 
+
+void LobbyWidget::loadMaps()
+{
+    // Chargement des aperçus des niveaux.
+    QString dir = QApplication::applicationDirPath();
+    QDirIterator dirIt(dir + "/xml/levels",QDirIterator::Subdirectories);
+    while (dirIt.hasNext())
+    {
+        dirIt.next();
+        if (QFileInfo(dirIt.filePath()).isFile())
+            if (QFileInfo(dirIt.filePath()).suffix() == "xml")
+                m_mapPaths.append(dirIt.filePath());
+    }
+
+    foreach (QString level, m_mapPaths)
+    {
+        m_maps.append(loadSingleMap(level));
+    }
+}
+
+int LobbyWidget::mapCount() const
+{
+    if(m_game->hosting())
+        return m_maps.size();
+    else
+        return m_localMaps.size();
+}
+
+void LobbyWidget::loadNewHost()
+{
+    QString hostMapPath = m_game->levelPath();
+
+    // Pour le moment, un seul hôte disponible :/
+    m_localMapNames.clear();
+    m_localMapNames.append(hostMapPath);
+
+    m_localMaps.clear();
+    m_localMaps.append(loadSingleMap(hostMapPath));
+}
+
 void LobbyWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
     if(!hasChoosenMap())
     {
-//        if(m_game->isHost())
-//        {
-        if(m_maps.isEmpty()) loadMaps();
-        paintMapList(&painter);
-        paintMapPreview(&painter);
-//        }
-//        else
-//        {
-//        paintServersPreview(&painter);
-//        }
+        if(m_game->hosting())
+        {
+            paintMapList(&painter);
+            paintMapPreview(&painter);
+        }
+        else
+        {
+            paintServersPreview(&painter);
+        }
     }
     else
     {
@@ -253,9 +305,9 @@ void LobbyWidget::paintServersPreview(QPainter *painter)
 
     if(thumbnails.isEmpty())
     {
-        for(int i=0; i<m_maps.size(); i++)
+        for(int i=0; i<m_localMaps.size(); i++)
         {
-            thumbnails.append(m_maps.at(i).scaledToWidth((width()/3 - LOBBY_PADDING)/2, Qt::SmoothTransformation));
+            thumbnails.append(m_localMaps.at(i).scaledToWidth((width()/3 - LOBBY_PADDING)/2, Qt::SmoothTransformation));
         }
     }
 
@@ -401,26 +453,7 @@ void LobbyWidget::paintVersus(QPainter *painter, const QSize &size)
     painter->drawPixmap(rect.center() - QPoint(versus.width()/2, versus.height()/2), versus);
 }
 
-void LobbyWidget::loadMaps()
-{
-    // Chargement des aperçus des niveaux.
-    QString dir = QApplication::applicationDirPath();
-    QDirIterator dirIt(dir + "/xml/levels",QDirIterator::Subdirectories);
-    while (dirIt.hasNext())
-    {
-        dirIt.next();
-        if (QFileInfo(dirIt.filePath()).isFile())
-            if (QFileInfo(dirIt.filePath()).suffix() == "xml")
-                m_mapPaths.append(dirIt.filePath());
-    }
-
-    foreach (QString level, m_mapPaths)
-    {
-        loadSingleMap(level);
-    }
-}
-
-void LobbyWidget::loadSingleMap(const QString &mapPath)
+QPixmap LobbyWidget::loadSingleMap(const QString &mapPath)
 {
     QString dir = QApplication::applicationDirPath();
     QDomDocument dom;
@@ -432,10 +465,10 @@ void LobbyWidget::loadSingleMap(const QString &mapPath)
     QFile file(mapPath);
 
     if(!file.open(QIODevice::ReadOnly))
-        return;
+        return QPixmap();
 
     if(!dom.setContent(&file))
-        return;
+        return QPixmap();
     elem = dom.documentElement();
     m_mapNames.append(elem.attribute("name"));
     node = elem.firstChild();
@@ -464,12 +497,11 @@ void LobbyWidget::loadSingleMap(const QString &mapPath)
         node = node.nextSibling();
     }
 
-    loadMap(mapElem, size, textures, texturesIndexes);
-
     file.close();
+    return loadMap(mapElem, size, textures, texturesIndexes);
 }
 
-void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes)
+QPixmap LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes)
 {
     QDomElement elem;
     QDomNode node = element.firstChild();
@@ -510,7 +542,7 @@ void LobbyWidget::loadMap(const QDomElement &element, const QSize &tileSize, con
         }
     }
 
-    m_maps.append(map);
+    return map;
 }
 
 void LobbyWidget::setMapChoosen(int mapChoosen)

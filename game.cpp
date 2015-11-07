@@ -1,7 +1,7 @@
 #include "game.h"
 
 Game::Game() :
-    m_state(MenuState), m_timer(Q_NULLPTR)
+    m_state(MenuState), m_timer(Q_NULLPTR), m_hosting(false)
 {
     QFile file(":/xml/xml/data.xml");
     file.open(QIODevice::ReadOnly);
@@ -35,11 +35,11 @@ Game::Game() :
     }
 
     m_timer = new QTimer(this);
-    QObject::connect(&m_multiplayerUpdater, SIGNAL(gameConnected()), this, SLOT(onGameConnected()));
+    QObject::connect(&m_multiplayerUpdater, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(nextFrame()));
 }
 
-const Level *Game::level() const
+Level *Game::level() const
 {
     return m_level;
 }
@@ -131,7 +131,7 @@ void Game::startGame()
     setLevelPath(m_multiplayerUpdater.mapPath());
     loadLevel(m_levelPath);
 
-    if(m_multiplayerUpdater.isHost() || (m_multiplayerUpdater.playersInfos().size() == 1))
+    if(m_hosting || (m_multiplayerUpdater.playersInfos().size() == 1))
     {
         m_level->setMyPlayer(0);
     }
@@ -325,6 +325,32 @@ void Game::selectRandomPlayer()
     }
 }
 
+QStringList Game::untreatedCommands()
+{
+    if(m_untreatedCommands.isEmpty())
+    {
+        processCommands();
+    }
+    return m_untreatedCommands;
+}
+
+void Game::removeUntreadtedCommand(int index)
+{
+    m_untreatedCommands.removeAt(index);
+}
+
+void Game::onNewConnection()
+{
+    if(m_state == LobbyState)
+    {
+        setLevelPath(m_multiplayerUpdater.mapPath());
+        m_multiplayerUpdater.appendUpdate("pn" + playerNickname());
+        m_multiplayerUpdater.sendUpdates();
+
+        emit newHostFound();
+    }
+}
+
 void Game::nextFrame()
 {
     m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
@@ -340,20 +366,6 @@ void Game::nextFrame()
     if((isPlayerDefeated()) || (isPlayerVictorious())) stopGame();
 }
 
-QStringList Game::untreatedCommands()
-{
-    if(m_untreatedCommands.isEmpty())
-    {
-        processCommands();
-    }
-    return m_untreatedCommands;
-}
-
-void Game::removeUntreadtedCommand(int index)
-{
-    m_untreatedCommands.removeAt(index);
-}
-
 void Game::startHost(bool enable)
 {
     m_multiplayerUpdater.startHost(enable);
@@ -361,6 +373,8 @@ void Game::startHost(bool enable)
 
 void Game::lookForLocalHost()
 {
+    m_hosting = false;
+    setState(LobbyState);
     m_multiplayerUpdater.lookForLocalHost();
 }
 
@@ -369,9 +383,14 @@ void Game::connectToIP(const QString &ip)
     m_multiplayerUpdater.connectToIP(ip);
 }
 
-bool Game::isHost() const
+bool Game::hosting() const
 {
-    return m_multiplayerUpdater.isHost();
+    return m_hosting;
+}
+
+void Game::setHosting(bool hosting)
+{
+    m_hosting = hosting;
 }
 
 void Game::onRight()
@@ -408,29 +427,20 @@ void Game::onDown()
 
 void Game::onEnter()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Enter));
-    if(m_state == PlayingState)
-    {
-        playerFires();
-    }
-    else
-    {
+    switch (m_state) {
+    case LobbyState:
+
         m_multiplayerUpdater.sendUpdates();
+        break;
+    case PlayingState:
+        playerFires();
+        break;
+    default:
+        break;
     }
 }
 
 void Game::onBackpace()
 {
-    m_multiplayerUpdater.appendUpdate(QString::number(Qt::Key_Backspace));
-}
 
-void Game::onGameConnected()
-{
-    if(m_state != LobbyState)
-    {
-        setLevelPath(m_multiplayerUpdater.mapPath());
-        m_multiplayerUpdater.appendUpdate("pn" + playerNickname());
-        m_multiplayerUpdater.sendUpdates();
-        setState(LobbyState);
-    }
 }

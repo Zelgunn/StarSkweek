@@ -282,7 +282,6 @@ void MainWindow::onEnter()
 
 void MainWindow::onBackpace()
 {
-    bool check1;
     switch(m_game.state())
     {
     case Game::MenuState:
@@ -290,18 +289,12 @@ void MainWindow::onBackpace()
         break;
     case Game::LobbyState:
 
-        check1 = m_lobbyWidget->hasChoosenMap();
-        if(!check1)
+        if(!m_lobbyWidget->hasChoosenMap())
         {
             m_game.setState(Game::MenuState);
             m_menuWidget->onBackspace();
         }
-        else
-        {
-            m_lobbyWidget->onBackspace();
-            if(check1 && !m_lobbyWidget->hasChoosenMap())
-                m_game.startHost(false);
-        }
+        m_lobbyWidget->onBackspace();
 
         break;
     case Game::PlayingState:
@@ -328,12 +321,12 @@ void MainWindow::onSpinOptionChanged(const QString &name, int value)
 
 void MainWindow::onHostGame()
 {
+    m_game.setHosting(true);
     m_game.setState(Game::LobbyState);
 }
 
 void MainWindow::onLocalGame()
 {
-    m_lobbyWidget->setMapChoosen(0);
     m_game.lookForLocalHost();
 }
 

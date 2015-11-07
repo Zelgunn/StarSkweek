@@ -24,7 +24,7 @@ public:
 
     Game();
 
-    const Level *level() const;
+    Level *level() const;
     const QList<const Player *> *players() const;
     void movePlayer(GameObject::Directions direction);
     void processCommands();
@@ -58,7 +58,8 @@ public:
     void startHost(bool enable = true);
     void lookForLocalHost();
     void connectToIP(const QString &ip);
-    bool isHost() const;
+    bool hosting() const;
+    void setHosting(bool hosting);
 
     void onRight();
     void onUp();
@@ -71,12 +72,13 @@ public:
     void removeUntreadtedCommand(int index);
 
 public slots:
-    void onGameConnected();
+    void onNewConnection();
     void nextFrame();
 
 signals:
     void stateChanged(Game::GameStates state);
     void gameReady();
+    void newHostFound();
 
 private:
     GameStates m_state;
@@ -90,6 +92,7 @@ private:
     QDomElement m_projectilesElement;
     QDomElement m_weaponsElement;
     QStringList m_untreatedCommands;
+    bool m_hosting;
 };
 
 #endif // GAME_H

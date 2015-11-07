@@ -2,11 +2,13 @@
 <root>
         <Character name="Obi Wan Kenobi">
                 <Tile type="b"/>
+                <Power type="a"/>
                 <Model right="/images/Obiwan_Right.png" up="/images/Obiwan_Up.png" left="/images/Obiwan_Left.png" down="/images/Obiwan_Down.png"/>
                 <Portrait complete="/images/Portrait_Obiwan.png" thumbnail="/images/TN_Obiwan.png"/>
         </Character>
 	<Character name="Dark Vador">
                 <Tile type="c"/>
+                <Power type="b"/>
 		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player1.png"/>
                 <Portrait complete="/images/Portrait_Darkvador.png" thumbnail="/images/TN_Darkvador.png"/>
 	</Character>

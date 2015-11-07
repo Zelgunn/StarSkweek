@@ -25,7 +25,6 @@ public:
     void appendUpdate(const QString &update);
     void sendUpdates();
     QStringList receivedUpdates();
-    bool isHost() const;
     bool isConnected() const;
 
     void startHost(bool enable = true);
@@ -49,7 +48,7 @@ protected slots:
     void disconnected();
 
 signals:
-    void gameConnected();
+    void newConnection();
 
 private:
     QStringList m_updates;
@@ -60,7 +59,6 @@ private:
     QList<PlayerInfo *> m_playersInfos;
     QString m_mapPath;
     QTimer *m_timer;
-    bool m_isHost;
 };
 
 #endif // MULTIPLAYERUPDATER_H

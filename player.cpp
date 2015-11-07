@@ -10,8 +10,9 @@ Player::Player()
 }
 
 Player::Player(const QDomElement &element) :
-    m_previousDirection(Down)
+    m_previousDirection(Down), m_powerRessource(MaxPowerRessource/2), m_ghostForm(false)
 {
+    m_name = element.attribute("name");
     QDomNode node = element.firstChild();
     QDomElement elem;
     QString dir = QApplication::applicationDirPath();
@@ -39,6 +40,11 @@ Player::Player(const QDomElement &element) :
             m_thumbnail = QPixmap(dir + elem.attribute("thumbnail")).scaled(256,256);
         }
 
+        if(elem.tagName() == "Power")
+        {
+            m_power = (Powers)(elem.attribute("type").at(0).toLatin1() - 'a');
+        }
+
         node = node.nextSibling();
     }
 
@@ -63,6 +69,8 @@ Player *Player::clone() const
     player->setPortrait(m_portrait);
     player->setThumbnail(m_thumbnail);
     player->setlastValidPosition(m_lastValidPosition);
+    player->setPower(m_power);
+    player->setPowerRessource(m_powerRessource);
 
     // Unit
     player->setLife(m_life);
@@ -84,6 +92,7 @@ Player *Player::clone() const
     player->setModel(m_models[Up], Up);
     player->setModel(m_models[Left], Left);
     player->setModel(m_models[Down], Down);
+    player->setName(m_name);
 
     return player;
 }
@@ -144,13 +153,83 @@ void Player::setDirection(const GameObject::Directions &direction)
     m_direction = direction;
 }
 
+Player::Powers Player::power() const
+{
+    return m_power;
+}
+
+void Player::setPower(const Player::Powers &power)
+{
+    m_power = power;
+}
+
+int Player::powerRessource() const
+{
+    return m_powerRessource;
+}
+
+void Player::setPowerRessource(int powerRessource)
+{
+    m_powerRessource = powerRessource;
+}
+
+void Player::increasePowerRessource(int increase)
+{
+    m_powerRessource += increase;
+    if(m_powerRessource > MaxPowerRessource) m_powerRessource = MaxPowerRessource;
+}
+
+bool Player::powerAvailable() const
+{
+    return (m_powerRessource == MaxPowerRessource);
+}
+
+qreal Player::powerRessourceRatio() const
+{
+    return (qreal)m_powerRessource/(qreal)MaxPowerRessource;
+}
+
+bool Player::ghostForm()
+{
+    if(ghostFormTimeLeft() <= 0)
+        m_ghostForm = false;
+    return m_ghostForm;
+}
+
+void Player::setGhostForm(bool ghostForm)
+{
+    m_ghostForm = ghostForm;
+    if(ghostForm)
+    {
+        m_ghostFormTimer = QTime::currentTime();
+    }
+}
+
+int Player::ghostFormTimeLeft() const
+{
+    return (2000 - m_ghostFormTimer.msecsTo(QTime::currentTime()));
+}
+
 int Player::fire()
 {
     if(m_dead) return -1;
     return m_weapon.fire();
 }
 
+void Player::takeDamage(int damage)
+{
+    if(ghostForm())
+        Unit::takeDamage(damage/2);
+    else
+        Unit::takeDamage(damage);
+}
+
 bool Player::isPlayer() const
 {
     return true;
+}
+
+int Player::maxPowerRessource()
+{
+    return (int)MaxPowerRessource;
 }

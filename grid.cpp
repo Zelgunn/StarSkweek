@@ -39,12 +39,20 @@ Tile::TileType Grid::tileAt(uint x, uint y) const
     return m_values[x][y];
 }
 
+Tile::TileType Grid::tileAt(const QPoint &tile) const
+{
+    return tileAt(tile.x(), tile.y());
+}
+
 void Grid::setTileAt(uint x, uint y, Tile::TileType value)
 {
-    Q_ASSERT(x < m_width);
-    Q_ASSERT(y < m_height);
-
+    if((x >= m_width)||(y >= m_height)) return;
     m_values[x][y] = value;
+}
+
+void Grid::setTileAt(const QPoint &tile, Tile::TileType value)
+{
+    setTileAt(tile.x(), tile.y(), value);
 }
 
 uint Grid::width() const

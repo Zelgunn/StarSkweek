@@ -18,8 +18,8 @@ public:
     Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos);
 
     void setMyPlayer(int playerNumber);
-    const Grid *grid() const;
-    const Player *player(int index = 0) const;
+    Grid *grid();
+    Player *player(int index = 0) const;
     QList<Player *> players() const;
     const ProjectileList *projectiles() const;
     QSize tileSize() const;

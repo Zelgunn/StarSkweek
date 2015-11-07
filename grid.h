@@ -13,7 +13,9 @@ public:
     Grid(const QDomElement &element);
 
     Tile::TileType tileAt(uint x, uint y) const;
+    Tile::TileType tileAt(const QPoint &tile) const;
     void setTileAt(uint x, uint y, Tile::TileType value);
+    void setTileAt(const QPoint &tile, Tile::TileType value);
     uint width() const;
     uint height() const;
 

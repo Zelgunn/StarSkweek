@@ -1,7 +1,7 @@
 #include "multiplayerupdater.h"
 
 MultiplayerUpdater::MultiplayerUpdater() :
-    m_client(Q_NULLPTR), m_isHost(false)
+    m_client(Q_NULLPTR)
 {
     m_udpSocket = new QUdpSocket(this);
     m_udpSocket->bind(PORT_COM);
@@ -52,11 +52,6 @@ QStringList MultiplayerUpdater::receivedUpdates()
     return res;
 }
 
-bool MultiplayerUpdater::isHost() const
-{
-    return m_isHost;
-}
-
 bool MultiplayerUpdater::isConnected() const
 {
     return ((m_client != Q_NULLPTR) && (m_client->isOpen()));
@@ -64,7 +59,6 @@ bool MultiplayerUpdater::isConnected() const
 
 void MultiplayerUpdater::startHost(bool enable)
 {
-    m_isHost = enable;
     if(enable)
     {
         broadcastAddress();
@@ -126,8 +120,6 @@ void MultiplayerUpdater::incomingConnection(int socketfd)
 
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
-
-    emit gameConnected();
 }
 
 void MultiplayerUpdater::connectToPlayer2()
@@ -149,7 +141,7 @@ void MultiplayerUpdater::connectToPlayer2()
 
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    emit gameConnected();
+    emit newConnection();
 }
 
 void MultiplayerUpdater::broadcastAddress()
@@ -164,6 +156,8 @@ void MultiplayerUpdater::broadcastAddress()
                                             + ',' + m_mapPath).toUtf8();
 
         m_udpSocket->writeDatagram(addressDatagram.data(), addressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
+
+        qDebug() << QString(addressDatagram);
 
         if(!m_timer->isActive())
             m_timer->start(1000);

@@ -19,6 +19,7 @@ public:
                   ArrowTileLeft,
                   ArrowTileDown,
                   UpstairsTile,
+                  BombTile,
                   TypeCount
                  };
 

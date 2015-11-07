@@ -38,6 +38,11 @@ public:
     QString choosenMapPath() const;
 
     void setMapChoosen(int mapChoosen);
+    void loadMaps();
+    int mapCount() const;
+
+protected slots:
+    void loadNewHost();
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -51,9 +56,8 @@ protected:
     void paintThumbnails(QPainter *painter);
     void paintVersus(QPainter *painter, const QSize &size);
 
-    void loadMaps();
-    void loadSingleMap(const QString &mapPath);
-    void loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes);
+    QPixmap loadSingleMap(const QString &mapPath);
+    QPixmap loadMap(const QDomElement &element, const QSize &tileSize, const QList<QPixmap> &textures, const QString &texturesIndexes);
 
 private:
     QList<QPixmap> m_portraits;
@@ -66,6 +70,10 @@ private:
     int m_mapChoosen;
     QList<QPixmap> m_maps;
     QStringList m_mapNames;
+
+    QList<QPixmap> m_localMaps;
+    QStringList m_localMapNames;
+
     QStringList m_mapPaths;
 };
 

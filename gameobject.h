@@ -36,6 +36,10 @@ public:
     void setFaction(int faction);
     bool isUpstairs() const;
     void setUpstairs(bool upstairs);
+    Grid *grid() const;
+    void setGrid(Grid *grid);
+    QString name() const;
+    void setName(const QString &name);
 
     // Fonction virtuelles de typage
     virtual bool isUnit() const;
@@ -47,9 +51,6 @@ public:
     static QPoint displacement(Directions direction, qreal speed);
     static double euclidianDistance(const QPoint &p1, const QPoint &p2);
 
-    Grid *grid() const;
-    void setGrid(Grid *grid);
-
 protected:
     QPoint m_position;
     Grid *m_grid;
@@ -58,6 +59,7 @@ protected:
     Directions m_direction;
     int m_faction;
     bool m_upstairs;
+    QString m_name;
 };
 
 #endif // GAMEOBJECT_H

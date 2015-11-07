@@ -21,6 +21,7 @@ public:
     void onBackpace();
 
 protected:
+    // Dessin
     void paintEvent(QPaintEvent *);
     void paintGame(QPainter *painter);
     void paintMap(QPainter *painter);
@@ -32,9 +33,14 @@ protected:
     void paintUI(QPainter *painter);
     void paintEndGamePanel(QPainter *painter);
 
+    // Fonctions de position
     QPoint toMap(QPoint p);
-    QPoint relativePosition(QPoint p, QSize size = QSize(0,0));
+    QPoint relativePosition(QPoint p, QSize size = QSize(0,0), bool usePlayerSize = true);
     void movePlayer(GameObject::Directions direction);
+
+    // Pouvoirs
+    void deathStarPower(int player = 0);
+    void ghostFormPower(int player = 0);
 
 private:
     Game *m_game;

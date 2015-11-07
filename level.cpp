@@ -85,12 +85,12 @@ void Level::setMyPlayer(int playerNumber)
     }
 }
 
-const Grid *Level::grid() const
+Grid *Level::grid()
 {
     return m_grid;
 }
 
-const Player *Level::player(int index) const
+Player *Level::player(int index) const
 {
     return m_players.at(index);
 }
@@ -146,7 +146,7 @@ bool Level::movePlayer(int playerId, GameObject::Directions direction)
 void Level::arrowTileMove(int playerNumber)
 {
     Player *player = m_players.at(playerNumber);
-    if(player->dead() || player->invulnerable()) return;
+    if(player->dead() || player->invulnerable() || player->ghostForm()) return;
 
     bool isMoveValid = true;
     int w = m_tileSize.width(), h = m_tileSize.height();
@@ -175,7 +175,7 @@ void Level::arrowTileMove(int playerNumber)
 
     x = nextPosition.x() / w;
     y = nextPosition.y() / h;
-    if(m_grid->tileAt(x,y) == Tile::Void)
+    if(m_grid->tileAt(x,y) == Tile::Void && (!player->ghostForm()))
     {
         player->takeDamage(99999);
         isMoveValid = false;
@@ -208,7 +208,7 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
     if(m_grid->tileAt(player->position().x() / w, player->position().y() / h) == Tile::Void)
     {
         isMoveValid = false;
-        if(nextTileType == Tile::Void)
+        if((nextTileType == Tile::Void) && (!player->ghostForm()))
         {
             player->takeDamage(99999);
             return false;
@@ -238,9 +238,13 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
     // Changement de la couleur de la case.
     if(otherPlayers.size() == 0)
     {
-        if(m_grid->tileAt(tx, ty) == Tile::Player2Tile)
+        Tile::TileType otherType = Tile::Player1Tile;
+        if(player->tileType() == Tile::Player1Tile)
+            otherType = Tile::Player2Tile;
+
+        if(m_grid->tileAt(tx, ty) == otherType)
         {
-            m_grid->setTileAt(tx, ty, Tile::Player1Tile);
+            m_grid->setTileAt(tx, ty, player->tileType());
         }
     }
     else

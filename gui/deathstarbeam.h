@@ -6,6 +6,8 @@
 #include "animation.h"
 #include "grid.h"
 
+#define TARGET_SPEED 3
+
 class DeathStarBeam : public Animation
 {
 public:
@@ -14,7 +16,7 @@ public:
 	* Le rayon sera ajouté à la pile des animations du GameWidget.
 	* L'entier player identifie le créateur du rayon et par conséquent, les cases qui lui appartiennent (ou non).
 	*/
-    DeathStarBeam(const Grid* grid, QSize tileSize, int player);
+    DeathStarBeam(Grid* grid, QSize tileSize, Tile::TileType playerTile);
 	
 	/* Calcul le déplacement du rayon et renvoie l'image qui en découle.
 	* Si la cible n'est pas atteinte, renvoie m_targetPixmap.
@@ -35,6 +37,8 @@ protected:
 	// Renvoie vrai si le rayon a atteint sa cible.
 	bool targetReached() const;
     bool targetValid() const;
+    QPoint targetTile() const;
+    void turnInto(const QPoint &point);
 	
 /*	Attributs hérités de Animation
 protected:
@@ -48,12 +52,14 @@ private:
     QPoint m_target;
     QSize m_tileSize;
 	// Grille permettant de vérifier si oui ou non on est arrivé sur une cible valide.
-    const Grid *m_grid;
+    Grid *m_grid;
 	// Image à charger dans le constructeur qui donnera le viseur.
 	// A redimensionner : Hauteur = Largeur = min(Hauteur de case, Largeur de case) * 3 !
 	QPixmap m_targetPixmap;
+    qreal m_pixmapAngle;
 	// Numéro du joueur qui a activé ce pouvoir.
-	int m_player;
+    Tile::TileType m_playerTileType;
+    Tile::TileType m_targetType;
     bool m_targetLocked;
 };
 
