@@ -3,7 +3,7 @@
 	<TileSize width="96" height="57"/>
 	<Grid>
 		<Size width="32" height="16"/>
-		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbhhbbbbbbbbbbbbbccdaaaaaaaafccccchhcccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaaccccccccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+		<Tiles values="bbbbaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaabbbbiibbbbbbbbbbaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaabbbggggggggbbbbbbbbbbbbbbbbbaaaabbdaaaaaaaafbbbbbhhbbbbbbbbbbbbbccdaaaaaaaafccccchhcccccccccccccccceeeeeeeecccccccccccccccccaaaaccccccccccccccccccccccccaaaaaaaaccccccccccccccccccccaaaaaaaaaaaacccciiccccccccccaaaaaaaaaaaaaaaaccccccccccccaaaaaaaaaaaaaaaaaaaaccccccccaaaaaaaaaaaaaaaaaaaaaaaaccccaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
 	</Grid>
 	<Tile type="a" filename="/images/void.png"/>
 	<Tile type="b" filename="/images/Cruiser_Tile_Rebels.png"/>
@@ -13,4 +13,6 @@
 	<Tile type="f" filename="/images/Cruiser_ArrowTile_Left.png"/>
 	<Tile type="g" filename="/images/Cruiser_ArrowTile_Down.png"/>
 	<Tile type="h" filename="/images/void.png"/>
+	<Tile type="i" filename="/images/Mustafar_Tile_Rebels.png"/>
+	<Tile type="j" filename="/images/Mustafar_Tile_Empire.png"/>
 </Level>
