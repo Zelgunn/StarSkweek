@@ -21,16 +21,16 @@ SOURCES += main.cpp\
     level.cpp \
     soundplayer.cpp \
     grid.cpp \
-    unit.cpp \
-    player.cpp \
-    monster.cpp \
-    gameobject.cpp \
-    projectile.cpp \
+    gameobjets/unit.cpp \
+    gameobjets/player.cpp \
+    gameobjets/monster.cpp \
+    gameobjets/gameobject.cpp \
+    gameobjets/projectile.cpp \
     network/arduinohandler.cpp \
     network/multiplayerupdater.cpp \
     weapon.cpp \
     tile.cpp \
-    animation.cpp \
+    animations/animation.cpp \
     projectilelist.cpp \
     weaponlist.cpp \
     gui/menu.cpp \
@@ -40,23 +40,24 @@ SOURCES += main.cpp\
     gui/lobbywidget.cpp \
     gui/gamewidget.cpp \
     playerinfo.cpp \
-    gui/deathstarbeam.cpp
+    animations/deathstarbeam.cpp \
+    animations/bombtile.cpp
 
 HEADERS  += gui/mainwindow.h \
     game.h \
     level.h \
     soundplayer.h \
     grid.h \
-    unit.h \
-    player.h \
-    monster.h \
-    gameobject.h \
-    projectile.h \
+    gameobjets/unit.h \
+    gameobjets/player.h \
+    gameobjets/monster.h \
+    gameobjets/gameobject.h \
+    gameobjets/projectile.h \
     network/arduinohandler.h \
     network/multiplayerupdater.h \
     weapon.h \
     tile.h \
-    animation.h \
+    animations/animation.h \
     projectilelist.h \
     weaponlist.h \
     gui/menu.h \
@@ -66,7 +67,8 @@ HEADERS  += gui/mainwindow.h \
     gui/lobbywidget.h \
     gui/gamewidget.h \
     playerinfo.h \
-    gui/deathstarbeam.h
+    animations/deathstarbeam.h \
+    animations/bombtile.h
 
 FORMS    +=
 

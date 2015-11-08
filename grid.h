@@ -18,6 +18,7 @@ public:
     void setTileAt(const QPoint &tile, Tile::TileType value);
     uint width() const;
     uint height() const;
+    void swapTiles(Tile::TileType source, Tile::TileType dest);
 
 private:
     uint m_width;

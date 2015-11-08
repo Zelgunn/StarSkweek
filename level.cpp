@@ -68,11 +68,13 @@ Level::Level(const QDomElement &element, const QList<const Player *> *prototypes
         m_projectiles->appendCollision(player);
     }
 
+    initGridPlayerTiles();
     QObject::connect(m_projectiles, SIGNAL(hitPlayer(GameObject*,int)), this, SLOT(onPlayerHit(GameObject*,int)));
 }
 
 void Level::setMyPlayer(int playerNumber)
 {
+    m_myPlayer = playerNumber;
     Player *player = m_players.at(0);
     switch(playerNumber)
     {
@@ -82,6 +84,19 @@ void Level::setMyPlayer(int playerNumber)
     default:
         player->setPosition(width()/2, height()*3/4 - 5);
         break;
+    }
+}
+
+void Level::initGridPlayerTiles()
+{
+    // On récupère le personnage du joueur hôte.
+    Player *player = m_players.at(m_myPlayer);
+    // Si le joueur ne joue pas Obiwan, on change
+    if(player->tileType() != Tile::Player1Tile)
+    {
+        m_grid->swapTiles(Tile::Player1Tile, Tile::TypeCount);
+        m_grid->swapTiles(Tile::Player2Tile, Tile::Player1Tile);
+        m_grid->swapTiles(Tile::TypeCount, Tile::Player2Tile);
     }
 }
 
@@ -167,11 +182,6 @@ void Level::arrowTileMove(int playerNumber)
 
     if(nextPosition != player->position())
         isMoveValid = false;
-
-    if(tileType == Tile::Void)
-    {
-        return;
-    }
 
     x = nextPosition.x() / w;
     y = nextPosition.y() / h;

@@ -65,3 +65,15 @@ uint Grid::height() const
     return m_height;
 }
 
+void Grid::swapTiles(Tile::TileType source, Tile::TileType dest)
+{
+    for(uint i=0; i<m_width; i++)
+    {
+        for(uint j=0; j<m_height; j++)
+        {
+            if(m_values[i][j] == source)
+                m_values[i][j] = dest;
+        }
+    }
+}
+

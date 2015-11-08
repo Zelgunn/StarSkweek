@@ -2,7 +2,7 @@
 #define PROJECTILELIST_H
 
 #include <QList>
-#include "projectile.h"
+#include "gameobjets/projectile.h"
 
 class ProjectileList : public QObject
 {

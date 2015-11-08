@@ -4,8 +4,9 @@
 #include <QWidget>
 
 #include "game.h"
-#include "animation.h"
-#include "deathstarbeam.h"
+#include "animations/animation.h"
+#include "animations/deathstarbeam.h"
+#include "animations/bombtile.h"
 
 class GameWidget : public QWidget
 {
@@ -41,6 +42,9 @@ protected:
     // Pouvoirs
     void deathStarPower(int player = 0);
     void ghostFormPower(int player = 0);
+
+    // Mises à jours
+    void updateBombs();
 
 private:
     Game *m_game;

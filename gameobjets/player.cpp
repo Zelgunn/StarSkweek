@@ -71,6 +71,7 @@ Player *Player::clone() const
     player->setlastValidPosition(m_lastValidPosition);
     player->setPower(m_power);
     player->setPowerRessource(m_powerRessource);
+    player->setGhostForm(m_ghostForm);
 
     // Unit
     player->setLife(m_life);

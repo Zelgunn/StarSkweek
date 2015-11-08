@@ -4,8 +4,8 @@
 #include <QDomElement>
 
 #include "grid.h"
-#include "player.h"
-#include "monster.h"
+#include "gameobjets/player.h"
+#include "gameobjets/monster.h"
 #include "tile.h"
 #include "projectilelist.h"
 #include "weaponlist.h"
@@ -18,6 +18,7 @@ public:
     Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos);
 
     void setMyPlayer(int playerNumber);
+    void initGridPlayerTiles();
     Grid *grid();
     Player *player(int index = 0) const;
     QList<Player *> players() const;

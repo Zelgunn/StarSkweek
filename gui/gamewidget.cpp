@@ -54,6 +54,7 @@ void GameWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
+    updateBombs();
     paintGame(&painter);
     Player *player = m_game->level()->player();
 
@@ -418,3 +419,28 @@ void GameWidget::ghostFormPower(int player)
     }
 }
 
+void GameWidget::updateBombs()
+{
+    Level *level = m_game->level();
+    Player *player;
+    Grid *grid = level->grid();
+    QSize tileSize = level->tileSize();
+    int w = tileSize.width(), h = tileSize.height();
+    Tile::TileType tileType;
+    int x,y;
+    QPoint position;
+
+    for(int i=0; i<level->players().size(); i++)
+    {
+        player = level->player(i);
+        x = player->position().x()/w;
+        y = player->position().y()/h;
+        tileType = grid->tileAt(x, y);
+        if(tileType == Tile::BombTile)
+        {
+            position = QPoint(x*w + w/2, y*h + h/2);
+            grid->setTileAt(x, y, Tile::ExplodingTile);
+            m_pendingAnimations.append(new Bombtile(grid, position, tileSize));
+        }
+    }
+}

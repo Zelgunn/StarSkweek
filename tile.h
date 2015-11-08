@@ -20,6 +20,7 @@ public:
                   ArrowTileDown,
                   UpstairsTile,
                   BombTile,
+                  ExplodingTile,
                   TypeCount
                  };
 

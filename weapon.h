@@ -2,7 +2,7 @@
 #define WEAPON_H
 
 #include <QTime>
-#include "projectile.h"
+#include "gameobjets/projectile.h"
 
 class Weapon
 {
