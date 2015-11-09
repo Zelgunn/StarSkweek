@@ -290,14 +290,7 @@ void GameWidget::paintHUD(QPainter *painter)
 
 void GameWidget::paintUI(QPainter *painter)
 {
-    /*
-    QRect scoreRect(width()/4, 0, width()/2, height()/10/2);
-    QPen pen(QColor(50,50,50));
-    pen.setWidth(3);
-    painter->setPen(pen);
-    painter->setBrush(Qt::NoBrush);
-    painter->drawRect(scoreRect);
-*/
+
     qreal playerRatio = m_game->level()->playerTileRatio(); // Ratio entre 0 et 1
     //Score rouge
     int redWidth = width()/2 * 100.0 * playerRatio / 100;
@@ -316,8 +309,8 @@ void GameWidget::paintUI(QPainter *painter)
     QRect scoreBlu(width()*3/4, 0, -blueWidth, height()/10/2);
     QLinearGradient bluLightsaber(QPointF( 0, height()/10/4), QPointF( 0, 0));
     bluLightsaber.setSpread(bluLightsaber.ReflectSpread);
-    bluLightsaber.setColorAt(0, QColor(0,0,255,255));
-    bluLightsaber.setColorAt(1, QColor(0,0,255,20));
+    bluLightsaber.setColorAt(0, QColor(3,118,222,255));
+    bluLightsaber.setColorAt(1, QColor(3,118,222,20));
     QBrush blu(QGradient &redbluPen);
     painter->setBrush(bluLightsaber);
     painter->drawRect(scoreBlu);
@@ -332,6 +325,15 @@ void GameWidget::paintUI(QPainter *painter)
     QBrush white(QGradient &redbluPen);
     painter->setBrush(whiteLightsaber);
     painter->drawRect(scoreWhite);
+
+    //Sabres
+    static QPixmap lightSaberPixmap(QApplication::applicationDirPath() + "/images/Anakin Saber-01.png");
+    QRect redSaber(width()/8,0,width()/7,height()/10/2);
+    painter->drawPixmap(redSaber,lightSaberPixmap);
+
+    static QPixmap lightSaber2Pixmap(QApplication::applicationDirPath() + "/images/Obi wan Lightsaber.png");
+    QRect bluSaber(width()*3/4,0,width()/7,height()/10/2);
+    painter->drawPixmap(bluSaber,lightSaber2Pixmap);
 
     QRectF rectanglePower(-width()*6.25/100, height()/9*8, width()*12.5/100, height()*22.22/100);
     int startAngle = 0 * 16;
@@ -374,6 +376,11 @@ void GameWidget::paintUI(QPainter *painter)
     QRectF rectangleBlack(-width()*2.6/100, height()/9*8.5, width()*5.2/100, height()*9.26/100);
     painter->setBrush(QColor(73,212,253,255));
     painter->drawEllipse(rectangleBlack);
+
+    //Midichloriens
+    static QPixmap midCh(QApplication::applicationDirPath() + "/images/power.png");
+    QRect power(-5, height()/9*8.60, width()*12.5/100/4, height()*22.22/100/4);
+    painter->drawPixmap(power,midCh);
 }
 
 void GameWidget::paintEndGamePanel(QPainter *painter)
