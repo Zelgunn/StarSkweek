@@ -401,6 +401,11 @@ void Game::setHosting(bool hosting)
     m_hosting = hosting;
 }
 
+void Game::connectToPlayer2()
+{
+    m_multiplayerUpdater.connectToPlayer2();
+}
+
 void Game::onRight()
 {
     if(m_state == PlayingState)

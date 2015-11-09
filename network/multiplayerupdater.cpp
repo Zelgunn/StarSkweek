@@ -141,7 +141,7 @@ void MultiplayerUpdater::connectToPlayer2()
 
     QObject::connect(m_client, SIGNAL(readyRead()), this, SLOT(readTcp()));
     QObject::connect(m_client, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    emit newConnection();
+
 }
 
 void MultiplayerUpdater::broadcastAddress()
@@ -188,7 +188,7 @@ void MultiplayerUpdater::readUdp()
             playerInfo->setNickname(message.section(',', 1, 1));
             m_playersInfos.append(playerInfo);
             m_mapPath = message.section(',', 2, 2);
-            connectToPlayer2();
+            emit newConnection();
         }
     }
 }

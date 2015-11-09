@@ -83,7 +83,14 @@ void LobbyWidget::onEnter()
         {
             m_mapChoosen = m_selectedMap;
             m_game->setLevelPath(choosenMapPath());
-            m_game->startHost(m_game->hosting());
+            if(m_game->hosting())
+            {
+                m_game->startHost(true);
+            }
+            else
+            {
+                m_game->connectToPlayer2();
+            }
         }
     }
     else

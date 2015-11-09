@@ -35,11 +35,11 @@ public:
     void setMapPath(const QString &mapPath);
 
     QList<PlayerInfo *> playersInfos() const;
+    void connectToPlayer2();
 
 protected:
     void sendUpdate(const QString &update);
     void incomingConnection(int socketfd);
-    void connectToPlayer2();
 
 protected slots:
     void broadcastAddress();

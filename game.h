@@ -60,6 +60,7 @@ public:
     void connectToIP(const QString &ip);
     bool hosting() const;
     void setHosting(bool hosting);
+    void connectToPlayer2();
 
     void onRight();
     void onUp();
