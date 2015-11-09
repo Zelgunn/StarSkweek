@@ -24,7 +24,7 @@ public:
     bool dead() const;
     void setDead(bool dead);
 
-    void takeDamage(int damage);
+    virtual void takeDamage(int damage);
 
     bool isUnit() const;
 

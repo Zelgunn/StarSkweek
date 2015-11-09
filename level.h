@@ -6,6 +6,8 @@
 #include "grid.h"
 #include "gameobjets/player.h"
 #include "gameobjets/monster.h"
+#include "gameobjets/players/obiwan.h"
+#include "gameobjets/players/darthvader.h"
 #include "tile.h"
 #include "projectilelist.h"
 #include "weaponlist.h"
@@ -15,7 +17,7 @@ class Level : public QObject
 {
     Q_OBJECT
 public:
-    Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos);
+    Level(const QDomElement &element, QList<Player *> *prototypes, const QList<PlayerInfo *> &playersInfos);
 
     void setMyPlayer(int playerNumber);
     void initGridPlayerTiles();
@@ -34,6 +36,8 @@ public:
     bool setPlayerPosition(int playerId, int x, int y, GameObject::Directions direction);
 
     bool playerFires(int playerId);
+    ObiWan *obiWan() const;
+    DarthVader *darthVader() const;
 
     double playerTileRatio(int player = 0) const;
 
@@ -45,7 +49,6 @@ private slots:
 private:
     Grid *m_grid;
     //Player **m_players;
-    const QList<const Player *> *m_prototypes;
     QList<Player*> m_players;
     int m_myPlayer;
     ProjectileList *m_projectiles;

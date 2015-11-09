@@ -18,7 +18,9 @@ public:
     Player();
     Player(const QDomElement &element);
     virtual ~Player();
-    Player *clone() const;
+
+    virtual bool isObiWan() const;
+    virtual bool isDarthVader() const;
 
     Tile::TileType tileType() const;
     void setTileType(Tile::TileType tileType);
@@ -40,10 +42,7 @@ public:
     void increasePowerRessource(int increase);
     bool powerAvailable() const;
     qreal powerRessourceRatio() const;
-
-    bool ghostForm();
-    void setGhostForm(bool ghostForm);
-    int ghostFormTimeLeft() const;
+    virtual void usePower();
 
     int fire();
     void takeDamage(int damage);
@@ -52,7 +51,7 @@ public:
 
     static int maxPowerRessource();
 
-private:
+protected:
     Tile::TileType m_tileType;
     Directions m_previousDirection;
     Weapon m_weapon;
@@ -60,9 +59,6 @@ private:
     QPixmap m_thumbnail;
     Powers m_power;
     int m_powerRessource;
-
-    bool m_ghostForm;
-    QTime m_ghostFormTimer;
 };
 
 #endif // PLAYER_H

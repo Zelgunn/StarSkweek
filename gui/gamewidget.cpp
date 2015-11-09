@@ -36,17 +36,7 @@ void GameWidget::onBackpace()
     m_game->onBackpace();
     if(m_game->state() == Game::PlayingState)
     {
-        switch (m_game->level()->player()->power()) {
-        case Player::DarthVaderPower:
-            if(m_game->level()->player()->powerAvailable())
-                deathStarPower();
-            break;
-        case Player::ObiWanPower:
-            ghostFormPower();
-            break;
-        default:
-            break;
-        }
+        m_game->level()->player()->usePower();
     }
 }
 
@@ -221,6 +211,11 @@ void GameWidget::paintAnimations(QPainter *painter)
     }
 }
 
+void GameWidget::paintBlackStarBeam()
+{
+
+}
+
 void GameWidget::paintHUD(QPainter *painter)
 {
     const Level *level = m_game->level();
@@ -241,13 +236,14 @@ void GameWidget::paintHUD(QPainter *painter)
         w = tileSize.width();
         QRect lifeBarRect(relativePosition(position), QSize(w, 5));
         // Mode Fantôme
-        if(player->ghostForm())
+        if(player->isObiWan())
         {
+            ObiWan *obiWan = (ObiWan*) player;
             QRect ghostFormBar(0,0, lifeBarRect.width() + 11, lifeBarRect.height() + 11);
             ghostFormBar.moveCenter(lifeBarRect.center());
 
             painter->setPen(Qt::NoPen);
-            painter->setBrush(QColor(50,50,150,255 * qMin(player->ghostFormTimeLeft(),1000)/1000));
+            painter->setBrush(QColor(50,50,150,255 * qMin(obiWan->ghostFormTimeLeft(),1000)/1000));
             painter->drawRect(ghostFormBar);
             painter->setPen(QPen(QColor(0,0,0)));
         }
@@ -395,28 +391,6 @@ QPoint GameWidget::relativePosition(QPoint p, QSize size, bool usePlayerSize)
 void GameWidget::movePlayer(GameObject::Directions direction)
 {
     m_game->movePlayer(direction);
-}
-
-void GameWidget::deathStarPower(int player)
-{
-    Level *level = m_game->level();
-    m_pendingAnimations.append(new DeathStarBeam(level->grid(),
-                                                 level->tileSize(),
-                                                 level->player(player)->tileType()));
-
-    Player *tmp = level->player(player);
-    tmp->setPowerRessource(0);
-}
-
-void GameWidget::ghostFormPower(int player)
-{
-    Player *tmp = m_game->level()->player(player);
-
-    if(tmp->powerRessourceRatio() > (1.0/5.0))
-    {
-        tmp->setGhostForm(true);
-        tmp->increasePowerRessource(- Player::MaxPowerRessource/5.0);
-    }
 }
 
 void GameWidget::updateBombs()

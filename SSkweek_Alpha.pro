@@ -41,7 +41,9 @@ SOURCES += main.cpp\
     gui/gamewidget.cpp \
     playerinfo.cpp \
     animations/deathstarbeam.cpp \
-    animations/bombtile.cpp
+    animations/bombtile.cpp \
+    gameobjets/players/darthvader.cpp \
+    gameobjets/players/obiwan.cpp
 
 HEADERS  += gui/mainwindow.h \
     game.h \
@@ -68,7 +70,9 @@ HEADERS  += gui/mainwindow.h \
     gui/gamewidget.h \
     playerinfo.h \
     animations/deathstarbeam.h \
-    animations/bombtile.h
+    animations/bombtile.h \
+    gameobjets/players/darthvader.h \
+    gameobjets/players/obiwan.h
 
 FORMS    +=
 

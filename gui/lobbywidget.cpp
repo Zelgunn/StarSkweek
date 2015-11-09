@@ -4,7 +4,7 @@ LobbyWidget::LobbyWidget(Game *game, QWidget *parent)
     : QWidget(parent), m_selectedMap(0), m_game(game), m_mapChoosen(-1)
 {
     // Chargement des portraits et miniatures.
-    const QList<const Player *> *players = m_game->players();
+    const QList<Player *> *players = m_game->players();
     const Player *player;
     QString dir = QApplication::applicationDirPath();
     for(int i=0; i<players->size(); i++)

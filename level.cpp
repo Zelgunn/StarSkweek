@@ -1,13 +1,13 @@
 #include "level.h"
 
-Level::Level(const QDomElement &element, const QList<const Player *> *prototypes, const QList<PlayerInfo *> &playersInfos) :
-    m_prototypes(prototypes), m_myPlayer(0)
+Level::Level(const QDomElement &element, QList<Player *> *prototypes, const QList<PlayerInfo *> &playersInfos) :
+    m_myPlayer(0)
 {
     PlayerInfo *playerInfo;
     for(int i=0; i<playersInfos.size(); i++)
     {
         playerInfo = playersInfos.at(i);
-        m_players.append(prototypes->at(playerInfo->characterSelected())->clone());
+        m_players.append(prototypes->at(playerInfo->characterSelected()));
     }
 
     m_name = element.attribute("name");
@@ -161,7 +161,8 @@ bool Level::movePlayer(int playerId, GameObject::Directions direction)
 void Level::arrowTileMove(int playerNumber)
 {
     Player *player = m_players.at(playerNumber);
-    if(player->dead() || player->invulnerable() || player->ghostForm()) return;
+    if(player->dead() || player->invulnerable()) return;
+    if(ObiWan::isObiWanAndGhost(player)) return;
 
     bool isMoveValid = true;
     int w = m_tileSize.width(), h = m_tileSize.height();
@@ -185,7 +186,7 @@ void Level::arrowTileMove(int playerNumber)
 
     x = nextPosition.x() / w;
     y = nextPosition.y() / h;
-    if(m_grid->tileAt(x,y) == Tile::Void && (!player->ghostForm()))
+    if(m_grid->tileAt(x,y) == Tile::Void)
     {
         player->takeDamage(99999);
         isMoveValid = false;
@@ -218,7 +219,7 @@ bool Level::setPlayerPosition(int playerId, int x, int y, GameObject::Directions
     if(m_grid->tileAt(player->position().x() / w, player->position().y() / h) == Tile::Void)
     {
         isMoveValid = false;
-        if((nextTileType == Tile::Void) && (!player->ghostForm()))
+        if((nextTileType == Tile::Void) && (!ObiWan::isObiWanAndGhost(player)))
         {
             player->takeDamage(99999);
             return false;
@@ -285,6 +286,26 @@ bool Level::playerFires(int playerId)
     }
 
     return false;
+}
+
+ObiWan *Level::obiWan() const
+{
+    foreach (Player *player, m_players) {
+        if(player->isObiWan())
+            return (ObiWan*) player;
+    }
+
+    return Q_NULLPTR;
+}
+
+DarthVader *Level::darthVader() const
+{
+    foreach (Player *player, m_players) {
+        if(player->isDarthVader())
+            return (DarthVader*) player;
+    }
+
+    return Q_NULLPTR;
 }
 
 double Level::playerTileRatio(int player) const

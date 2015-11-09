@@ -18,7 +18,15 @@ Game::Game() :
 
         if(elem.tagName() == "Character")
         {
-            m_playersPrototypes.append(new Player(elem));
+            if(elem.attribute("name") == "Obi Wan Kenobi")
+            {
+                m_playersPrototypes.append(new ObiWan(elem));
+            }
+            else if(elem.attribute("name") == "Dark Vador")
+            {
+                m_playersPrototypes.append(new DarthVader(elem));
+            }
+            else m_playersPrototypes.append(new Player(elem));
         }
 
         if(elem.tagName() == "Projectiles")
@@ -44,7 +52,7 @@ Level *Game::level() const
     return m_level;
 }
 
-const QList<const Player *> *Game::players() const
+const QList<Player *> *Game::players() const
 {
     return &m_playersPrototypes;
 }

@@ -30,6 +30,7 @@ protected:
     void paintWaitingSign(QPainter *painter);
     void paintProjectiles(QPainter *painter);
     void paintAnimations(QPainter *painter);
+    void paintBlackStarBeam();
     void paintHUD(QPainter *painter);
     void paintUI(QPainter *painter);
     void paintEndGamePanel(QPainter *painter);
@@ -38,10 +39,6 @@ protected:
     QPoint toMap(QPoint p);
     QPoint relativePosition(QPoint p, QSize size = QSize(0,0), bool usePlayerSize = true);
     void movePlayer(GameObject::Directions direction);
-
-    // Pouvoirs
-    void deathStarPower(int player = 0);
-    void ghostFormPower(int player = 0);
 
     // Mises à jours
     void updateBombs();
