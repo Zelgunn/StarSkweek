@@ -294,17 +294,50 @@ void GameWidget::paintHUD(QPainter *painter)
 
 void GameWidget::paintUI(QPainter *painter)
 {
+    /*
     QRect scoreRect(width()/4, 0, width()/2, height()/10/2);
     QPen pen(QColor(50,50,50));
     pen.setWidth(3);
     painter->setPen(pen);
     painter->setBrush(Qt::NoBrush);
     painter->drawRect(scoreRect);
+*/
+    qreal playerRatio = m_game->level()->playerTileRatio(); // Ratio entre 0 et 1
+    //Score rouge
+    int redWidth = width()/2 * 100.0 * playerRatio / 100;
+    int blueWidth = width()/2 - redWidth;
+    QRect scoreRed(width()/4, 0, redWidth, height()/10/2);
+    QLinearGradient redLightsaber(QPointF( 0, height()/10/2/2), QPointF( 0, 0));
+    redLightsaber.setSpread(redLightsaber.ReflectSpread);
+    redLightsaber.setColorAt(0, QColor(255,0,0,255));
+    redLightsaber.setColorAt(1, QColor(255,0,0,100));
+    QBrush red(QGradient &redLightsaber);
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(redLightsaber);
+    painter->drawRect(scoreRed);
 
-    //QRect scoreRed(width()/4, 0, width()/4, height()/10/2);
-    //qreal playerRatio = m_game->level()->playerTileRatio(); // Ratio entre 0 et 1
+    //Score bleu
+    QRect scoreBlu(width()*3/4, 0, -blueWidth, height()/10/2);
+    QLinearGradient bluLightsaber(QPointF( 0, height()/10/2/2), QPointF( 0, 0));
+    bluLightsaber.setSpread(bluLightsaber.ReflectSpread);
+    bluLightsaber.setColorAt(0, QColor(0,0,255,255));
+    bluLightsaber.setColorAt(1, QColor(0,0,255,100));
+    QBrush blu(QGradient &redbluPen);
+    painter->setBrush(bluLightsaber);
+    painter->drawRect(scoreBlu);
 
-    QRectF rectanglePower(-120.0, height()/9*8, 240.0, 240.0);
+    //White Lightsaber effect ;)
+    QRect scoreWhite(width()/4, 0, width()/2, height()/10/2);
+    QLinearGradient whiteLightsaber(QPointF( 0, height()/10/4), QPointF( 0, height()/10/2));
+    whiteLightsaber.setSpread(whiteLightsaber.ReflectSpread);
+    whiteLightsaber.setColorAt(0, QColor(255,255,255,255));
+    whiteLightsaber.setColorAt(0.5, QColor(255,255,255,0));
+    whiteLightsaber.setColorAt(1, QColor(255,255,255,0));
+    QBrush white(QGradient &redbluPen);
+    painter->setBrush(whiteLightsaber);
+    painter->drawRect(scoreWhite);
+
+    QRectF rectanglePower(-width()*6.25/100, height()/9*8, width()*12.5/100, height()*22.22/100);
     int startAngle = 0 * 16;
     int spanAngle = 90 * 16;
     QPen pen2(QColor(33,99,131));
@@ -342,8 +375,8 @@ void GameWidget::paintUI(QPainter *painter)
         painter->drawPie(rectanglePower,startAngle,spanAngle);
     }
 
-    QRectF rectangleBlack(-50, height()/9*8.5, 100, 100);
-    painter->setBrush(QColor(73,212,253));
+    QRectF rectangleBlack(-width()*2.6/100, height()/9*8.5, width()*5.2/100, height()*9.26/100);
+    painter->setBrush(QColor(73,212,253,255));
     painter->drawEllipse(rectangleBlack);
 }
 
