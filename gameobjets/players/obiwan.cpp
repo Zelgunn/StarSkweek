@@ -31,16 +31,23 @@ void ObiWan::takeDamage(int damage)
         Unit::takeDamage(damage);
 }
 
-void ObiWan::usePower()
+bool ObiWan::usePower(bool ignoreRessources)
 {
-    if(m_powerRessource < MaxPowerRessource/5)
+    if(!ignoreRessources)
     {
-        return;
+        if(m_powerRessource < MaxPowerRessource/5)
+        {
+            return false;
+        }
     }
 
     m_inGhostForm = true;
     m_ghostFormTimer = QTime::currentTime();
-    m_powerRessource -= MaxPowerRessource/5;
+
+    if(!ignoreRessources)
+        m_powerRessource -= MaxPowerRessource/5;
+
+    return true;
 }
 
 bool ObiWan::isObiWanAndGhost(Player *player)

@@ -10,7 +10,7 @@ public:
     DarthVader(const QDomElement &element);
 
     virtual bool isDarthVader() const;
-    virtual void usePower();
+    virtual bool usePower(bool ignoreRessources = false);
     void takeDamage(int damage);
     bool blackStarActive() const;
     DeathStarBeam *blackStarBeam() const;

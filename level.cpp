@@ -104,7 +104,7 @@ void Level::initGridPlayerTiles()
     // On récupère le personnage du joueur hôte.
     Player *player = m_players.at(m_myPlayer);
     // Si le joueur ne joue pas Obiwan, on change
-    if(player->tileType() != Tile::Player1Tile)
+    if(player->isDarthVader())
     {
         m_grid->swapTiles(Tile::Player1Tile, Tile::TypeCount);
         m_grid->swapTiles(Tile::Player2Tile, Tile::Player1Tile);

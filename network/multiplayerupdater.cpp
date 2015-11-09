@@ -61,10 +61,12 @@ void MultiplayerUpdater::startHost(bool enable)
 {
     if(enable)
     {
+        qDebug() << "Starting server";
         broadcastAddress();
     }
     else if(m_timer != Q_NULLPTR)
     {
+        qDebug() << "Stoping server";
         if(isConnected())
         {
             m_client->disconnectFromHost();
@@ -157,8 +159,6 @@ void MultiplayerUpdater::broadcastAddress()
 
         m_udpSocket->writeDatagram(addressDatagram.data(), addressDatagram.size(), QHostAddress::Broadcast, PORT_COM);
 
-        qDebug() << QString(addressDatagram);
-
         if(!m_timer->isActive())
             m_timer->start(1000);
     }
@@ -183,12 +183,28 @@ void MultiplayerUpdater::readUdp()
 
         if((message.startsWith("192.168.")) && (!message.startsWith(m_localAddress.toString())))
         {
-            playerInfo = new PlayerInfo;
-            playerInfo->setAddress(QHostAddress(message.section(',', 0, 0)));
-            playerInfo->setNickname(message.section(',', 1, 1));
-            m_playersInfos.append(playerInfo);
-            m_mapPath = message.section(',', 2, 2);
-            emit newConnection();
+            QHostAddress address (message.section(',', 0, 0));
+            bool playerAlreadyKnown = false;
+
+            for(int i=0; i<m_playersInfos.size(); i++)
+            {
+                if(m_playersInfos.at(i)->address() == address)
+                {
+                    playerAlreadyKnown = true;
+                    break;
+                }
+            }
+
+            if(!playerAlreadyKnown)
+            {
+                playerInfo = new PlayerInfo;
+                playerInfo->setAddress(address);
+                playerInfo->setNickname(message.section(',', 1, 1));
+                m_playersInfos.append(playerInfo);
+                m_mapPath = message.section(',', 2, 2);
+                qDebug() << "Carte trouvée (MUpdt)" << m_mapPath;
+                emit newConnection();
+            }
         }
     }
 }

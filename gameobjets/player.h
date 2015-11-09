@@ -42,7 +42,7 @@ public:
     void increasePowerRessource(int increase);
     bool powerAvailable() const;
     qreal powerRessourceRatio() const;
-    virtual void usePower();
+    virtual bool usePower(bool ignoreRessources = false);
 
     int fire();
     void takeDamage(int damage);

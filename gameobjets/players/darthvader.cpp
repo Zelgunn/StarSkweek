@@ -11,16 +11,21 @@ bool DarthVader::isDarthVader() const
     return true;
 }
 
-void DarthVader::usePower()
+bool DarthVader::usePower(bool ignoreRessources)
 {
-    if(m_powerRessource < MaxPowerRessource)
-        return;
-    if(blackStarActive())
-        return;
+    if(!ignoreRessources)
+    {
+        if(m_powerRessource < MaxPowerRessource)
+            return false;
+        if(blackStarActive())
+            return false;
+    }
 
     m_blackStarBeam = new DeathStarBeam(m_grid, m_tileSize, m_tileType);
 
-    m_powerRessource -= MaxPowerRessource;
+    if(!ignoreRessources)
+        m_powerRessource -= MaxPowerRessource;
+    return true;
 }
 
 void DarthVader::takeDamage(int damage)

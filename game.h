@@ -30,6 +30,7 @@ public:
     void processCommands();
     void playerCommand(int player, QString command);
     void movePlayer(int player, QString command);
+    void activateVadorBlackStarBeam(QString command);
 
     void playerFires(int playerID = 0);
 

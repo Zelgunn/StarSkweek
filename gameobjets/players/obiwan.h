@@ -15,7 +15,7 @@ public:
 
     void takeDamage(int damage);
 
-    virtual void usePower();
+    virtual bool usePower(bool ignoreRessources = false);
 
     static bool isObiWanAndGhost(Player *player);
 

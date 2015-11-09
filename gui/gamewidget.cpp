@@ -34,10 +34,6 @@ void GameWidget::onEnter()
 void GameWidget::onBackpace()
 {
     m_game->onBackpace();
-    if(m_game->state() == Game::PlayingState)
-    {
-        m_game->level()->player()->usePower();
-    }
 }
 
 void GameWidget::paintEvent(QPaintEvent *)

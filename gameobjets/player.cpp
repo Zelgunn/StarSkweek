@@ -156,9 +156,10 @@ qreal Player::powerRessourceRatio() const
     return (qreal)m_powerRessource/(qreal)MaxPowerRessource;
 }
 
-void Player::usePower()
+bool Player::usePower(bool ignoreRessources)
 {
-
+    Q_UNUSED(ignoreRessources)
+    return false;
 }
 
 int Player::fire()

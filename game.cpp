@@ -108,6 +108,12 @@ void Game::playerCommand(int player, QString command)
     case 'c':   // Sélection de personnage
         setPlayerChar(command.remove(0,1).toInt(), player);
         break;
+    case 'o':   // Pouvoir de ObiWan
+
+        break;
+    case 'v':   // Pouvoir de Vador
+        activateVadorBlackStarBeam(command.remove(0,1));
+        break;
     }
 }
 
@@ -119,6 +125,25 @@ void Game::movePlayer(int player, QString command)
     int dir = command.section(',',-1,-1).toInt();
 
     m_level->setPlayerPosition(player, x, y, (GameObject::Directions) dir);
+}
+
+void Game::activateVadorBlackStarBeam(QString command)
+{
+    DarthVader *darthVader = m_level->darthVader();
+    if(darthVader == Q_NULLPTR)
+    {
+        qDebug() << "Erreur, pas de Vador" << command;
+        return;
+    }
+
+    if(!darthVader->blackStarActive())
+    {
+        darthVader->usePower(true);
+    }
+
+    QPoint blackStarBeamPosition(command.section(',',0,0).toInt(), command.section(',',-1,-1).toInt());
+    DeathStarBeam *beam = darthVader->blackStarBeam();
+    beam->setPosition(blackStarBeamPosition);
 }
 
 void Game::playerFires(int playerID)
@@ -349,8 +374,10 @@ void Game::removeUntreadtedCommand(int index)
 
 void Game::onNewConnection()
 {
+    qDebug() << "Ho";
     if(m_state == LobbyState)
     {
+        qDebug() << "He";
         setLevelPath(m_multiplayerUpdater.mapPath());
         m_multiplayerUpdater.appendUpdate("pn" + playerNickname());
         m_multiplayerUpdater.sendUpdates();
@@ -455,5 +482,21 @@ void Game::onEnter()
 
 void Game::onBackpace()
 {
+    Player *player;
+    if(m_state == PlayingState)
+    {
+        player = m_level->player();
 
+        if(player->usePower())
+        {
+            if(player->isDarthVader())
+            {
+                QPoint beamPosition = m_level->darthVader()->blackStarBeam()->position();
+                m_multiplayerUpdater.appendUpdate("pv" + beamPosition.x() + ',' + beamPosition.y());
+            }
+
+            if(player->isObiWan())
+                m_multiplayerUpdater.appendUpdate("po");
+        }
+    }
 }

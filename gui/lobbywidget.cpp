@@ -578,7 +578,16 @@ QString LobbyWidget::choosenMapName() const
 QString LobbyWidget::choosenMapPath() const
 {
     if(hasChoosenMap())
-        return m_mapPaths.at(m_mapChoosen);
+    {
+        if(m_game->hosting())
+        {
+            return m_mapPaths.at(m_mapChoosen);
+        }
+        else
+        {
+            return m_localMapNames.at(m_mapChoosen);
+        }
+    }
     else
         return QString();
 }
