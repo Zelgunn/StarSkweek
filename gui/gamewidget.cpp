@@ -310,7 +310,7 @@ void GameWidget::paintUI(QPainter *painter)
     QLinearGradient redLightsaber(QPointF( 0, height()/10/2/2), QPointF( 0, 0));
     redLightsaber.setSpread(redLightsaber.ReflectSpread);
     redLightsaber.setColorAt(0, QColor(255,0,0,255));
-    redLightsaber.setColorAt(1, QColor(255,0,0,100));
+    redLightsaber.setColorAt(1, QColor(255,0,0,20));
     QBrush red(QGradient &redLightsaber);
     painter->setPen(Qt::NoPen);
     painter->setBrush(redLightsaber);
@@ -318,10 +318,10 @@ void GameWidget::paintUI(QPainter *painter)
 
     //Score bleu
     QRect scoreBlu(width()*3/4, 0, -blueWidth, height()/10/2);
-    QLinearGradient bluLightsaber(QPointF( 0, height()/10/2/2), QPointF( 0, 0));
+    QLinearGradient bluLightsaber(QPointF( 0, height()/10/4), QPointF( 0, 0));
     bluLightsaber.setSpread(bluLightsaber.ReflectSpread);
     bluLightsaber.setColorAt(0, QColor(0,0,255,255));
-    bluLightsaber.setColorAt(1, QColor(0,0,255,100));
+    bluLightsaber.setColorAt(1, QColor(0,0,255,20));
     QBrush blu(QGradient &redbluPen);
     painter->setBrush(bluLightsaber);
     painter->drawRect(scoreBlu);
@@ -331,7 +331,7 @@ void GameWidget::paintUI(QPainter *painter)
     QLinearGradient whiteLightsaber(QPointF( 0, height()/10/4), QPointF( 0, height()/10/2));
     whiteLightsaber.setSpread(whiteLightsaber.ReflectSpread);
     whiteLightsaber.setColorAt(0, QColor(255,255,255,255));
-    whiteLightsaber.setColorAt(0.5, QColor(255,255,255,0));
+    whiteLightsaber.setColorAt(0.4, QColor(255,255,255,0));
     whiteLightsaber.setColorAt(1, QColor(255,255,255,0));
     QBrush white(QGradient &redbluPen);
     painter->setBrush(whiteLightsaber);
