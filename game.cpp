@@ -407,7 +407,7 @@ void Game::nextFrame()
         if(darthVader->blackStarActive())
         {
             QPoint beamPosition = darthVader->blackStarBeam()->position();
-            m_multiplayerUpdater.appendUpdate("pv" + beamPosition.x() + ',' + beamPosition.y());
+            m_multiplayerUpdater.appendUpdate("pv" + QString::number(beamPosition.x()) + ',' + QString::number(beamPosition.y()));
         }
     }
     m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
