@@ -2,19 +2,26 @@
 #define DARTHVADER_H
 
 #include "gameobjets/player.h"
+#include "animations/deathstarbeam.h"
 
 class DarthVader : public Player
 {
-    Q_OBJECT
 public:
     DarthVader(const QDomElement &element);
 
     virtual bool isDarthVader() const;
     virtual void usePower();
     void takeDamage(int damage);
+    bool blackStarActive() const;
+    DeathStarBeam *blackStarBeam() const;
+    void deleteBlackStar();
 
-signals:
-    void blackStarBeamActivated();
+    QSize tileSize() const;
+    void setTileSize(const QSize &tileSize);
+
+private:
+    DeathStarBeam *m_blackStarBeam;
+    QSize m_tileSize;
 };
 
 #endif // DARTHVADER_H

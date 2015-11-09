@@ -66,6 +66,7 @@ void GameWidget::paintGame(QPainter *painter)
     {
         paintProjectiles(painter);
         paintAnimations(painter);
+        paintBlackStarBeam(painter);
         paintHUD(painter);
         paintUI(painter);
     }
@@ -211,9 +212,27 @@ void GameWidget::paintAnimations(QPainter *painter)
     }
 }
 
-void GameWidget::paintBlackStarBeam()
+void GameWidget::paintBlackStarBeam(QPainter *painter)
 {
+    DarthVader *darthVader = m_game->level()->darthVader();
+    if(darthVader == Q_NULLPTR)
+        return;
 
+    if(!darthVader->blackStarActive())
+        return;
+
+    DeathStarBeam *deathStarBeam = darthVader->blackStarBeam();
+
+    if(deathStarBeam->animationDone())
+    {
+        darthVader->deleteBlackStar();
+        return;
+    }
+
+    QPixmap pixmap = deathStarBeam->nextFrame();
+    QPoint pos(deathStarBeam->position());
+
+    painter->drawPixmap(relativePosition(pos, pixmap.size(), false), pixmap);
 }
 
 void GameWidget::paintHUD(QPainter *painter)

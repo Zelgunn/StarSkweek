@@ -53,19 +53,31 @@ Level::Level(const QDomElement &element, QList<Player *> *prototypes, const QLis
     }
 
     Player *player;
-    player = m_players.at(0);
-    player->setSpeed(qPow(m_tileSize.width() * m_tileSize.height(), 0.375));
-    player->setFaction(0);
-    player->setWeapon(m_weapons.at(0));
-    m_projectiles->appendCollision(player);
-
-    for(int i=1; i<playersInfos.size(); i++)
+    for(int i=0; i<playersInfos.size(); i++)
     {
         player = m_players.at(i);
 
+        // Réglage de la vitesse
+        player->setSpeed(qPow(m_tileSize.width() * m_tileSize.height(), 0.375));
+
+        // Réglage de la faction
         player->setFaction(i);
+
+        // Réglage de l'arme
         player->setWeapon(m_weapons.at(0));
+
+        // Ajout du joueur dans la liste des objets à collision
         m_projectiles->appendCollision(player);
+
+        // Si Dark Vador, renseigner la taille d'une case pour le rayon de l'étoile noire.
+        if(player->isDarthVader())
+        {
+            DarthVader *darthVader = (DarthVader*) player;
+            darthVader->setTileSize(m_tileSize);
+        }
+
+        // Renseignement de la grille
+        player->setGrid(m_grid);
     }
 
     initGridPlayerTiles();

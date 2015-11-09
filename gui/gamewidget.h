@@ -30,7 +30,7 @@ protected:
     void paintWaitingSign(QPainter *painter);
     void paintProjectiles(QPainter *painter);
     void paintAnimations(QPainter *painter);
-    void paintBlackStarBeam();
+    void paintBlackStarBeam(QPainter *painter);
     void paintHUD(QPainter *painter);
     void paintUI(QPainter *painter);
     void paintEndGamePanel(QPainter *painter);
