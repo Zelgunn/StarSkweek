@@ -97,6 +97,7 @@ void Level::setMyPlayer(int playerNumber)
         player->setPosition(width()/2, height()*3/4 - 5);
         break;
     }
+    initGridPlayerTiles();
 }
 
 void Level::initGridPlayerTiles()

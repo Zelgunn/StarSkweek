@@ -31,6 +31,7 @@ public:
     void playerCommand(int player, QString command);
     void movePlayer(int player, QString command);
     void activateVadorBlackStarBeam(QString command);
+    void activateObiWanGhostForm(QString command);
 
     void playerFires(int playerID = 0);
 

@@ -146,6 +146,18 @@ void Game::activateVadorBlackStarBeam(QString command)
     beam->setPosition(blackStarBeamPosition);
 }
 
+void Game::activateObiWanGhostForm(QString command)
+{
+    ObiWan *obiWan = m_level->obiWan();
+    if(obiWan == Q_NULLPTR)
+    {
+        qDebug() << "Erreur, pas de Obi Wan ici !" << command;
+        return;
+    }
+
+    obiWan->usePower(true);
+}
+
 void Game::playerFires(int playerID)
 {
     Level *level = m_level;
@@ -388,15 +400,26 @@ void Game::onNewConnection()
 
 void Game::nextFrame()
 {
+    Player* player = m_level->player();
+    if(player->isDarthVader())
+    {
+        DarthVader *darthVader = (DarthVader *)player;
+        if(darthVader->blackStarActive())
+        {
+            QPoint beamPosition = darthVader->blackStarBeam()->position();
+            m_multiplayerUpdater.appendUpdate("pv" + beamPosition.x() + ',' + beamPosition.y());
+        }
+    }
     m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
                                       + ',' + QString::number(m_level->player()->position().y())
                                       + ',' + QString::number(m_level->player()->direction()));
     m_multiplayerUpdater.sendUpdates();
-    Level *level = m_level;
 
     processCommands();
 
-    level->nextFrame();
+    m_level->nextFrame();
+
+
 
     if((isPlayerDefeated()) || (isPlayerVictorious())) stopGame();
 }
@@ -489,12 +512,6 @@ void Game::onBackpace()
 
         if(player->usePower())
         {
-            if(player->isDarthVader())
-            {
-                QPoint beamPosition = m_level->darthVader()->blackStarBeam()->position();
-                m_multiplayerUpdater.appendUpdate("pv" + beamPosition.x() + ',' + beamPosition.y());
-            }
-
             if(player->isObiWan())
                 m_multiplayerUpdater.appendUpdate("po");
         }
