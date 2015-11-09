@@ -328,7 +328,7 @@ void GameWidget::paintUI(QPainter *painter)
     }
 
     QRectF rectangleBlack(-50, height()/9*8.5, 100, 100);
-    painter->setBrush(QColor(51,148,193));
+    painter->setBrush(QColor(73,212,253));
     painter->drawEllipse(rectangleBlack);
 }
 
