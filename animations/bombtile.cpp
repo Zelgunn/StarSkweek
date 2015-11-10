@@ -8,15 +8,22 @@ Bombtile::Bombtile(Grid *grid, QPoint position, QSize tileSize)
 
 QPixmap Bombtile::nextFrame()
 {
-    QSize frameSize = m_tileSize*3;
-    QPixmap frame(frameSize);
-    if(m_frame > 240)
+    int size = qMin(m_tileSize.width(), m_tileSize.height()) * 3 ;
+    int radius = size * m_frame/360;
+
+    QPixmap frame(size, size);
+    frame.fill(Qt::transparent);
+
+    if(m_frame<240)
     {
-        frame.fill(Qt::transparent);
-    }
-    else
-    {
-        frame.fill(QColor(50,50,50,255*m_frame/240));
+        QPainter painter(&frame);
+        QRadialGradient gradient(QPoint(size/2, size/2), radius);
+        gradient.setColorAt(0, QColor(255,0,0,255));
+        gradient.setColorAt(1, QColor(0,0,0,0));
+        painter.setBrush(QBrush(gradient));
+        painter.setPen(Qt::NoPen);
+        painter.drawEllipse(frame.rect());
+        painter.end();
     }
 
     m_frame++;
@@ -37,9 +44,6 @@ QPixmap Bombtile::nextFrame()
         explodeTile(targetTile() + QPoint(-1,1));
         break;
     }
-
-    foreach(Bombtile *bomb, m_triggeredBombs)
-        bomb->nextFrame();
 
     return frame;
 }
@@ -77,3 +81,8 @@ void Bombtile::explodeTile(const QPoint &tile)
 
     m_grid->setTileAt(tile, newType);
 }
+QList<Bombtile *> Bombtile::triggeredBombs() const
+{
+    return m_triggeredBombs;
+}
+

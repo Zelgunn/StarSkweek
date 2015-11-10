@@ -246,18 +246,6 @@ void GameWidget::paintHUD(QPainter *painter)
 
         w = tileSize.width();
         QRect lifeBarRect(relativePosition(position), QSize(w, 5));
-        // Mode Fantôme
-        if(player->isObiWan())
-        {
-            ObiWan *obiWan = (ObiWan*) player;
-            QRect ghostFormBar(0,0, lifeBarRect.width() + 11, lifeBarRect.height() + 11);
-            ghostFormBar.moveCenter(lifeBarRect.center());
-
-            painter->setPen(Qt::NoPen);
-            painter->setBrush(QColor(50,50,150,255 * qMin(obiWan->ghostFormTimeLeft(),1000)/1000));
-            painter->drawRect(ghostFormBar);
-            painter->setPen(QPen(QColor(0,0,0)));
-        }
 
         // Vie (Totale)
         painter->setBrush(QColor(255,0,0));
@@ -485,6 +473,8 @@ void GameWidget::movePlayer(GameObject::Directions direction)
 
 void GameWidget::updateBombs()
 {
+    static QList<Bombtile *> bombs;
+
     Level *level = m_game->level();
     Player *player;
     Grid *grid = level->grid();
@@ -493,6 +483,7 @@ void GameWidget::updateBombs()
     Tile::TileType tileType;
     int x,y;
     QPoint position;
+    Bombtile *bomb;
 
     for(int i=0; i<level->players().size(); i++)
     {
@@ -504,7 +495,34 @@ void GameWidget::updateBombs()
         {
             position = QPoint(x*w + w/2, y*h + h/2);
             grid->setTileAt(x, y, Tile::ExplodingTile);
-            m_pendingAnimations.append(new Bombtile(grid, position, tileSize));
+            bomb = new Bombtile(grid, position, tileSize);
+            m_pendingAnimations.append(bomb);
+            bombs.append(bomb);
+        }
+    }
+
+    // Mise à jour de la liste des bombes encore en cours d'explosion.
+    for(int i=0; i<bombs.size(); i++)
+    {
+        if(!m_pendingAnimations.contains(bombs.at(i)))
+        {
+            bombs.removeAt(i);
+            i--;
+        }
+    }
+
+    QList<Bombtile *> chainBombs;
+    for(int i=0; i<bombs.size(); i++)
+    {
+        bomb = bombs.at(i);
+        chainBombs = bomb->triggeredBombs();
+        foreach(Bombtile *chainBomb, chainBombs)
+        {
+            if(!bombs.contains(chainBomb))
+            {
+                bombs.append(chainBomb);
+                m_pendingAnimations.append(chainBomb);
+            }
         }
     }
 }

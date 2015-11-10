@@ -12,7 +12,7 @@
 	<Tile type="e" filename="/images/Cruiser_ArrowTile_Up.png"/>
 	<Tile type="f" filename="/images/Cruiser_ArrowTile_Left.png"/>
 	<Tile type="g" filename="/images/Cruiser_ArrowTile_Down.png"/>
-	<Tile type="h" filename="/images/void.png"/>
-	<Tile type="i" filename="/images/Mustafar_Tile_Rebels.png"/>
-	<Tile type="j" filename="/images/Mustafar_Tile_Empire.png"/>
+	<Tile type="h" filename="/images/Stage.png"/>
+	<Tile type="i" filename="/images/Cruiser_Bomb.png"/>
+	<Tile type="j" filename="/images/Cruiser_Bomb_Triggered.png"/>
 </Level>

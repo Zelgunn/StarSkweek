@@ -23,6 +23,7 @@ public:
     int loopDuration() const;
     void setLoopDuration(int loopDuration);
     int getLightValue(QString message);
+    char processCommand(QByteArray data);
     static bool commandBlocks(char command);
 
 protected slots:

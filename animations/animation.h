@@ -2,6 +2,8 @@
 #define ANIMATION_H
 
 #include <QPixmap>
+#include <QPainter>
+#include <QRadialGradient>
 
 class Animation
 {

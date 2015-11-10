@@ -29,7 +29,7 @@ public:
     void setPosition(int x, int y);
     void setSpeed(qreal speed);
     void setSpeed(const QList<qreal> &speed);
-    qreal speed() const;
+    virtual qreal speed() const;
     Directions direction() const;
     void setDirection(const Directions &direction);
     int faction() const;

@@ -14,6 +14,7 @@ public:
 
     QPoint targetTile() const;
     void explodeTile(const QPoint &tile);
+    QList<Bombtile *> triggeredBombs() const;
 
 private:
     Grid *m_grid;

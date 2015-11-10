@@ -12,7 +12,7 @@ public:
     enum Powers{
         ObiWanPower = 0,
         DarthVaderPower = 1,
-        MaxPowerRessource = 102400
+        MaxPowerRessource = 204800
     };
 
     Player();

@@ -52,21 +52,7 @@ void ArduinoHandler::mainloop()
         if((lastCommand != data.at(0)) && commandBlocks(data.at(0)))
         {
             lastCommandTime = QTime::currentTime();
-            lastCommand = data.at(0);
-            switch (data.at(0)) {
-            case 'r':emit rightPressed();
-                break;
-            case 'l': emit leftPressed();
-                break;
-            case 'u': emit upPressed();
-                break;
-            case 'd': emit downPressed();
-                break;
-            case 's': emit enterPressed();
-                break;
-            case 'p': emit backspacePressed();
-                break;
-            }
+            lastCommand = processCommand(data);
         }
 
         if(data.contains(','))
@@ -101,6 +87,47 @@ int ArduinoHandler::getLightValue(QString message)
         return value;
     }
     return -1;
+}
+
+char ArduinoHandler::processCommand(QByteArray data)
+{
+    if(data.contains('r'))
+    {
+        emit rightPressed();
+        return 'r';
+    }
+
+    if(data.contains('l'))
+    {
+        emit leftPressed();
+        return 'l';
+    }
+
+    if(data.contains('u'))
+    {
+        emit upPressed();
+        return 'u';
+    }
+
+    if(data.contains('d'))
+    {
+        emit downPressed();
+        return 'd';
+    }
+
+    if(data.contains('s'))
+    {
+        emit enterPressed();
+        return 's';
+    }
+
+    if(data.contains('p'))
+    {
+        emit backspacePressed();
+        return 'p';
+    }
+
+    return ' ';
 }
 
 bool ArduinoHandler::commandBlocks(char command)

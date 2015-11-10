@@ -14,6 +14,8 @@ public:
     bool inGhostForm();
     int ghostFormTimeLeft() const;
 
+    virtual qreal speed() const;
+
     void takeDamage(int damage);
 
     virtual bool usePower(bool ignoreRessources = false);
@@ -23,6 +25,7 @@ public:
 private:
     bool m_inGhostForm;
     QTime m_ghostFormTimer;
+    QPixmap m_ghostModels[4];
 };
 
 #endif // OBIWAN_H
