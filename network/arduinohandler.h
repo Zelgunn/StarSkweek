@@ -22,6 +22,8 @@ public:
 
     int loopDuration() const;
     void setLoopDuration(int loopDuration);
+    int getLightValue(QString message);
+    static bool commandBlocks(char command);
 
 protected slots:
     void mainloop();

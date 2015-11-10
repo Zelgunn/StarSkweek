@@ -49,13 +49,12 @@ void ArduinoHandler::mainloop()
     // Parsing arduino
     if(data.size() > 0)
     {
-        if(lastCommand != data.at(0))
+        if((lastCommand != data.at(0)) && commandBlocks(data.at(0)))
         {
             lastCommandTime = QTime::currentTime();
             lastCommand = data.at(0);
             switch (data.at(0)) {
-            case 'r':
-                emit rightPressed();
+            case 'r':emit rightPressed();
                 break;
             case 'l': emit leftPressed();
                 break;
@@ -67,9 +66,15 @@ void ArduinoHandler::mainloop()
                 break;
             case 'b': emit backspacePressed();
                 break;
-            case ',':
-                emit lightMeterValueChanged(QString(data).mid(1).toInt()); // Parsing + Conversion vers un entier de la chaîne reçue.
-                break;
+            }
+        }
+
+        if(data.contains(','))
+        {
+            int lightValue = getLightValue(data);
+            if(lightValue > 0)
+            {
+                emit lightMeterValueChanged(lightValue);
             }
         }
     }
@@ -82,5 +87,29 @@ int ArduinoHandler::loopDuration() const
 void ArduinoHandler::setLoopDuration(int loopDuration)
 {
     m_loopDuration = loopDuration;
+}
+
+int ArduinoHandler::getLightValue(QString message)
+{
+    bool conversionOk = false;
+    QString svalue = message.section(',', -1, -1);
+    if(svalue.size() < 3)
+        return -1;
+    int value = svalue.toInt(&conversionOk);
+    if(conversionOk)
+    {
+        return value;
+    }
+    return -1;
+}
+
+bool ArduinoHandler::commandBlocks(char command)
+{
+    char blockingCommands[6] = {'r', 'l', 'u', 'd', 's', 'b'};
+    for(int i=0; i<6; i++)
+    {
+        if (command == blockingCommands[i]) return true;
+    }
+    return false;
 }
 

@@ -308,7 +308,6 @@ void MainWindow::onBackpace()
         break;
     case Game::PlayingState:
         m_gameWidget->onBackpace();
-        onLightMeter(500);
         break;
     }
 }
@@ -317,6 +316,7 @@ void MainWindow::onLightMeter(int value)
 {
     if(m_game.state() == Game::PlayingState)
     {
+        qDebug() << value;
         m_game.level()->player()->setPowerRegeneration(value);
     }
 }
