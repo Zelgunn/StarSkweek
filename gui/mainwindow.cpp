@@ -60,6 +60,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Gestionnaire Arduino
     m_arduinoHandler = new ArduinoHandler;
+
+    QObject::connect(m_arduinoHandler, SIGNAL(rightPressed()), this, SLOT(onRight()));
+    QObject::connect(m_arduinoHandler, SIGNAL(leftPressed()), this, SLOT(onLeft()));
+    QObject::connect(m_arduinoHandler, SIGNAL(upPressed()), this, SLOT(onUp()));
+    QObject::connect(m_arduinoHandler, SIGNAL(downPressed()), this, SLOT(onDown()));
+    QObject::connect(m_arduinoHandler, SIGNAL(enterPressed()), this, SLOT(onEnter()));
+
+    m_arduinoHandler->start(500);
     qDebug() << "Temps de chargement :" << test.msecsTo(QTime::currentTime()) << "mscs";
 }
 
@@ -339,12 +347,15 @@ void MainWindow::onGameStateChanged(Game::GameStates state)
 {
     switch (state) {
     case Game::MenuState:
+        m_arduinoHandler->setLoopDuration(500);
         setCurrentIndex(0);
         break;
     case Game::LobbyState:
+        m_arduinoHandler->setLoopDuration(500);
         setCurrentIndex(1);
         break;
     case Game::PlayingState:
+        m_arduinoHandler->setLoopDuration(16);
         setCurrentIndex(2);
         break;
     }

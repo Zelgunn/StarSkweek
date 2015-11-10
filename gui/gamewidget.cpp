@@ -290,13 +290,19 @@ void GameWidget::paintHUD(QPainter *painter)
 
 void GameWidget::paintUI(QPainter *painter)
 {
+    paintScoreBar(painter);
+    paintTimer(painter);
+    paintPowerBar(painter);
+}
 
+void GameWidget::paintScoreBar(QPainter *painter)
+{
     qreal playerRatio = m_game->level()->playerTileRatio(); // Ratio entre 0 et 1
     //Score rouge
     int redWidth = width()/2 * 100.0 * playerRatio / 100;
     int blueWidth = width()/2 - redWidth;
-    QRect scoreRed(width()/4, 0, redWidth, height()/10/2);
-    QLinearGradient redLightsaber(QPointF( 0, height()/10/2/2), QPointF( 0, 0));
+    QRect scoreRed(width()/4, 0, redWidth, height()/20);
+    QLinearGradient redLightsaber(QPointF( 0, height()/40), QPointF( 0, 0));
     redLightsaber.setSpread(redLightsaber.ReflectSpread);
     redLightsaber.setColorAt(0, QColor(255,0,0,255));
     redLightsaber.setColorAt(1, QColor(255,0,0,20));
@@ -334,7 +340,40 @@ void GameWidget::paintUI(QPainter *painter)
     static QPixmap lightSaber2Pixmap(QApplication::applicationDirPath() + "/images/Obi wan Lightsaber.png");
     QRect bluSaber(width()*3/4,0,width()/7,height()/10/2);
     painter->drawPixmap(bluSaber,lightSaber2Pixmap);
+}
 
+void GameWidget::paintTimer(QPainter *painter)
+{
+    const int fontSize = 24;
+    QTime now = QTime::currentTime();
+    int secs = GAME_DURATION - (m_game->startTime().msecsTo(now)/1000);
+    if(secs < 0) secs = 0;
+    int mins = secs/60;
+    secs %= 60;
+
+    painter->setFont(QFont("Times", fontSize));
+    painter->setPen(QColor(255,255,255,255));
+
+    static int blink = 0;
+    if(mins == 0)
+    {
+        blink = (blink + 1)%60;
+        painter->setPen(QColor(255,0,0,255));
+    }
+    else
+        blink = 0;
+
+    QString secsString = QString::number(secs);
+    if(secs < 10) secsString.insert(-1, '0');
+
+    painter->drawText(QRect(0, height()/20, width()/2 - fontSize/4, height()/20), Qt::AlignRight, QString::number(mins));
+    if(blink <= 30)
+        painter->drawText(QRect(0, height()/20, width(), height()/20), Qt::AlignHCenter, ":");
+    painter->drawText(QRect(width()/2 + fontSize/4, height()/20, width()/2 - fontSize/4, height()/20), Qt::AlignLeft, secsString);
+}
+
+void GameWidget::paintPowerBar(QPainter *painter)
+{
     QRectF rectanglePower(-width()*6.25/100, height()/9*8, width()*12.5/100, height()*22.22/100);
     int startAngle = 0 * 16;
     int spanAngle = 90 * 16;

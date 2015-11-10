@@ -169,3 +169,13 @@ void DeathStarBeam::turnInto(const QPoint &point)
         m_grid->setTileAt(point, m_playerTileType);
     }
 }
+QPoint DeathStarBeam::target() const
+{
+    return m_target;
+}
+
+void DeathStarBeam::setTarget(const QPoint &target)
+{
+    m_target = target;
+}
+

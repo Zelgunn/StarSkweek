@@ -6,6 +6,9 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QGraphicsPixmapItem>
 #include <QPainter>
+#include <QTime>
+
+#include <QDebug>
 
 #define BUF_LENGHT 32
 #define LINE_SIZE 10
@@ -15,7 +18,10 @@ class ArduinoHandler : public QObject
     Q_OBJECT
 public:
     ArduinoHandler(QObject *parent = Q_NULLPTR);
-    void start();
+    void start(int loopDuration = 0);
+
+    int loopDuration() const;
+    void setLoopDuration(int loopDuration);
 
 protected slots:
     void mainloop();
@@ -36,6 +42,7 @@ private:
     QTimer *m_timer;
     /** @brief Port série de communication. */
     QSerialPort *m_serialPort;
+    int m_loopDuration;
 };
 
 #endif // ARDUINOHANDLER_H

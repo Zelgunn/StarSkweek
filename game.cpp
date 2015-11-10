@@ -109,7 +109,7 @@ void Game::playerCommand(int player, QString command)
         setPlayerChar(command.remove(0,1).toInt(), player);
         break;
     case 'o':   // Pouvoir de ObiWan
-
+        activateObiWanGhostForm();
         break;
     case 'v':   // Pouvoir de Vador
         activateVadorBlackStarBeam(command.remove(0,1));
@@ -141,21 +141,45 @@ void Game::activateVadorBlackStarBeam(QString command)
         darthVader->usePower(true);
     }
 
-    QPoint blackStarBeamPosition(command.section(',',0,0).toInt(), command.section(',',-1,-1).toInt());
+    QPoint blackStarBeamPosition(command.section(',',0,0).toInt(), command.section(',',1,1).toInt());
+    QPoint blackStarBeamTarget(command.section(',',2,2).toInt(), command.section(',',3,3).toInt());
     DeathStarBeam *beam = darthVader->blackStarBeam();
     beam->setPosition(blackStarBeamPosition);
+    beam->setTarget(blackStarBeamTarget);
 }
 
-void Game::activateObiWanGhostForm(QString command)
+void Game::activateObiWanGhostForm()
 {
     ObiWan *obiWan = m_level->obiWan();
     if(obiWan == Q_NULLPTR)
     {
-        qDebug() << "Erreur, pas de Obi Wan ici !" << command;
+        qDebug() << "Erreur, pas de Obi Wan ici !";
         return;
     }
 
     obiWan->usePower(true);
+}
+
+void Game::sendCommands()
+{
+    Player* player = m_level->player();
+    if(player->isDarthVader())
+    {
+        DarthVader *darthVader = (DarthVader *)player;
+        if(darthVader->blackStarActive())
+        {
+            QPoint beamPosition = darthVader->blackStarBeam()->position();
+            QPoint beamTarget = darthVader->blackStarBeam()->target();
+            m_multiplayerUpdater.appendUpdate("pv" + QString::number(beamPosition.x())
+                                              + ',' + QString::number(beamPosition.y())
+                                              + ',' + QString::number(beamTarget.x())
+                                              + ',' + QString::number(beamTarget.y()));
+        }
+    }
+    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
+                                      + ',' + QString::number(m_level->player()->position().y())
+                                      + ',' + QString::number(m_level->player()->direction()));
+    m_multiplayerUpdater.sendUpdates();
 }
 
 void Game::playerFires(int playerID)
@@ -187,6 +211,7 @@ void Game::startGame()
 
     m_timer->start(16);
     setState(PlayingState);
+    m_startTime = QTime::currentTime();
 }
 
 bool Game::isStarted() const
@@ -202,12 +227,22 @@ void Game::stopGame()
 bool Game::isPlayerVictorious() const
 {
     qreal playerRatio = level()->playerTileRatio();
+    if((m_startTime.msecsTo(QTime::currentTime())/1000) > GAME_DURATION)
+    {
+        return (playerRatio > 0.5);
+    }
+
     return (playerRatio > 0.8);
 }
 
 bool Game::isPlayerDefeated() const
 {
     qreal playerRatio = level()->playerTileRatio();
+    if((m_startTime.msecsTo(QTime::currentTime())/1000) > GAME_DURATION)
+    {
+        return (playerRatio <= 0.5);
+    }
+
     return (playerRatio < 0.2);
 }
 
@@ -256,6 +291,16 @@ void Game::setLevelPath(const QString &levelPath)
     {
         m_levelPath.insert(0, QApplication::applicationDirPath() + "/xml/levels/");
     }
+}
+
+QTime Game::startTime() const
+{
+    return m_startTime;
+}
+
+void Game::setStartTime(const QTime &startTime)
+{
+    m_startTime = startTime;
 }
 
 PlayerInfo *Game::playerInfo(int player) const
@@ -400,26 +445,10 @@ void Game::onNewConnection()
 
 void Game::nextFrame()
 {
-    Player* player = m_level->player();
-    if(player->isDarthVader())
-    {
-        DarthVader *darthVader = (DarthVader *)player;
-        if(darthVader->blackStarActive())
-        {
-            QPoint beamPosition = darthVader->blackStarBeam()->position();
-            m_multiplayerUpdater.appendUpdate("pv" + QString::number(beamPosition.x()) + ',' + QString::number(beamPosition.y()));
-        }
-    }
-    m_multiplayerUpdater.appendUpdate("pm" + QString::number(m_level->player()->position().x())
-                                      + ',' + QString::number(m_level->player()->position().y())
-                                      + ',' + QString::number(m_level->player()->direction()));
-    m_multiplayerUpdater.sendUpdates();
-
+    sendCommands();
     processCommands();
 
     m_level->nextFrame();
-
-
 
     if((isPlayerDefeated()) || (isPlayerVictorious())) stopGame();
 }

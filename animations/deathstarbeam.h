@@ -33,9 +33,12 @@ public:
 	*/
 	virtual bool animationDone() const;
 	
+    QPoint target() const;
+    void setTarget(const QPoint &target);
+
 protected:
-	// Renvoie vrai si le rayon a atteint sa cible.
-	bool targetReached() const;
+    // Renvoie vrai si le rayon a atteint sa cible.
+    bool targetReached() const;
     bool targetValid() const;
     QPoint targetTile() const;
     void turnInto(const QPoint &point);

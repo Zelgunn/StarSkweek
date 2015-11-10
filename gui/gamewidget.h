@@ -33,6 +33,9 @@ protected:
     void paintBlackStarBeam(QPainter *painter);
     void paintHUD(QPainter *painter);
     void paintUI(QPainter *painter);
+    void paintScoreBar(QPainter *painter);
+    void paintTimer(QPainter *painter);
+    void paintPowerBar(QPainter *painter);
     void paintEndGamePanel(QPainter *painter);
 
     // Fonctions de position

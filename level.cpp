@@ -58,7 +58,7 @@ Level::Level(const QDomElement &element, QList<Player *> *prototypes, const QLis
         player = m_players.at(i);
 
         // Réglage de la vitesse
-        player->setSpeed(qPow(m_tileSize.width() * m_tileSize.height(), 0.375));
+        player->setSpeed(qPow(m_tileSize.width() * m_tileSize.height(), 0.25));
 
         // Réglage de la faction
         player->setFaction(i);

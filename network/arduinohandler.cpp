@@ -1,14 +1,15 @@
 #include "arduinohandler.h"
 
 ArduinoHandler::ArduinoHandler(QObject *parent)
-    : QObject(parent), m_serialPort(Q_NULLPTR)
+    : QObject(parent), m_serialPort(Q_NULLPTR), m_loopDuration(0)
 {
     m_timer = new QTimer(this);
     QObject::connect(m_timer, SIGNAL(timeout()), this, SLOT(mainloop()));
 }
 
-void ArduinoHandler::start()
+void ArduinoHandler::start(int loopDuration)
 {
+    m_loopDuration = loopDuration;
     QList <QSerialPortInfo> infos = QSerialPortInfo::availablePorts();
 
     // Recherche du port connecté l'Arduino
@@ -28,32 +29,59 @@ void ArduinoHandler::start()
 
 void ArduinoHandler::mainloop()
 {
+    if(m_loopDuration == 0)
+    {
+        m_timer->stop();
+        return;
+    }
     if(!m_timer->isActive())
-        m_timer->start(20); // Valeur à modifier dynamiquement (pour les menus : plus lent, pour le jeu : plus rapide).
+        m_timer->start(10); // Valeur à modifier dynamiquement (pour les menus : plus lent, pour le jeu : plus rapide).
 
     if((!m_serialPort)||(!m_serialPort->isOpen()))
         return;
 
     QByteArray data = m_serialPort->readAll();
+    static char lastCommand = ' ';
+    static QTime lastCommandTime = QTime::currentTime();
+    if(lastCommandTime.msecsTo(QTime::currentTime()) > m_loopDuration)
+        lastCommand = ' ';
 
     // Parsing arduino
     if(data.size() > 0)
     {
-        switch (data.at(1)) {
-        case '0': emit rightPressed();
-            break;
-        case '1': emit leftPressed();
-            break;
-        case '2': emit upPressed();
-            break;
-        case '3': emit downPressed();
-            break;
-        case '4': emit enterPressed();
-            break;
-        case '5': emit backspacePressed();
-            break;
-        case 'l': emit lightMeterValueChanged(QString(data).mid(1).toInt()); // Parsing + Conversion vers un entier de la chaîne reçue.
-            break;
+        if(lastCommand != data.at(0))
+        {
+            lastCommandTime = QTime::currentTime();
+            lastCommand = data.at(0);
+            switch (data.at(0)) {
+            case 'r':
+                emit rightPressed();
+                break;
+            case 'l': emit leftPressed();
+                break;
+            case 'u': emit upPressed();
+                break;
+            case 'd': emit downPressed();
+                break;
+            case 's': emit enterPressed();
+                break;
+            case 'b': emit backspacePressed();
+                break;
+            case ',':
+                qDebug() << QString(data).section(',', 0, 0);
+                //emit lightMeterValueChanged(QString(data).toInt()); // Parsing + Conversion vers un entier de la chaîne reçue.
+                break;
+            }
         }
     }
 }
+int ArduinoHandler::loopDuration() const
+{
+    return m_loopDuration;
+}
+
+void ArduinoHandler::setLoopDuration(int loopDuration)
+{
+    m_loopDuration = loopDuration;
+}
+

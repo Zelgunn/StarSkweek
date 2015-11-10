@@ -12,6 +12,8 @@
 #include "soundplayer.h"
 #include "network/multiplayerupdater.h"
 
+#define GAME_DURATION 300
+
 class Game : public QObject
 {
     Q_OBJECT
@@ -31,7 +33,8 @@ public:
     void playerCommand(int player, QString command);
     void movePlayer(int player, QString command);
     void activateVadorBlackStarBeam(QString command);
-    void activateObiWanGhostForm(QString command);
+    void activateObiWanGhostForm();
+    void sendCommands();
 
     void playerFires(int playerID = 0);
 
@@ -47,6 +50,8 @@ public:
     void setState(const GameStates &state);
     QString levelPath() const;
     void setLevelPath(const QString &levelPath);
+    QTime startTime() const;
+    void setStartTime(const QTime &startTime);
 
     PlayerInfo *playerInfo(int player = 0) const;
     QString playerNickname(int player = 0) const;
@@ -96,6 +101,7 @@ private:
     QDomElement m_weaponsElement;
     QStringList m_untreatedCommands;
     bool m_hosting;
+    QTime m_startTime;
 };
 
 #endif // GAME_H
