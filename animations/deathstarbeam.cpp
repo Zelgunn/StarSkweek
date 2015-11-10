@@ -63,14 +63,14 @@ QPixmap DeathStarBeam::nextFrame()
 
     if(!targetValid())
     {
-        int selectionMode = qrand()%3;
+        int selectionMode = qrand()%100;
         bool selectionValid = false;
         do
         {
             m_target.setX(qrand()%(m_grid->width() * m_tileSize.width()));
             m_target.setY(qrand()%(m_grid->height() * m_tileSize.height()));
 
-            if(selectionMode == 0)
+            if(selectionMode < 66)
             {
                 selectionValid = (m_grid->tileAt(targetTile()) == m_targetType);
             }

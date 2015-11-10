@@ -9,7 +9,7 @@
 	<Character name="Dark Vador">
                 <Tile type="c"/>
                 <Power type="b"/>
-		<Model right="/images/player1.png" up="/images/player1.png" left="/images/player1.png" down="/images/player1.png"/>
+                <Model right="/images/DarthVader_Right.png" up="/images/DarthVader_Up.png" left="/images/DarthVader_Left.png" down="/images/DarthVader_Down.png"/>
                 <Portrait complete="/images/Portrait_Darkvador.png" thumbnail="/images/TN_Darkvador.png"/>
 	</Character>
 	<Projectiles>
