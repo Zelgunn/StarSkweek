@@ -317,7 +317,6 @@ void MainWindow::onLightMeter(int value)
 {
     if(m_game.state() == Game::PlayingState)
     {
-        qDebug() << value;
         m_game.level()->player()->setPowerRegeneration(value);
     }
 }

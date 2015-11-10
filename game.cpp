@@ -431,10 +431,8 @@ void Game::removeUntreadtedCommand(int index)
 
 void Game::onNewConnection()
 {
-    qDebug() << "Ho";
     if(m_state == LobbyState)
     {
-        qDebug() << "He";
         setLevelPath(m_multiplayerUpdater.mapPath());
         m_multiplayerUpdater.appendUpdate("pn" + playerNickname());
         m_multiplayerUpdater.sendUpdates();
