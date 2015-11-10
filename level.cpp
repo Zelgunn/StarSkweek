@@ -80,7 +80,7 @@ Level::Level(const QDomElement &element, QList<Player *> *prototypes, const QLis
         player->setGrid(m_grid);
     }
 
-    if(playersInfos.size() == 1) initGridPlayerTiles();
+    //if(playersInfos.size() == 1) initGridPlayerTiles();
     QObject::connect(m_projectiles, SIGNAL(hitPlayer(GameObject*,int)), this, SLOT(onPlayerHit(GameObject*,int)));
 }
 
@@ -363,6 +363,7 @@ void Level::nextFrame()
         player = m_players.at(i);
         arrowTileMove(i);
         player->updateLifeAnim();
+        player->regeneratePower();
     }
 }
 

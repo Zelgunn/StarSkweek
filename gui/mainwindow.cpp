@@ -66,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_arduinoHandler, SIGNAL(upPressed()), this, SLOT(onUp()));
     QObject::connect(m_arduinoHandler, SIGNAL(downPressed()), this, SLOT(onDown()));
     QObject::connect(m_arduinoHandler, SIGNAL(enterPressed()), this, SLOT(onEnter()));
+    QObject::connect(m_arduinoHandler, SIGNAL(lightMeterValueChanged(int)), this, SLOT(onLightMeter(int)));
 
     m_arduinoHandler->start(500);
     qDebug() << "Temps de chargement :" << test.msecsTo(QTime::currentTime()) << "mscs";
@@ -307,7 +308,16 @@ void MainWindow::onBackpace()
         break;
     case Game::PlayingState:
         m_gameWidget->onBackpace();
+        onLightMeter(500);
         break;
+    }
+}
+
+void MainWindow::onLightMeter(int value)
+{
+    if(m_game.state() == Game::PlayingState)
+    {
+        m_game.level()->player()->setPowerRegeneration(value);
     }
 }
 

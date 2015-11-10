@@ -20,7 +20,7 @@ bool ObiWan::inGhostForm()
 
 int ObiWan::ghostFormTimeLeft() const
 {
-    return qMax((2000 - m_ghostFormTimer.msecsTo(QTime::currentTime())), 0);
+    return qMax((4000 - m_ghostFormTimer.msecsTo(QTime::currentTime())), 0);
 }
 
 void ObiWan::takeDamage(int damage)

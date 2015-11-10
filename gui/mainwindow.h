@@ -37,6 +37,7 @@ public slots:
     void onDown();
     void onEnter();
     void onBackpace();
+    void onLightMeter(int value);
 
     void onSpinOptionChanged(const QString &name, int value);
 

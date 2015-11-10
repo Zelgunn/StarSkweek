@@ -42,10 +42,6 @@ void GameWidget::paintEvent(QPaintEvent *)
 
     updateBombs();
     paintGame(&painter);
-    Player *player = m_game->level()->player();
-
-    // TMP
-    player->increasePowerRessource(qrand()%50);
 
     painter.end();
 }

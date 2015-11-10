@@ -6,7 +6,7 @@ Player::Player()
 }
 
 Player::Player(const QDomElement &element) :
-    m_previousDirection(Down), m_powerRessource(MaxPowerRessource/2)
+    m_previousDirection(Down), m_powerRessource(MaxPowerRessource/2), m_powerRegeneration(MaxPowerRessource/500)
 {
     m_name = element.attribute("name");
     QDomNode node = element.firstChild();
@@ -138,6 +138,21 @@ int Player::powerRessource() const
 void Player::setPowerRessource(int powerRessource)
 {
     m_powerRessource = powerRessource;
+}
+
+int Player::powerRegeneration() const
+{
+    return m_powerRegeneration;
+}
+
+void Player::setPowerRegeneration(int powerRegeneration)
+{
+    m_powerRegeneration = qMax(powerRegeneration, MaxPowerRessource/500);
+}
+
+void Player::regeneratePower()
+{
+    increasePowerRessource(m_powerRegeneration);
 }
 
 void Player::increasePowerRessource(int increase)

@@ -12,7 +12,7 @@ public:
     enum Powers{
         ObiWanPower = 0,
         DarthVaderPower = 1,
-        MaxPowerRessource = 10240
+        MaxPowerRessource = 102400
     };
 
     Player();
@@ -39,6 +39,9 @@ public:
 
     int powerRessource() const;
     void setPowerRessource(int powerRessource);
+    int powerRegeneration() const;
+    void setPowerRegeneration(int powerRegeneration);
+    void regeneratePower();
     void increasePowerRessource(int increase);
     bool powerAvailable() const;
     qreal powerRessourceRatio() const;
@@ -59,6 +62,7 @@ protected:
     QPixmap m_thumbnail;
     Powers m_power;
     int m_powerRessource;
+    int m_powerRegeneration;
 };
 
 #endif // PLAYER_H

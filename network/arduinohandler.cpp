@@ -68,8 +68,7 @@ void ArduinoHandler::mainloop()
             case 'b': emit backspacePressed();
                 break;
             case ',':
-                qDebug() << QString(data).section(',', 0, 0);
-                //emit lightMeterValueChanged(QString(data).toInt()); // Parsing + Conversion vers un entier de la chaîne reçue.
+                emit lightMeterValueChanged(QString(data).mid(1).toInt()); // Parsing + Conversion vers un entier de la chaîne reçue.
                 break;
             }
         }

@@ -1,7 +1,7 @@
 #include "darthvader.h"
 
 DarthVader::DarthVader(const QDomElement &element)
-    : Player(element)
+    : Player(element), m_blackStarBeam(Q_NULLPTR)
 {
 
 }
