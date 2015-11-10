@@ -9,6 +9,7 @@ public:
     ObiWan(const QDomElement &element);
 
     virtual bool isObiWan() const;
+    virtual const QPixmap *model() const;
 
     bool inGhostForm();
     int ghostFormTimeLeft() const;

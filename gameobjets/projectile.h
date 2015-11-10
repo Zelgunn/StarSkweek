@@ -12,7 +12,7 @@ public:
 
     void move();
 
-    const QPixmap *model() const;
+    virtual const QPixmap *model() const;
     int ttl() const;
 
     int type() const;

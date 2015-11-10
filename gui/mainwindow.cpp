@@ -66,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_arduinoHandler, SIGNAL(upPressed()), this, SLOT(onUp()));
     QObject::connect(m_arduinoHandler, SIGNAL(downPressed()), this, SLOT(onDown()));
     QObject::connect(m_arduinoHandler, SIGNAL(enterPressed()), this, SLOT(onEnter()));
+    QObject::connect(m_arduinoHandler, SIGNAL(backspacePressed()), this, SLOT(onBackpace()));
     QObject::connect(m_arduinoHandler, SIGNAL(lightMeterValueChanged(int)), this, SLOT(onLightMeter(int)));
 
     m_arduinoHandler->start(500);

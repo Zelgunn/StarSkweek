@@ -64,7 +64,7 @@ void ArduinoHandler::mainloop()
                 break;
             case 's': emit enterPressed();
                 break;
-            case 'b': emit backspacePressed();
+            case 'p': emit backspacePressed();
                 break;
             }
         }
@@ -105,7 +105,7 @@ int ArduinoHandler::getLightValue(QString message)
 
 bool ArduinoHandler::commandBlocks(char command)
 {
-    char blockingCommands[6] = {'r', 'l', 'u', 'd', 's', 'b'};
+    char blockingCommands[7] = {'r', 'l', 'u', 'd', 's', 'p'};
     for(int i=0; i<6; i++)
     {
         if (command == blockingCommands[i]) return true;

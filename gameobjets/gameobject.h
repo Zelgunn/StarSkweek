@@ -22,7 +22,7 @@ public:
     GameObject();
 
     // Accesseurs et mutateurs
-    const QPixmap *model() const;
+    virtual const QPixmap *model() const;
     void setModel(const QPixmap &model, Directions direction);
     QPoint position() const;
     void setPosition(const QPoint &position);

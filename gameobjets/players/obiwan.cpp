@@ -11,6 +11,18 @@ bool ObiWan::isObiWan() const
     return true;
 }
 
+const QPixmap *ObiWan::model() const
+{
+    if(m_inGhostForm)
+    {
+
+    }
+    else
+    {
+        return Player::model();
+    }
+}
+
 bool ObiWan::inGhostForm()
 {
     if(ghostFormTimeLeft() <= 0)
