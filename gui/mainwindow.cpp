@@ -3,11 +3,9 @@
 MainWindow::MainWindow(QWidget *parent) :
     QStackedWidget(parent)
 {
-    QTime test = QTime::currentTime();
     setWindowTitle("Super Skweek v0.1 (alpha)");
     setWindowState(Qt::WindowFullScreen);
 
-    // TMP (remplacement Arduino + Fix choix de niveau)
     new QShortcut(tr("Right"), this, SLOT(onRight()));
     new QShortcut(tr("Left"), this, SLOT(onLeft()));
     new QShortcut(tr("Up"), this, SLOT(onUp()));
@@ -70,7 +68,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(m_arduinoHandler, SIGNAL(lightMeterValueChanged(int)), this, SLOT(onLightMeter(int)));
 
     m_arduinoHandler->start(500);
-    qDebug() << "Temps de chargement :" << test.msecsTo(QTime::currentTime()) << "mscs";
 }
 
 MainWindow::~MainWindow()

@@ -61,12 +61,10 @@ void MultiplayerUpdater::startHost(bool enable)
 {
     if(enable)
     {
-        qDebug() << "Starting server";
         broadcastAddress();
     }
     else if(m_timer != Q_NULLPTR)
     {
-        qDebug() << "Stoping server";
         if(isConnected())
         {
             m_client->disconnectFromHost();
@@ -80,7 +78,6 @@ void MultiplayerUpdater::startHost(bool enable)
 
 void MultiplayerUpdater::lookForLocalHost()
 {
-    qDebug() << "A la recherche de l'hôte local.";
     QObject::connect(m_udpSocket, SIGNAL(readyRead()), this, SLOT(readUdp()));
 }
 
@@ -114,8 +111,6 @@ void MultiplayerUpdater::incomingConnection(int socketfd)
     m_client = new QTcpSocket(this);
     m_client->setSocketDescriptor(socketfd);
 
-    qDebug() << "Nouvelle connexion :" << m_client->peerAddress().toString();
-
     PlayerInfo *playerInfo = new PlayerInfo;
     playerInfo->setAddress(m_client->peerAddress());
     m_playersInfos.append(playerInfo);
@@ -129,13 +124,9 @@ void MultiplayerUpdater::connectToPlayer2()
     if(m_client != Q_NULLPTR) return;
 
     m_client = new QTcpSocket(this);
-    qDebug() << "Connexion au serveur en cours...";
     m_client->connectToHost(m_playersInfos.at(1)->address(), PORT_COM);
-    if(m_client->isOpen())
-        qDebug() << "Connecté.";
-    else
+    if(!m_client->isOpen())
     {
-        qDebug() << "Impossible de se connecter";
         delete m_client;
         m_client = Q_NULLPTR;
         return;
@@ -202,7 +193,6 @@ void MultiplayerUpdater::readUdp()
                 playerInfo->setNickname(message.section(',', 1, 1));
                 m_playersInfos.append(playerInfo);
                 m_mapPath = message.section(',', 2, 2);
-                qDebug() << "Carte trouvée (MUpdt)" << m_mapPath;
                 emit newConnection();
             }
         }
@@ -220,7 +210,6 @@ void MultiplayerUpdater::readTcp()
 
 void MultiplayerUpdater::disconnected()
 {
-    qDebug() << "Deconnexion du joueur 2.";
     delete m_client;
     m_client = Q_NULLPTR;
 }

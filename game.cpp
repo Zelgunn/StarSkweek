@@ -132,7 +132,6 @@ void Game::activateVadorBlackStarBeam(QString command)
     DarthVader *darthVader = m_level->darthVader();
     if(darthVader == Q_NULLPTR)
     {
-        qDebug() << "Erreur, pas de Vador" << command;
         return;
     }
 
@@ -153,7 +152,6 @@ void Game::activateObiWanGhostForm()
     ObiWan *obiWan = m_level->obiWan();
     if(obiWan == Q_NULLPTR)
     {
-        qDebug() << "Erreur, pas de Obi Wan ici !";
         return;
     }
 

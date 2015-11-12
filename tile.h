@@ -4,8 +4,6 @@
 #include <QApplication>
 #include <QPixmap>
 
-#include <QDebug>
-
 class Tile
 {
 public:

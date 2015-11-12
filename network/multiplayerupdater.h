@@ -11,7 +11,6 @@
 #include <QTcpSocket>
 #include <QDataStream>
 
-#include <QDebug>
 #include "playerinfo.h"
 
 #define PORT_COM 45454

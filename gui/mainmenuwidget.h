@@ -8,8 +8,6 @@
 #include <QTextStream>
 #include <QApplication>
 
-#include <QDebug>
-
 #include "menu.h"
 #include "optionwidget.h"
 #include "messagebox.h"

@@ -11,8 +11,6 @@
 
 #include "game.h"
 
-#include <QDebug>
-
 #define LOBBY_PADDING 50
 
 class LobbyWidget : public QWidget

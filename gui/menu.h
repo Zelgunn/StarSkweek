@@ -5,8 +5,6 @@
 #include <QStringList>
 #include <QDomElement>
 
-#include <QDebug>
-
 class Menu : public QObject
 {
     Q_OBJECT

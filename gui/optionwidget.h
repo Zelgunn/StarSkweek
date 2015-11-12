@@ -6,8 +6,6 @@
 #include <QFontMetrics>
 #include <QDomElement>
 
-#include <QDebug>
-
 #define CENTRAL_PADDING 15
 
 class OptionWidget : public QWidget
