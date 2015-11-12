@@ -4,6 +4,8 @@
  *
 **/
 
+int powerFreq = 0;
+
 void setup() {
   Serial.begin(9600);
   for(char i = 2; i <= 7; i++)
@@ -37,7 +39,11 @@ void loop()
   }
 
   // Bouton de pouvoir
-  int lightValue = analogRead(A0);
-  Serial.print(',');
-  Serial.print(lightValue, DEC);
+  if(powerFreq == 0)
+  {
+    int lightValue = analogRead(A0);
+    Serial.print(',');
+    Serial.print(lightValue, DEC);
+  }
+  powerFreq = (powerFreq + 1)%10;
 }
