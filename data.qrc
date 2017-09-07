@@ -2,6 +2,8 @@
     <qresource prefix="/xml">
         <file>xml/data.xml</file>
         <file>xml/menus.xml</file>
+        <file>xml/levels/croiseur.xml</file>
+        <file>xml/levels/mustafar.xml</file>
     </qresource>
     <qresource prefix="/musics">
         <file>musics/Main.mp3</file>
