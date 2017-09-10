@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QStackedWidget(parent)
 {
-    setWindowTitle("Super Skweek v0.1 (alpha)");
+    setWindowTitle("Star Skweek v0.2");
     setWindowState(Qt::WindowFullScreen);
 
     new QShortcut(tr("Right"), this, SLOT(onRight()));
