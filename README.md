@@ -19,8 +19,8 @@ Depending on the chosen hero, players also have one special ability:
 
 ## Requirements
 - [Qt](https://www.qt.io/)
-- [Arduino software](https://www.arduino.cc/en/Main/Software) + Arduino controller, layout :
-![Alt text](Illustrations/StarSkweek_Arduino_Controller.png)
+- [Arduino software](https://www.arduino.cc/en/Main/Software) + Arduino controller, layout :  
+![Alt text](Illustrations/StarSkweek_Arduino_Controller.jpg)
 
 ## Illustrations
 
@@ -37,7 +37,7 @@ Depending on the chosen hero, players also have one special ability:
 ![Alt text](Illustrations/SuperSkweekAlpha_menu.png)
 
 ## Widgets
-- MainWindow:
+- MainWindow:  
 	This is the container for all widgets. The MainWindow is responsible for displaying the background and processing user inputs.
 
 - MainMenuWidget:  
@@ -57,7 +57,8 @@ Depending on the chosen hero, players also have one special ability:
 
 ## Networking
 Networking is made with TPC, to ensure that data are transmitted reliably.  
-Packets are sent once per frame, and multiple packets can be sent per frame. Packets follow this structure: [UpdateType, UpdateData].  
+Packets are sent once per frame, and multiple packets can be sent per frame. Packets follow this structure:  
+[UpdateType, UpdateData].  
 UpdateData can have different structures, depending on UpdateType:
 - Player sends his name : [Player_name]
 - Player selects character : [Character_index]
