@@ -27,6 +27,9 @@ Depending on the chosen hero, players also have one special ability:
 - Convert tiles, the player with the most tiles wins the game
 ![Alt text](Illustrations/SuperSkweekAlpha_game.png)
 
+- User interface
+![Alt text](Illustrations/StarSkweek_UI.jpg)
+
 - Pick a map
 ![Alt text](Illustrations/SuperSkweekAlpha_mapSelection.png)
 
