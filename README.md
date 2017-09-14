@@ -2,8 +2,8 @@
 
 ## Table of contents
 [The game](#the-game)  
-[Requirements](#requirements)  
 [Illustrations](#illustrations)  
+[Requirements](#requirements)  
 [Networking](#networking)  
 
 ## The game
@@ -16,11 +16,6 @@ Depending on the chosen hero, players also have one special ability:
 	Ghost form : Obi-wan moves faster and can fly over the void.
 * Darth Vader:
 	Death star strike: The Death star targets a random point on the map, all tiles around the target are given to Darth Vader. If the other player is hit, is will be stopped for a short time.
-
-## Requirements
-- [Qt](https://www.qt.io/)
-- [Arduino software](https://www.arduino.cc/en/Main/Software) + Arduino controller, layout :  
-![Alt text](Illustrations/StarSkweek_Arduino_Controller.jpg)
 
 ## Illustrations
 
@@ -38,6 +33,11 @@ Depending on the chosen hero, players also have one special ability:
 
 - Main menu
 ![Alt text](Illustrations/SuperSkweekAlpha_menu.png)
+
+## Requirements
+- [Qt](https://www.qt.io/)
+- [Arduino software](https://www.arduino.cc/en/Main/Software) + Arduino controller, layout :  
+![Alt text](Illustrations/StarSkweek_Arduino_Controller.jpg)
 
 ## Widgets
 - MainWindow:  
